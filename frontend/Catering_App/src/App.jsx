@@ -1,12 +1,29 @@
 import { useState } from 'react'
 import './App.css'
+import Navbar from './Components/Navbar'
+import { Route, Routes } from 'react-router-dom'
+import HomePage from './Pages/HomePage'
+import AboutPage from './Pages/AboutPage'
+import Services from './Pages/Services'
+import Carrers from './Pages/Carrers'
+import { useThemeStore } from './store/useThemeStore'
+import Carousel from './Components/Hero'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const {theme} = useThemeStore()
 
   return (
     <>
-     <p className='text-red-500 flex align-center justify-center'>Hi</p>
+    <div data-theme={theme}>
+    <Navbar/>
+    <Routes>
+      <Route path='/' element={<><HomePage/></>} ></Route>
+      <Route path='/About' element={<AboutPage/>}></Route>
+      <Route path='/Services' element={<Services/>}></Route>
+      <Route path='/Carrers' element={<Carrers/>}></Route>
+    </Routes>
+    </div>
+    
     </>
   )
 }
