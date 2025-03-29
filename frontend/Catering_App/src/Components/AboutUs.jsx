@@ -3,21 +3,21 @@ import Typewriter from 'typewriter-effect';
 
 function AboutUs() {
   return (
-<div className="flex p-8 justify-around bg-[url('/aboutuschef.png')] bg-cover bg-center">
-<div className='flex flex-col p-20 max-w-170'>
+<div className="flex p-8 justify-around bg-[url('/foodleft.jpg')] bg-cover bg-bottom">
+<div className='flex flex-col p-14 max-w-170 hidden lg:block'>
             <div className='font-medium text-2xl'>
-              <h1>"Feastify is built for food lovers and event planners! We bridge the gap between professional 
+              <h1 className='text-right'>"Feastify is built for food lovers and event planners! We bridge the gap between professional 
                 caterers and customers, making it easy to find the perfect menu for any occasion. 
                 Whether it's a small birthday party or a grand wedding, we ensure that every meal is a masterpiece!"
               </h1>
             </div>
-            <div className='pt-15'>
-            <button className="btn btn-ghost w-30 ">Learn more</button>
+            <div className='pt-15 flex justify-end'>
+            <button className="btn hover:btn-soft w-30 btn-warning">Learn more</button>
             </div>
             </div>
 
-        <div className='flex flex-col min-w-110'>
-            <div className='flex text-2xl'>
+        <div className='flex flex-col lg:min-w-110'>
+            <div className='flex text-2xl pt-15'>
                 <p className='font-normal'>
                 Delicious Catering, Just a Click Away for Every
                 <span className='mt-6'>
@@ -26,14 +26,17 @@ function AboutUs() {
     strings:["Celebration!", "Event!", "Gathering!", "Feast!", "Moment!"],
     autoStart:true,
     loop: true, 
-    wrapperClassName:'text-yellow-500 font-bold text-2xl'
+    wrapperClassName:'text-yellow-500 font-bold text-3xl'
   }}  
 />
                 </span>
                 </p>
             </div>
             <div className='pt-20'>
-                <img src='/3 people.png' alt='Chef' className=' rounded-full'/>
+            <img src='/pizzaguy.png' alt='Chef' className='max-h-100' />
+            </div>
+            <div className='pt-15 lg:hidden text-end'>
+            <button className="btn btn-ghost w-30 btn-warning ">Learn more</button>
             </div>
         </div>
     </div>
