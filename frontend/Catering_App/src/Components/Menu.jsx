@@ -32,7 +32,7 @@ function Menu() {
     }
     </div>
     <div className='flex justify-center lg:justify-end p-3  '>
-    <Link><button className="btn btn-warning btn-xs sm:btn-sm md:btn-md ">View All</button></Link>
+    <Link to={"/food"}><button className="btn btn-warning btn-xs sm:btn-sm md:btn-md ">View All</button></Link>
     </div>
 
    </div>

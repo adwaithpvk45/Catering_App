@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom';
 import Typewriter from 'typewriter-effect';
 
 function AboutUs() {
@@ -12,7 +13,7 @@ function AboutUs() {
               </h1>
             </div>
             <div className='pt-15 flex justify-end'>
-            <button className="btn hover:btn-soft w-30 btn-warning">Learn more</button>
+            <Link to={"/About"}><button className="btn hover:btn-soft w-30 btn-warning">Learn more</button></Link>
             </div>
             </div>
 

@@ -2,7 +2,7 @@ import { CookingPot, Eye,EyeOff, Loader2 } from 'lucide-react'
 import React from 'react'
 import { Form,Formik,Field } from 'formik'
 import { useState } from 'react'
-import {TextField} from "@mui/material"
+import {InputLabel, MenuItem, Select, TextField} from "@mui/material"
 // import { useAuthStore } from '../store/useAuthStore'
 import {Link} from "react-router-dom"
 // import AuthImagePattern from '../components/AuthImagePattern'
@@ -38,6 +38,10 @@ const SignupPage = () => {
       errors.password = 'Must contain at least one number';
       toast.error(errors.password);
     }
+    if(!values.role){
+     errors.role = "Role should be selected"
+     toast.error(errors.role)
+    }
     return errors;
   };
 
@@ -46,7 +50,7 @@ const SignupPage = () => {
   return (
     <>
     {/* <div className='min-h-screen grid lg:grid-cols-2'> */}
-    <div className='min-h-screen grid '>
+    <div className='min-h-screen grid pt-20'>
       <div className='flex flex-col justify-center items-center p-6 sm:p-12'>
        <div className='w-full max-w-md space-y-8'>
         <div className='text-center mb-8'>
@@ -91,6 +95,15 @@ const SignupPage = () => {
               <button type='button' className='absolute right-2 top-5 text-gray-500' onClick={()=>{setShowPassword(!showPassword)}}>
                 {showPassword?<EyeOff className='size-5 text-base-content/40'/>:<Eye className='size-5 text-base-content/40'/>}
               </button>
+            </div>
+            <div>
+             <Field type="name" name="role" className="w-full " as={Select} id="role" variant="standard" label="Role" default="User">
+             <MenuItem value="" disabled>
+    --Select Role--
+  </MenuItem>
+  <MenuItem value="user">User</MenuItem>
+  <MenuItem value="vendor">Vendor</MenuItem>
+          </Field>
             </div>
             <button className="btn btn-md lg:btn-lg xl:btn-xl w-full pl-10" type="submit" disabled={isSubmitting}>
               {isSubmitting?(<>

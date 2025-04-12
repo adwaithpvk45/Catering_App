@@ -147,7 +147,7 @@ function Services() {
     </Box>
         </div>
         <div>
-                <Link><button className="btn btn-warning btn-xs sm:btn-sm md:btn-md ">View All</button></Link>
+                <Link to={"/Services"}><button className="btn btn-warning btn-xs sm:btn-sm md:btn-md ">View All</button></Link>
         </div>
 
      </div>

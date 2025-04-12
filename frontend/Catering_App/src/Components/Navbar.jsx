@@ -41,7 +41,7 @@ const locationPath = location.pathname === "/login" || location.pathname==="/sig
        <Link to={'/'} className={`cursor-pointer text-[20px] pb-[5px] scale-100 transition-all duration-700 ease-in text-dark border-b-2 border-transparent hover:border-b-orange-500 hover:text-orange-500 hover:-translate-y-0.5  ${location.pathname==="/"?'text-orange-500':''}`}><li>Home</li></Link>
            <Link to={'/About'} className={`cursor-pointer text-[20px] pb-[5px] scale-100 transition-all duration-700 ease-in text-dark border-b-2 border-transparent hover:border-b-orange-500 hover:text-orange-500 hover:-translate-y-0.5  ${location.pathname==="/About"?'text-orange-500':''}`}><li>About</li></Link>
            <Link to={'/Services'} className='cursor-pointer text-[20px] pb-[5px] scale-100 transition-all duration-700 ease-in text-dark border-b-2 border-transparent hover:border-b-orange-500 hover:text-orange-500 hover:-translate-y-0.5'><li>Services</li></Link>
-             <Link to={'/Carrers'} className='cursor-pointer text-[20px] pb-[5px] scale-100 transition-all duration-700 ease-in text-dark border-b-2 border-transparent hover:border-b-orange-500 hover:text-orange-500 hover:-translate-y-0.5'><li>Carrers</li></Link>
+             <Link to={'/Contact'} className='cursor-pointer text-[20px] pb-[5px] scale-100 transition-all duration-700 ease-in text-dark border-b-2 border-transparent hover:border-b-orange-500 hover:text-orange-500 hover:-translate-y-0.5'><li>Contact</li></Link>
 
       </ul>
     </div>
@@ -54,7 +54,7 @@ const locationPath = location.pathname === "/login" || location.pathname==="/sig
     <Link to={'/'} className='cursor-pointer text-[20px] pb-[5px] scale-100 transition-all duration-700 ease-in text-dark border-b-2 border-transparent hover:border-b-orange-500 hover:text-orange-500 hover:-translate-y-0.5' ><li>Home</li></Link>
            <Link to={'/About'} className='cursor-pointer text-[20px] pb-[5px] scale-100 transition-all duration-700 ease-in text-dark border-b-2 border-transparent hover:border-b-orange-500 hover:text-orange-500 hover:-translate-y-0.5'><li>About</li></Link>
            <Link to={'/Services'} className='cursor-pointer text-[20px] pb-[5px] scale-100 transition-all duration-700 ease-in text-dark border-b-2 border-transparent hover:border-b-orange-500 hover:text-orange-500 hover:-translate-y-0.5'><li>Services</li></Link>
-             <Link to={'/Carrers'} className='cursor-pointer text-[20px] pb-[5px] scale-100 transition-all duration-700 ease-in text-dark border-b-2 border-transparent hover:border-b-orange-500 hover:text-orange-500 hover:-translate-y-0.5'><li>Carrers</li></Link>
+             <Link to={'/Contact'} className='cursor-pointer text-[20px] pb-[5px] scale-100 transition-all duration-700 ease-in text-dark border-b-2 border-transparent hover:border-b-orange-500 hover:text-orange-500 hover:-translate-y-0.5'><li>Contact</li></Link>
     </ul>
   </div>
     <div className="navbar-end pr-4">
