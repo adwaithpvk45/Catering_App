@@ -1,3 +1,4 @@
+import Admin from "../models/adminModel.js"
 import User from "../models/userModel.js"
 import Vendor from "../models/vendorModel.js"
 import { generateToken } from "../utils/token.js"
@@ -54,7 +55,7 @@ export const signup = async(req,res) =>{
         console.log("newuser")
 
         if(newUser){
-            generateToken(newUser._id,res)
+            generateToken(newUser._id,newUser.role,res)
             await newUser.save()
             if(newUser.role==="user"){
                 console.log("user registered")
@@ -88,13 +89,14 @@ export const login = async(req,res)=>{
             return res.status(200).json({message:"Invalid credentials - password"})
         }
 
-        const [user, vendor] = await Promise.all([ // email should only be used by 1 person per role
+        const [user, vendor,admin] = await Promise.all([ // email should only be used by 1 person per role
             User.findOne({ email }),
-            Vendor.findOne({ email})
+            Vendor.findOne({ email}),
+            Admin.findOne({email}),
         ]);
         
 
-        const existingUser = user || vendor
+        const existingUser = user || vendor || admin
 
         if(!existingUser){
             return  res.status(400).json({message:"Invalid Credential ( email )"})
@@ -106,7 +108,7 @@ export const login = async(req,res)=>{
             return res.status(400).json({message:"Incorrect password"})
         }
 
-        generateToken(existingUser._id,res)
+        generateToken(existingUser._id,existingUser.role,res)
 
         res.status(200).json({message:"Loggedin successfully",existingUser})
     } catch (error) {

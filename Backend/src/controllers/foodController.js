@@ -1,5 +1,4 @@
 import Food from '../models/foodModel'
-import { vendorFood } from './vendorController'
 export const addFood = async(req,res) =>{
     try {
         const {name,description,price,category} = req.body

@@ -25,6 +25,8 @@ const fileFilter = (req, file, cb) => {
 
 const uploadProfilePic = multer({ storage: storage("profilepics"),fileFilter });
 const uploadFoodImages = multer({ storage: storage("foodItems"),fileFilter });
+const uploadServiceImages = multer({ storage: storage("Service"),fileFilter });
 
 
-export {uploadProfilePic,uploadFoodImages}
+
+export {uploadProfilePic,uploadFoodImages,uploadServiceImages}

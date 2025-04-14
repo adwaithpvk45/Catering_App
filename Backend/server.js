@@ -25,6 +25,7 @@ app.use('/api/auth',authRoutes)
 app.use('/api/user',userRoutes)
 app.use('/api/vendor',vendorRoutes)
 app.use('/api/food',foodRoutes)
+app.use('/api/service',serviceRoutes)
 
 
 

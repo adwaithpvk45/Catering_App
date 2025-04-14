@@ -5,8 +5,10 @@ import { uploadProfilePic } from "../utils/multer.js"
 
 const router = express.Router()
 
-router.post("/updateVendorProfilepic",protectedRoute,uploadProfilePic.single("profileImage"),updateVendorProfilePic)
+router.patch("/updateVendorProfilepic",protectedRoute,uploadProfilePic.single("profileImage"),updateVendorProfilePic)
 
-router.post("/updateVendorProfilepic",protectedRoute,updateVendorProfile)
+router.patch("/updateVendorProfilepic",protectedRoute,updateVendorProfile)
+
+// router.post("/addFood",protectedRoute,checkRole("vendor"),uploadFoodImages.single('foodImage'),addFood) // foodImage is the file name in front end wher the file input is present. 
 
 export default router

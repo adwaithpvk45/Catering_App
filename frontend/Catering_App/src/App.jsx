@@ -13,6 +13,12 @@ import { useLocation } from 'react-router-dom'
 import Footer from './Components/Footer'
 import FoodPage from './Pages/FoodPage'
 import Contact from './Pages/Contact'
+import AdminDashboard from './Pages/AdminDashboard'
+import Dashboard from './Components/Admin/Dashboard'
+import Bookings from './Components/Admin/Bookings'
+import Complaints from './Components/Admin/Complaints'
+import User from './Components/Admin/User'
+import Vendor from './Components/Admin/Vendor'
 
 function App() {
   const {theme} = useThemeStore()
@@ -26,7 +32,7 @@ function App() {
     <div data-theme={theme}>
       <Toaster/>
       {/* {!locationPath && <Navbar/>} */}
-      <Navbar/>
+      {/* <Navbar/> */}
     <Routes>
       <Route path='/' element={<><HomePage/></>} ></Route>
       <Route path='/Home' element={<><HomePage/></>} ></Route>
@@ -36,6 +42,13 @@ function App() {
       <Route path='/login' element={<LoginPage/>}></Route>
       <Route path='/signup' element={<SignupPage/>}></Route>
       <Route path='/food' element={<FoodPage/>}></Route>
+      <Route path='/admin' element={<AdminDashboard/>}>
+      <Route path='dashboard' element={<Dashboard/>}/>
+      <Route path='bookings' element={<Bookings/>}/>
+      <Route path='complaints' element={<Complaints/>}/>
+      <Route path='vendors' element={<Vendor/>}/>
+      <Route path='users' element={<User/>}/>
+      </Route>
     </Routes>
     <Footer/>
     </div>

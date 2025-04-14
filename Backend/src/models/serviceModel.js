@@ -24,7 +24,7 @@ const serviceSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  images: [
+  imageUrl: [
     {
       type: String,
     },
@@ -32,16 +32,16 @@ const serviceSchema = new mongoose.Schema({
   duration: {
     type: String, // Example: "3 hours", "Full day"
   },
-  availableDates: [
-    {
-      type: Date,
-    },
-  ],
-  additionalServices: [
-    {
-      type: String, // Example: "Decoration", "Photography", "DJ Music"
-    },
-  ],
+  // // availableDates: [
+  // //   {
+  // //     type: Date,
+  // //   },
+  // ],
+  // // additionalServices: [
+  // //   {
+  // //     type: String, // Example: "Decoration", "Photography", "DJ Music"
+  // //   },
+  // ],
   createdAt: {
     type: Date,
     default: Date.now,
