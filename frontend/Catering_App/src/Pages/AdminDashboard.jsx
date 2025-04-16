@@ -38,7 +38,7 @@ function AdminDashboard() {
   };
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: "flex"}}>
       <DashboardNavbar
         onLogout={handleLogout}
         toggleDrawer={handleDrawerToggle}
@@ -52,7 +52,7 @@ function AdminDashboard() {
         />
         <Box
           component="main"
-          sx={{ p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` }}}
+          sx={{width: { sm: `calc(100% - ${drawerWidth}px)` }}}
         >
           <Toolbar />
           <Outlet />

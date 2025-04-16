@@ -58,8 +58,7 @@ function Dashboard() {
 
   const pieChatOptions = {
     chart:{
-      type:'pie',
-      height: 400, 
+      type:'pie',  
      },
     labels:serviceCategoryData.map((item)=>item.name),
     title:{
@@ -87,12 +86,12 @@ function Dashboard() {
 
 
   return (
-     <Box p={1} display={'flex'} flexDirection={"column"}>
+     <Box  display={'flex'} flexDirection={"column"}>
       <Box display='flex' justifyContent='space-between' sx={{flexDirection:{xs:'column',sm:'column',md:'row'}}}>
-      <Typography  variant='h4' marginBottom={3} sx={{fontSize:{xs:'14px',sm:'16px',md:'20px'}}}>
+      <Typography  variant='h4' marginBottom={3} sx={{fontSize:{xs:'14px',sm:'16px',md:'20px'},m:3}}>
         Admin Dashboard
       </Typography>
-      <Paper sx={{height:50,width:{xs:280,sm:300,md:380}}}>
+      <Paper sx={{height:50,width:{xs:280,sm:300,md:400},m:3}}>
       <Typography gutterBottom  display={'flex'} alignItems={'center'} p={1} borderRadius={2} bgcolor={'white'} sx={{fontSize:{xs:'14px',sm:'16px',md:'20px'}}}>
      {currentTime.format('dddd, MMMM D, YYYY - hh:mm:ss A')}
       </Typography>
@@ -101,8 +100,8 @@ function Dashboard() {
       <Grid container spacing={3} sx={{paddingTop:5}}>
       {
         stats.map((item,index)=>(
-          <Grid item xs={12} sm={6} md={3} key={index}>
-            <Card elevation={1} sx={{minWidth:'230px',minHeight:'150px'}}>
+          <Grid item size={{xs:12,sm:6,md:3}} key={index} sx={{width:'300px'}}>
+            <Card elevation={1}>
               <CardContent>
                  <Box display='flex' flexDirection='column' alignItems='center' gap={4} >
                  <Box >
@@ -118,17 +117,17 @@ function Dashboard() {
             </Grid>
         ))
       }
-      <Grid container>
-      <Grid item xs={12} md={8}>
+      <Grid container spacing={3} sx={{marginBottom:2}}>
+      <Grid item size={{xs:12,md:8}}>
         <Card elevation={1}>
           <CardContent>
-            <ApexCharts options={lineChartsOptions} series={lineChartSeries} type="line" height={300} width={600}/>
+            <ApexCharts options={lineChartsOptions} series={lineChartSeries} type="line" />
           </CardContent>
         </Card>
       </Grid>
-      <Grid item xs={12} md={4} >
+      <Grid item size={{xs:12,md:4}} >
         <Card elevation={1} >
-        <CardContent sx={{ height: 355, display: 'flex', justifyContent: 'space-around' }}>
+        <CardContent sx={{display: 'flex' }}>
         <ApexCharts options={pieChatOptions} series={pieChatSeries} type="pie" />
           </CardContent>
         </Card>
