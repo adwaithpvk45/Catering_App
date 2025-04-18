@@ -9,6 +9,8 @@ import dayjs from 'dayjs';
 
 function Dashboard() {
 
+
+
   const stats = [
     { label: "Total Users", value: 124, icon: <PeopleIcon color="primary" sx={{fontSize:50}}/> },
     { label: "Vendors", value: 37, icon: <BusinessIcon color="secondary" sx={{fontSize:50}}/> },
@@ -65,8 +67,8 @@ function Dashboard() {
       text:"Booking by Catering",
       align:"left",
       // margin:20, 
-    }, 
-    legend: {
+    },
+     legend: {
       position: 'bottom', // You can change this to "top" or "left" for different alignment
     },
   }
@@ -86,7 +88,7 @@ function Dashboard() {
 
 
   return (
-     <Box  display={'flex'} flexDirection={"column"}>
+     <Box  display={'flex'} flexDirection={"column"} >
       <Box display='flex' justifyContent='space-between' sx={{flexDirection:{xs:'column',sm:'column',md:'row'}}}>
       <Typography  variant='h4' marginBottom={3} sx={{fontSize:{xs:'14px',sm:'16px',md:'20px'},m:3}}>
         Admin Dashboard
@@ -97,7 +99,7 @@ function Dashboard() {
       </Typography>
         </Paper>     
       </Box>
-      <Grid container spacing={3} sx={{paddingTop:5}}>
+      <Grid container spacing={5} sx={{paddingTop:5}}>
       {
         stats.map((item,index)=>(
           <Grid item size={{xs:12,sm:6,md:3}} key={index} sx={{width:'300px'}}>
@@ -117,22 +119,30 @@ function Dashboard() {
             </Grid>
         ))
       }
-      <Grid container spacing={3} sx={{marginBottom:2}}>
+      <Box display={'flex'}> 
+      <Grid container spacing={5} sx={{marginBottom:2}}>
       <Grid item size={{xs:12,md:8}}>
         <Card elevation={1}>
-          <CardContent>
+          <CardContent >
             <ApexCharts options={lineChartsOptions} series={lineChartSeries} type="line" />
           </CardContent>
+          {/* <CardContent sx={{display: 'flex'}}>
+        <ApexCharts options={pieChatOptions} series={pieChatSeries} type="pie" />
+          </CardContent> */}
         </Card>
       </Grid>
       <Grid item size={{xs:12,md:4}} >
-        <Card elevation={1} >
-        <CardContent sx={{display: 'flex' }}>
+        <Card elevation={ 1 } >
+        <CardContent sx={{display: 'flex'}}>
         <ApexCharts options={pieChatOptions} series={pieChatSeries} type="pie" />
           </CardContent>
+          {/* <CardContent >
+            <ApexCharts options={lineChartsOptions} series={lineChartSeries} type="line" />
+          </CardContent> */}
         </Card>
       </Grid>
       </Grid>
+      </Box>
       </Grid>
      </Box>
   )

@@ -100,7 +100,7 @@ function SideBar({ open, onclose, isSidebarOpen }) {
         anchor="left"
         onClose={onclose}
         ModalProps={{ keepMounted: true }}
-       sx={{bgcolor:'wheat'}}>
+       >
         {drawerContent}
       </Drawer>
     </div>

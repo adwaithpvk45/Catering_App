@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import SideBar from "../Components/Admin/SideBar";
 import { Box, Toolbar } from "@mui/material";
 import { Outlet, useNavigate } from "react-router-dom";
 import DashboardNavbar from "../Components/Admin/DashboardNavbar";
-import dayjs from 'dayjs'
 
 const drawerWidth = 240;
 
@@ -11,16 +10,6 @@ function AdminDashboard() {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  const [currentTime,setCurrentTime] = useState(dayjs())
-
-  useEffect(()=>{
-    const timer = setInterval(()=>{
-         setCurrentTime(dayjs())
-    },1000)
-
-    return ()=> clearInterval(timer)
-  },[])
 
   console.log(isSidebarOpen)
 
@@ -52,7 +41,7 @@ function AdminDashboard() {
         />
         <Box
           component="main"
-          sx={{width: { sm: `calc(100% - ${drawerWidth}px)` }}}
+          // sx={{width: { sm: `calc(100% - ${drawerWidth}px)` }}}
         >
           <Toolbar />
           <Outlet />
