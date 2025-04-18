@@ -39,7 +39,6 @@ function Dashboard() {
     chart:{
       id:"monthly-bookings",
       type:"line",
-      height:500,
     },
     xaxis:{
       categories:monthlyBookings.map((item)=>item.month)
@@ -60,18 +59,18 @@ function Dashboard() {
 
   const pieChatOptions = {
     chart:{
-      type:'pie',  
+      type:'Donut',  
      },
-    labels:serviceCategoryData.map((item)=>item.name),
+    datalLabels:serviceCategoryData.map((item)=>item.name),
     title:{
-      text:"Booking by Catering",
+      text:"Service Booking ",
       align:"left",
       // margin:20, 
     },
      legend: {
       position: 'bottom', // You can change this to "top" or "left" for different alignment
     },
-  }
+    }
 
   const pieChatSeries = serviceCategoryData.map((item)=>item.value)
 
@@ -99,10 +98,10 @@ function Dashboard() {
       </Typography>
         </Paper>     
       </Box>
-      <Grid container spacing={5} sx={{paddingTop:5}}>
+      <Grid container spacing={1} sx={{paddingTop:5}}>
       {
         stats.map((item,index)=>(
-          <Grid item size={{xs:12,sm:6,md:3}} key={index} sx={{width:'300px'}}>
+          <Grid item size={{xs:12,sm:6,md:3}} key={index} sx={{width:'250px'}}>
             <Card elevation={1}>
               <CardContent>
                  <Box display='flex' flexDirection='column' alignItems='center' gap={4} >
@@ -120,7 +119,7 @@ function Dashboard() {
         ))
       }
       <Box display={'flex'}> 
-      <Grid container spacing={5} sx={{marginBottom:2}}>
+      <Grid container spacing={1} sx={{marginBottom:2}}>
       <Grid item size={{xs:12,md:8}}>
         <Card elevation={1}>
           <CardContent >
@@ -132,9 +131,9 @@ function Dashboard() {
         </Card>
       </Grid>
       <Grid item size={{xs:12,md:4}} >
-        <Card elevation={ 1 } >
-        <CardContent sx={{display: 'flex'}}>
-        <ApexCharts options={pieChatOptions} series={pieChatSeries} type="pie" />
+        <Card elevation={ 2 } sx={{height:270,width:270}} > 
+        <CardContent>
+        <ApexCharts options={pieChatOptions} series={pieChatSeries} type="donut"/>
           </CardContent>
           {/* <CardContent >
             <ApexCharts options={lineChartsOptions} series={lineChartSeries} type="line" />
