@@ -57,22 +57,32 @@ function Dashboard() {
          data:monthlyBookings.map((item)=>item.bookings)
   }]
 
-  const pieChatOptions = {
+  const donutChatOptions = {
     chart:{
       type:'Donut',  
      },
-    datalLabels:serviceCategoryData.map((item)=>item.name),
+    labels:serviceCategoryData.map((item)=>item.name),
     title:{
       text:"Service Booking ",
       align:"left",
-      // margin:20, 
+      width:"90px"
     },
      legend: {
       position: 'bottom', // You can change this to "top" or "left" for different alignment
     },
+    responsive: [
+      {
+        breakpoint: 768, // for small screens
+        options: {
+          legend: {
+            position: 'right', // or 'left'
+            fontSize: '12px'
+          },
+        }
+      }]
     }
 
-  const pieChatSeries = serviceCategoryData.map((item)=>item.value)
+  const donutChatSeries = serviceCategoryData.map((item)=>item.value)
 
     const [currentTime,setCurrentTime] = useState(dayjs())
   
@@ -131,9 +141,9 @@ function Dashboard() {
         </Card>
       </Grid>
       <Grid item size={{xs:12,md:4}} >
-        <Card elevation={ 2 } sx={{height:270,width:270}} > 
+        <Card elevation={ 2 } sx={{height:{xs:'450px',md:'298px'},width:{xs:'450px',md:'298px'}}} > 
         <CardContent>
-        <ApexCharts options={pieChatOptions} series={pieChatSeries} type="donut"/>
+        <ApexCharts options={donutChatOptions} series={donutChatSeries} type="donut" width={280}/>
           </CardContent>
           {/* <CardContent >
             <ApexCharts options={lineChartsOptions} series={lineChartSeries} type="line" />
