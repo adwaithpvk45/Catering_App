@@ -17,8 +17,8 @@ import AdminDashboard from './Pages/AdminDashboard'
 import Dashboard from './Components/Admin/Dashboard'
 import Bookings from './Components/Admin/Bookings'
 import Complaints from './Components/Admin/Complaints'
-import User from './Components/Admin/User'
-import Vendor from './Components/Admin/Vendor'
+import UsersList from './Components/Admin/Users/UserList'
+import VendorsList from './Components/Admin/Vendors/VendorList'
 
 function App() {
   const {theme} = useThemeStore()
@@ -46,8 +46,8 @@ function App() {
       <Route path='dashboard' element={<Dashboard/>}/>
       <Route path='bookings' element={<Bookings/>}/>
       <Route path='complaints' element={<Complaints/>}/>
-      <Route path='vendors' element={<Vendor/>}/>
-      <Route path='users' element={<User/>}/>
+      <Route path='vendors' element={<VendorsList/>}/>
+      <Route path='users' element={<UsersList/>}/>
       </Route>
     </Routes>
     <Footer/>
