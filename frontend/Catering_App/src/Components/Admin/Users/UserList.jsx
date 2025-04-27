@@ -1,10 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Button, TextField } from "@mui/material";
 import TableContent from "../../../common ui/Table";
+import UserDetails from "./UserDetails";
 
 const UsersList = () => {
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [drawerOpen,setDrawerOpen] = useState(false)
+  const [selectedUser,setSelectedUser] = useState(null)
+
+    const handleDrawerClose=()=>{
+        setDrawerOpen(false)
+    }
+
+    const handleDrawerOpen = (data) =>{
+      setSelectedUser(data)
+      setDrawerOpen(true)
+    }
 
   // Fetch users (dummy for now)
   useEffect(() => {
@@ -49,7 +61,8 @@ const UsersList = () => {
             />
       </Box>
 
-     <TableContent filteredUsers={filteredUsers} handleBlockUnblock={handleBlockUnblock}/>
+     <TableContent filteredUsers={filteredUsers} handleBlockUnblock={handleBlockUnblock} handleDrawerOpen={handleDrawerOpen}/>
+     <UserDetails open={drawerOpen} onClose={handleDrawerClose} selectedUser={selectedUser} />   
     </Box>
   );
 };

@@ -2,7 +2,7 @@ import { Visibility, Block, CheckCircle, Warning } from "@mui/icons-material";
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton } from "@mui/material";
 
 
-export default function TableContent({filteredUsers,handleBlockUnblock}){
+export default function TableContent({filteredUsers,handleBlockUnblock,handleDrawerOpen}){
     console.log(filteredUsers)
 
     return (
@@ -26,7 +26,7 @@ export default function TableContent({filteredUsers,handleBlockUnblock}){
                 <TableCell>{user.createdTime}</TableCell>
                 <TableCell>{user.status}</TableCell>
                 <TableCell align="center">
-                  <IconButton color="primary">
+                  <IconButton color="primary" onClick={()=>{handleDrawerOpen(user);console.log("here")}}>
                     <Visibility />
                   </IconButton>
 
