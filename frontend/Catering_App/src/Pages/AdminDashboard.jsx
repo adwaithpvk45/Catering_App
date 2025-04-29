@@ -42,7 +42,8 @@ function AdminDashboard() {
         <Box
           component="main"
           // sx={{width: { sm: `calc(100% - ${drawerWidth}px)` }}}
-          sx={{width:'90%'}}
+          sx={{width:'90%',height:'100vh'}}
+
         >
           <Toolbar />
           <Outlet />

@@ -25,13 +25,13 @@ function App() {
 
   // const location = useLocation()
 
-  // const locationPath = location.pathname === "/login" || location.pathname==="/signup"
+  const locationPath = location.pathname === "/login" || location.pathname==="/signup" ||  location.pathname==="/admin" 
 
   return (
     <>
     <div data-theme={theme}>
       <Toaster/>
-      {/* {!locationPath && <Navbar/>} */}
+      {!locationPath && <Navbar/>}
       {/* <Navbar/> */}
     <Routes>
       <Route path='/' element={<><HomePage/></>} ></Route>
@@ -50,7 +50,7 @@ function App() {
       <Route path='users' element={<UsersList/>}/>
       </Route>
     </Routes>
-    <Footer/>
+    {!locationPath && <Footer/>}
     </div>
     
     </>

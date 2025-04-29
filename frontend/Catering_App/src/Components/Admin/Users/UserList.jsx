@@ -38,7 +38,6 @@ const UsersList = () => {
   }, []);
 
   const handleBlockUnblock = (id, action) => {
-    // Block or unblock logic
     console.log(`User ${id} ${action}`);
   };
 

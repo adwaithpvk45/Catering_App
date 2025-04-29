@@ -1,26 +1,51 @@
-import { Box, Drawer, Typography } from "@mui/material";
+import { Box, Drawer, IconButton, TextField, Typography } from "@mui/material";
+import { Grid } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
-export default function UserDetails({open,onClose,selectedUser}){
+export default function UserDetails({ open, onClose, selectedUser }) {
+  if (!selectedUser) {
+    return null;
+  }
+  const userFields = [
+    { label: "Name", value: selectedUser.name },
+    { label: "Email", value: selectedUser.email },
+    { label: "Phone", value: selectedUser.phone },
+    { label: "Status", value: selectedUser.status },
+    { label: "Created At", value: selectedUser.createdTime },
+  ];
 
-  return(
-    <Drawer
-        anchor="right"
-        open={open}
-        onClose={onClose}
-        
-      >
-        <Box p={3} width={600} sx={{marginTop:'80px'}}>
-          <Typography variant="h5" mb={2}>User Details</Typography>
-          {selectedUser && (
-            <>
-              <Typography><strong>Name:</strong> {selectedUser.name}</Typography>
-              <Typography><strong>Email:</strong> {selectedUser.email}</Typography>
-              <Typography><strong>Phone:</strong> {selectedUser.phone}</Typography>
-              <Typography><strong>Status:</strong> {selectedUser.status}</Typography>
-              <Typography><strong>Created At:</strong> {selectedUser.createdAt}</Typography>
-            </>
-          )}
-        </Box>
-      </Drawer>
-  )
+  return (
+    <Drawer anchor="right" open={open} onClose={onClose}>
+      <Box p={3} width={600} sx={{ marginTop: "80px" }}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
+        <Typography
+          variant="h5"
+          sx={{ fontWeight: "bold",alignContent:'center'}}
+          InputProps={{
+            sx: {
+              color: "black", 
+            },
+          }}
+        >
+          User Details
+        </Typography>
+        <IconButton onClick={()=>{onClose()}}>
+        <CloseIcon />
+      </IconButton>
+      </Box>
+        <Grid container spacing={2}>
+          {userFields.map((field, index) => (
+            <Grid item xs={12} md={6} key={index}>
+              <TextField
+                label={field.label}
+                value={field.value}
+                fullWidth
+                disabled
+              />
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
+    </Drawer>
+  );
 }

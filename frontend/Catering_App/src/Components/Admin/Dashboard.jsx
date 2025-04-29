@@ -62,6 +62,7 @@ function Dashboard() {
       type:'Donut',  
      },
     labels:serviceCategoryData.map((item)=>item.name),
+    colors: ['#FFA726', '#FFB74D', '#FFCC80', '#FFE0B2'], // ⚠️ warning shades
     title:{
       text:"Service Booking ",
       align:"left",
