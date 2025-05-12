@@ -61,7 +61,7 @@ const UsersList = () => {
       </Box>
 
      <TableContent filteredUsers={filteredUsers} handleBlockUnblock={handleBlockUnblock} handleDrawerOpen={handleDrawerOpen}/>
-     <UserDetails open={drawerOpen} onClose={handleDrawerClose} selectedUser={selectedUser} />   
+     <UserDetails open={drawerOpen} onClose={handleDrawerClose} selectedUser={selectedUser} user={"user"}/>   
     </Box>
   );
 };

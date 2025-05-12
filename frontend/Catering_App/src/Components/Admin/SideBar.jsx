@@ -1,9 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import BusinessIcon from "@mui/icons-material/Business";
-import BookOnlineIcon from "@mui/icons-material/BookOnline";
 import ReportIcon from "@mui/icons-material/Report";
 import {
   AppBar,
@@ -19,13 +18,17 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-// import { useState } from "react";
-// import { MenuIcon, Pointer } from "lucide-react";
+import BookOnlineIcon from '@mui/icons-material/BookOnline';
+import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import MenuIcon from '@mui/icons-material/Menu';
+
 
 function SideBar({ open, onclose, isSidebarOpen }) {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [selected,setSelected] = useState(0)
 
   const items = [
     { text: "Dashboard", icon: <DashboardIcon />, path: "/admin/dashboard" },
@@ -35,6 +38,15 @@ function SideBar({ open, onclose, isSidebarOpen }) {
     { text: "Complaints", icon: <ReportIcon />, path: "/admin/complaints" },
   ];
 
+  
+const menuItems = [
+  { text: 'Dashboard', icon: <DashboardIcon />, path: '/vendor/vendorDashboard' },
+  { text: 'My Bookings', icon: <BookOnlineIcon />, path: '/vendor/vendorBookings' },
+  { text: 'My Services', icon: <RestaurantMenuIcon />, path: '/vendor/vendorServices' },
+  { text: 'My Menu', icon: <MenuIcon />, path: '/vendor/vendorMenu' },
+];
+
+
   const drawerWidth = isSidebarOpen ? 240 : 60;
 
   const drawerContent = (
@@ -42,24 +54,31 @@ function SideBar({ open, onclose, isSidebarOpen }) {
       sx={{
         maxWidth:'100%',
         width: drawerWidth,
-        overflowX:'clip',
+        // overflowX:'clip',
         transition: "width 0.3s ease",
         height: "100%",
         bgcolor:'wheat',
+        border:'1px whitesmoke solid'
       }}
     >
       <Toolbar/>
       <Box >
-      <List sx={{marginBottom:'300px'}}>
-        {items.map((item) => (
+      <List sx={{marginBottom:'300px',margin:0}}>
+        {menuItems.map((item,index) => (
           <ListItem
+            
             button
             key={item.text}
-            onClick={() => navigate(item.path)}
+            onClick={() => {navigate(item.path);setSelected(index)}}
             sx={{
-              px: 2,
+              pb: 2,
               justifyContent: isSidebarOpen ? "initial" : "center",
               "&:hover": { cursor: "pointer" },
+              color:selected==index?'black':'inherit',
+              backgroundColor:selected==index?'whitesmoke':'inherit',
+              border:selected==index?'0px whitesmoke':'inherit',
+              borderTopRightRadius:'-10px'
+
             }}
           >
             <ListItemIcon
@@ -72,10 +91,13 @@ function SideBar({ open, onclose, isSidebarOpen }) {
             </ListItemIcon>
             <ListItemText
               primary={item.text}
+              primaryTypographyProps={{
+                fontSize: '24px' // or '1rem', or use theme-based values
+              }}
               sx={{
                 opacity: isSidebarOpen ? 1 : 0,
                 transition: "opacity 0.3s ease",
-              }}
+                              }}
             />
           </ListItem>
         ))}
@@ -100,6 +122,9 @@ function SideBar({ open, onclose, isSidebarOpen }) {
         anchor="left"
         onClose={onclose}
         ModalProps={{ keepMounted: true }}
+        sx={{
+          border:'1px whitesmoke solid'
+        }}
        >
         {drawerContent}
       </Drawer>
@@ -121,6 +146,7 @@ function SideBar({ open, onclose, isSidebarOpen }) {
             boxSizing: "border-box",
             transition: "width 0.3s ease",
           },
+          border:'1px whitesmoke solid'
         }}
       >
         {drawerContent}

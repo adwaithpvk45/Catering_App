@@ -48,8 +48,23 @@ function Dashboard() {
     },
     title:{
       text:"Monthly Bookings",
-      align:"left"
+      align:"left",
+      style:{
+        fontSize:'15px',
     },
+    responsive:[
+      {
+        breakpoint:365,
+        options:{
+          title: {
+            style: {
+              fontSize: '7px' // correct way to apply fontSize
+            }
+          }
+        }
+      }
+    ]
+    }
   }
 
   const lineChartSeries = [{
@@ -60,27 +75,122 @@ function Dashboard() {
   const donutChatOptions = {
     chart:{
       type:'Donut',  
+      maxWidth:600,
+      maxHeight:700,
      },
+     plotOptions: {
+      pie: {
+        donut: {
+          size: '50%'
+        }
+      }
+    },
     labels:serviceCategoryData.map((item)=>item.name),
     colors: ['#FFA726', '#FFB74D', '#FFCC80', '#FFE0B2'], // ⚠️ warning shades
     title:{
       text:"Service Booking ",
       align:"left",
-      width:"90px"
+      style:{
+        fontSize:'16px'
+      }
     },
      legend: {
-      position: 'bottom', // You can change this to "top" or "left" for different alignment
+      position: 'right', // You can change this to "top" or "left" for different alignment'
+      fontSize:'17px'
     },
     responsive: [
       {
+        breakpoint: 1330, // for small screens
+        options: {
+          legend: {
+            position: 'bottom', // or 'left'
+            fontSize: '12px'
+          },
+          plotOptions: {
+            pie: {
+              donut: {
+                size: '60%'
+              }
+            }
+          },
+        },
+      }, 
+      {
+        breakpoint: 1200, // for small screens
+        options: {
+          legend: {
+            position: 'bottom', // or 'left'
+            fontSize: '12px'
+          },
+          plotOptions: {
+            pie: {
+              donut: {
+                size: '60%'
+              }
+            }
+          },
+        },
+      }, 
+      {
+        breakpoint: 899, // for small screens
+        options: {
+          legend: {
+            position: 'bottom', // or 'left'
+            fontSize: '20px'
+          },
+          plotOptions: {
+            pie: {
+              donut: {
+                size: '50%'
+              }
+            }
+          },
+        }
+      },   
+      {
         breakpoint: 768, // for small screens
+        options: {
+          legend: {
+            position: 'bottom', // or 'left'
+            fontSize: '15px'
+          },
+          plotOptions: {
+            pie: {
+              donut: {
+                size: '50%'
+              }
+            }
+          },
+        }
+      },
+      {
+        breakpoint: 670, // for small screens
+        options: {
+          legend: {
+            position: 'bottom', // or 'left'
+            fontSize: '15px'
+          },
+        }
+      },
+    {
+      breakpoint: 470, // for small screens
         options: {
           legend: {
             position: 'right', // or 'left'
             fontSize: '12px'
           },
         }
-      }]
+    },
+    {
+      breakpoint: 350, // for small screens
+        options: {
+          legend: {
+            position: 'bottom', // or 'left'
+            fontSize: '10px'
+          },
+        }
+    },
+  ]
     }
 
   const donutChatSeries = serviceCategoryData.map((item)=>item.value)
@@ -109,11 +219,11 @@ function Dashboard() {
       </Typography>
         </Paper>     
       </Box>
-      <Grid container spacing={1} sx={{paddingTop:5}}>
+      <Grid container  sx={{paddingTop:5,paddingRight:4,justifyContent:{xs:'center',md:'normal'}}} rowSpacing={5} columnSpacing={5} >
       {
         stats.map((item,index)=>(
-          <Grid item size={{xs:12,sm:6,md:3}} key={index} sx={{width:'250px'}}>
-            <Card elevation={1}>
+          <Grid item size={{xs:12,sm:6,md:3}} key={index} sx={{width:'250px',borderRadius:'30px',overflow:'clip'}}>
+            <Card elevation={2}>
               <CardContent>
                  <Box display='flex' flexDirection='column' alignItems='center' gap={4} >
                  <Box >
@@ -129,8 +239,8 @@ function Dashboard() {
             </Grid>
         ))
       }
-      <Box display={'flex'}> 
-      <Grid container spacing={1} sx={{marginBottom:2}}>
+      {/* <Box display={'flex'}>  */}
+      <Grid container spacing={1} sx={{marginBottom:4,maxWidth:'100'}} columnSpacing={5} rowSpacing={5}> 
       <Grid item size={{xs:12,md:8}}>
         <Card elevation={1}>
           <CardContent >
@@ -142,9 +252,9 @@ function Dashboard() {
         </Card>
       </Grid>
       <Grid item size={{xs:12,md:4}} >
-        <Card elevation={ 2 } sx={{height:{xs:'450px',md:'298px'},width:{xs:'450px',md:'298px'}}} > 
-        <CardContent>
-        <ApexCharts options={donutChatOptions} series={donutChatSeries} type="donut" width={280}/>
+        <Card elevation={ 2 } sx={{minHeight:{xs:'200px',sm:'250px',md:'295px',lg:'345px',xl:'385px'},minWidth:{xs:'200px',sm:'250px',md:'280px',lg:'400px',xl:'500px'}}} > 
+        <CardContent sx={{width:"100%",paddingBottom:0,height:'100%',}}>
+        <ApexCharts options={donutChatOptions} series={donutChatSeries} type="donut" width={"100%"} />
           </CardContent>
           {/* <CardContent >
             <ApexCharts options={lineChartsOptions} series={lineChartSeries} type="line" />
@@ -152,7 +262,7 @@ function Dashboard() {
         </Card>
       </Grid>
       </Grid>
-      </Box>
+      {/* </Box> */}
       </Grid>
      </Box>
   )

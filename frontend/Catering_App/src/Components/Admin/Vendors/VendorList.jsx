@@ -81,7 +81,7 @@ export default function VendorsList() {
   }, []);
 
   return (
-    <Box sx={{ paddingY: "30px", maxWidth: "100%" }}>
+    <Box sx={{ paddingY: "30px", maxWidth: "100%", height:'100%'}}>
       <Typography variant="h4" mb={3}>
         Vendors Management
       </Typography>
@@ -112,6 +112,7 @@ export default function VendorsList() {
         open={drawerOpen}
         onClose={handleDrawerClose}
         selectedUser={selectedUser}
+        user={"vendor"}
       />
     </Box>
   );
