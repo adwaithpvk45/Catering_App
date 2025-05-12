@@ -27,29 +27,28 @@ function AdminDashboard() {
   };
 
   return (
-    <Box sx={{ display: "flex"}}>
+    <>
       <DashboardNavbar
         onLogout={handleLogout}
         toggleDrawer={handleDrawerToggle}
         toggleSidebarDrawer={handleSidebarToggle}
       />
-      <Box sx={{ display: "flex", flexGrow: 1, bgcolor:'whitesmoke'}}>
-        <SideBar
+      <Box sx={{ display: "flex", flexGrow: 1, bgcolor:'whitesmoke',height:'100%'}}>
+      '90%'<SideBar
           open={mobileOpen}
           onclose={handleDrawerToggle}
           isSidebarOpen={isSidebarOpen}
         />
         <Box
           component="main"
-          // sx={{width: { sm: `calc(100% - ${drawerWidth}px)` }}}
-          sx={{width:'90%',height:'100vh'}}
+          sx={{width:'80%',height:'100%'}}
 
         >
           <Toolbar />
-          <Outlet />
+          <Outlet  />
         </Box>
       </Box>
-    </Box>
+      </>
   );
 }
 

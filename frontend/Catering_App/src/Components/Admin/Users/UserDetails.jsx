@@ -2,7 +2,9 @@ import { Box, Drawer, IconButton, TextField, Typography } from "@mui/material";
 import { Grid } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
-export default function UserDetails({ open, onClose, selectedUser }) {
+export default function UserDetails({ open, onClose, selectedUser,user}) {
+  console.log("🚀 ~ UserDetails ~ selectedUser:", selectedUser)
+  
   if (!selectedUser) {
     return null;
   }
@@ -13,6 +15,15 @@ export default function UserDetails({ open, onClose, selectedUser }) {
     { label: "Status", value: selectedUser.status },
     { label: "Created At", value: selectedUser.createdTime },
   ];
+
+  const booking = [
+    { label: "User", value: selectedUser.userName },
+    { label: "Vendor", value: selectedUser.vendorName },
+    { label: "Event Type", value: selectedUser.eventType },
+    { label: "Event Date", value: selectedUser.eventDate },
+    { label: "Location", value: selectedUser.location },
+    { label: "Status", value: selectedUser.createdTime },
+  ]
 
   return (
     <Drawer anchor="right" open={open} onClose={onClose}>
@@ -27,14 +38,14 @@ export default function UserDetails({ open, onClose, selectedUser }) {
             },
           }}
         >
-          User Details
+          {user=="user"?"User Details":user=='vendor'?"Vendor Details":"Booking Detail"}
         </Typography>
         <IconButton onClick={()=>{onClose()}}>
         <CloseIcon />
       </IconButton>
       </Box>
         <Grid container spacing={2}>
-          {userFields.map((field, index) => (
+          {(user=="bookings"?booking:userFields).map((field, index) => (
             <Grid item xs={12} md={6} key={index}>
               <TextField
                 label={field.label}

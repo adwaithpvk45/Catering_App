@@ -15,17 +15,18 @@ import FoodPage from './Pages/FoodPage'
 import Contact from './Pages/Contact'
 import AdminDashboard from './Pages/AdminDashboard'
 import Dashboard from './Components/Admin/Dashboard'
-import Bookings from './Components/Admin/Bookings'
-import Complaints from './Components/Admin/Complaints'
+import Complaints from './Components/Admin/Complaints/Complaints'
 import UsersList from './Components/Admin/Users/UserList'
 import VendorsList from './Components/Admin/Vendors/VendorList'
+import AdminBookings from './Components/Admin/Bookings/Bookings'
+import VendorBookings from './Components/Vendor/vendorBookings/VendorBookings'
 
 function App() {
   const {theme} = useThemeStore()
 
-  // const location = useLocation()
+  const location = useLocation()
 
-  const locationPath = location.pathname === "/login" || location.pathname==="/signup" ||  location.pathname==="/admin" 
+  const locationPath = location.pathname === "/login" || location.pathname==="/signup" ||  location.pathname.startsWith("/admin")|| location.pathname.startsWith("/vendor"); 
 
   return (
     <>
@@ -43,12 +44,22 @@ function App() {
       <Route path='/signup' element={<SignupPage/>}></Route>
       <Route path='/food' element={<FoodPage/>}></Route>
       <Route path='/admin' element={<AdminDashboard/>}>
+      <Route index element={<Dashboard />} /> {/*this allows the /admin to show the dashboard */}
       <Route path='dashboard' element={<Dashboard/>}/>
-      <Route path='bookings' element={<Bookings/>}/>
+      <Route path='bookings' element={<AdminBookings/>}/>
       <Route path='complaints' element={<Complaints/>}/>
       <Route path='vendors' element={<VendorsList/>}/>
       <Route path='users' element={<UsersList/>}/>
       </Route>
+      <Route path='/vendor' element={<AdminDashboard/>}>
+      <Route index element={<Dashboard />} /> {/*this allows the /admin to show the dashboard */}
+      <Route path='vendorDashboard' element={<Dashboard/>}/>
+      <Route path='vendorBookings' element={<VendorBookings/>}/>
+      <Route path='vendorServices' element={<Complaints/>}/>
+      <Route path='vendorMenu' element={<VendorsList/>}/>
+      <Route path='users' element={<UsersList/>}/>
+      </Route>
+
     </Routes>
     {!locationPath && <Footer/>}
     </div>
