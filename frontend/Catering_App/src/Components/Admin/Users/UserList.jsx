@@ -47,7 +47,7 @@ const UsersList = () => {
   );
 
   return (
-    <Box sx={{paddingY:'30px',maxWidth:"100%"}}>
+    <Box sx={{paddingY:'30px',maxWidth:"90%"}}>
       <Typography variant="h4" mb={3}>Users Management</Typography>
 
       <Box mb={2} sx={{display:'flex',justifyContent:'flex-end', width:'300px',height:'70px'}}>
