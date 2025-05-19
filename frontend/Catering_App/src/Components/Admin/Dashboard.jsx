@@ -210,7 +210,7 @@ function Dashboard() {
   return (
      <Box  display={'flex'} flexDirection={"column"} >
       <Box display='flex' justifyContent='space-between' sx={{flexDirection:{xs:'column',sm:'column',md:'row'}}}>
-      <Typography  variant='h4' marginBottom={3} sx={{fontSize:{xs:'14px',sm:'16px',md:'20px'},m:3}}>
+      <Typography  variant='h4' marginBottom={3} sx={{fontSize:{xs:'11px',sm:'16px',md:'20px'},m:3}}>
         Admin Dashboard
       </Typography>
       <Paper sx={{height:50,width:{xs:280,sm:300,md:400},m:3}}>
@@ -240,11 +240,11 @@ function Dashboard() {
         ))
       }
       {/* <Box display={'flex'}>  */}
-      <Grid container spacing={1} sx={{marginBottom:4,maxWidth:'100'}} columnSpacing={5} rowSpacing={5}> 
-      <Grid item size={{xs:12,md:8}}>
-        <Card elevation={1}>
-          <CardContent >
-            <ApexCharts options={lineChartsOptions} series={lineChartSeries} type="line" />
+      <Grid container spacing={1} sx={{marginBottom:4,maxWidth:'100%'}} columnSpacing={5} rowSpacing={5}> 
+      <Grid item size={{xs:12,md:8}} >
+        <Card elevation={1} sx={{width:'100%'}}>
+          <CardContent sx={{width:'100%'}}>
+            <ApexCharts options={lineChartsOptions} series={lineChartSeries} type="line" width={'100%'}/>
           </CardContent>
           {/* <CardContent sx={{display: 'flex'}}>
         <ApexCharts options={pieChatOptions} series={pieChatSeries} type="pie" />

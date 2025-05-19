@@ -11,11 +11,18 @@ import {
   Button,
   Chip,
   Box,
-  TextField
+  TextField,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Select
 } from '@mui/material';
+import BookingDetailsDrawer from './VendorBookingsDrawer';
 
 const VendorBookings = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [eventFilter, setEventFilter] = useState('All');
+
   const [bookings, setBookings] = useState([
     {
       id: 1,
@@ -43,6 +50,9 @@ const VendorBookings = () => {
     },
   ]);
 
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+
   const toggleStatus = (id) => {
     setBookings((prev) =>
       prev.map((booking) =>
@@ -56,11 +66,24 @@ const VendorBookings = () => {
     );
   };
 
+  const handleRowClick = (booking) => {
+    setSelectedBooking(booking);
+    setDrawerOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setDrawerOpen(false);
+    setSelectedBooking(null);
+  };
+
   const filteredBookings = bookings.filter((b) =>
     [b.user, b.event, b.contact].some((field) =>
       field.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    ) && (eventFilter === 'All' || b.event === eventFilter)
   );
+
+  // Get unique event types dynamically
+  const eventTypes = ['All', ...new Set(bookings.map((b) => b.event))];
 
   return (
     <Box sx={{ paddingY: '30px', maxWidth: '100%' }}>
@@ -68,21 +91,45 @@ const VendorBookings = () => {
         My Bookings
       </Typography>
 
-      <Box sx={{ width: '100%' }}>
+      <Box
+        sx={{
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+          mb: 3,
+          flexWrap: 'wrap',
+          gap: 2,
+        }}
+      >
         <TextField
           label="Search Bookings"
           variant="outlined"
-          fullWidth
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          sx={{ mb: '30px', maxWidth: '300px' }}
+          sx={{ width: '300px' }}
         />
+
+        <FormControl sx={{ minWidth: 200 }}>
+          <InputLabel>Filter by Event</InputLabel>
+          <Select
+            value={eventFilter}
+            label="Filter by Event"
+            onChange={(e) => setEventFilter(e.target.value)}
+          >
+            {eventTypes.map((event) => (
+              <MenuItem key={event} value={event}>
+                {event}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Box>
 
       <Paper sx={{ borderRadius: '10px', overflow: 'clip' }}>
         <TableContainer sx={{ borderRadius: '10px', overflow: 'clip' }}>
           <Table>
-            <TableHead sx={{backgroundColor:"#ED6C02"}}>
+            <TableHead sx={{ backgroundColor: '#ED6C02' }}>
               <TableRow>
                 <TableCell><strong>User</strong></TableCell>
                 <TableCell><strong>Event</strong></TableCell>
@@ -94,7 +141,12 @@ const VendorBookings = () => {
             </TableHead>
             <TableBody>
               {filteredBookings.map((booking) => (
-                <TableRow key={booking.id}>
+                <TableRow
+                  key={booking.id}
+                  hover
+                  sx={{ cursor: 'pointer' }}
+                  onClick={() => handleRowClick(booking)}
+                >
                   <TableCell>{booking.user}</TableCell>
                   <TableCell>{booking.event}</TableCell>
                   <TableCell>{booking.date}</TableCell>
@@ -109,7 +161,10 @@ const VendorBookings = () => {
                     <Button
                       size="small"
                       variant="outlined"
-                      onClick={() => toggleStatus(booking.id)}
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent row click
+                        toggleStatus(booking.id);
+                      }}
                     >
                       Mark as {booking.status === 'Pending' ? 'Confirmed' : 'Pending'}
                     </Button>
@@ -127,6 +182,13 @@ const VendorBookings = () => {
           </Table>
         </TableContainer>
       </Paper>
+
+      <BookingDetailsDrawer
+        open={drawerOpen}
+        onClose={handleDrawerClose}
+        booking={selectedBooking}
+        onToggleStatus={toggleStatus}
+      />
     </Box>
   );
 };

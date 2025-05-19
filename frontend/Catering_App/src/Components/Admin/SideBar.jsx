@@ -66,12 +66,12 @@ const menuItems = [
       <List sx={{marginBottom:'300px',margin:0}}>
         {menuItems.map((item,index) => (
           <ListItem
-            
             button
             key={item.text}
             onClick={() => {navigate(item.path);setSelected(index)}}
             sx={{
               pb: 2,
+              mb:5,
               justifyContent: isSidebarOpen ? "initial" : "center",
               "&:hover": { cursor: "pointer" },
               color:selected==index?'black':'inherit',

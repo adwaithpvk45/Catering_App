@@ -11,7 +11,6 @@ function Menu() {
     <div className='flex flex-wrap gap-30 pb-10 pt-20 p-15 md:p-20 transition-all duration-300'>
     {
         cateringServices.map((item)=>
-            
            ( 
            <div key={item.id} className="card bg-base-100 w-70 shadow-lg transition-all duration-300">
   <figure>
