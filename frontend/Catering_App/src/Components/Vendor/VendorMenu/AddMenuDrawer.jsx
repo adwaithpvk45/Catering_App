@@ -18,7 +18,7 @@ const categories = ["Starters", "Main Course", "Desserts", "Drinks"];
 const MenuItemSchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
   category: Yup.string().required("Category is required"),
-  price: Yup.string().positive().required("Price is required"),
+  price: Yup.number().positive().required("Price is required"),
   image: Yup.mixed().required("Image is required"),
   description: Yup.string().required("Description is required"),
 });
