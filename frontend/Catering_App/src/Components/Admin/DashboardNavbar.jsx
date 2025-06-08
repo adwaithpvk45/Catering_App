@@ -7,17 +7,16 @@ import {
   Button,
   useMediaQuery,
   useTheme,
+  Tooltip,
 } from "@mui/material";
 import React from "react";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import { LogOutIcon, MenuIcon } from "lucide-react";
+import DashboardAvatarSection from "../../common ui/DashboardAvatar";
 
-
-function DashboardNavbar({onLogout,toggleDrawer,toggleSidebarDrawer}) {
-    
-
-      const theme = useTheme()
-      const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+function DashboardNavbar({ onLogout, toggleDrawer, toggleSidebarDrawer }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   return (
     <AppBar
@@ -40,9 +39,16 @@ function DashboardNavbar({onLogout,toggleDrawer,toggleSidebarDrawer}) {
             Admin Panel
           </Typography>
         </Box>
-        <Button color="inherit" endIcon={<LogOutIcon />} onClick={onLogout}>
-          Logout
-        </Button>
+        <Box sx={{ display: "flex" }}>
+          <Box>
+            <Tooltip >
+              <DashboardAvatarSection />
+            </Tooltip>
+          </Box>
+          <Button color="inherit" endIcon={<LogOutIcon />} onClick={onLogout}>
+            Logout
+          </Button>
+        </Box>
       </Toolbar>
     </AppBar>
   );
