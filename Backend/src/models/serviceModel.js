@@ -1,4 +1,7 @@
-const mongoose = require("mongoose");
+// const mongoose = require("mongoose");
+
+import mongoose from 'mongoose';
+
 
 const serviceSchema = new mongoose.Schema({
   vendor: {

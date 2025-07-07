@@ -7,6 +7,8 @@ import cookieParser from 'cookie-parser'
 import userRoutes from "./src/routes/userRoutes.js"
 import foodRoutes from "./src/routes/foodRoutes.js"
 import vendorRoutes from "./src/routes/vendorRoutes.js"
+import serviceRoutes from "./src/routes/serviceRoutes.js"
+
 
 dotenv.config()
 
