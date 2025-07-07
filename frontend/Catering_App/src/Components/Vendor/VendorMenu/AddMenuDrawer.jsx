@@ -12,6 +12,8 @@ import {
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import { UploadIcon } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { addFoodData } from "../../../api/vendor/vendorApi";
 
 const categories = ["Starters", "Main Course", "Desserts", "Drinks"];
 
@@ -26,6 +28,7 @@ const MenuItemSchema = Yup.object().shape({
 const AddEditMenuItemDrawer = ({ open, onClose, onSubmit, initialValues }) => {
   console.log("🚀 ~ AddEditMenuItemDrawer ~ initialValues:", initialValues);
   const [preview, setPreview] = useState("");
+  const dispatch = useDispatch()
 
   return (
     <Drawer
@@ -51,7 +54,8 @@ const AddEditMenuItemDrawer = ({ open, onClose, onSubmit, initialValues }) => {
           }}
           validationSchema={MenuItemSchema}
           onSubmit={(values, { resetForm }) => {
-            onSubmit(values);
+            // onSubmit(values);
+            dispatch(addFoodData())
             resetForm();
             onClose();
           }}

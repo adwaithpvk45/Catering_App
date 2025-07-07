@@ -1,8 +1,8 @@
 import commonFunction from "../common/commonApi";
 
-export const uploadMenuImage = (formData) => async (dispatch) => {
+export const addFoodData = (formData) => async (dispatch) => {
   return await commonFunction({
-    api: '/vendor/menu/upload',
+    api: '/api/food/addFood',
     method: 'POST',
     body: formData,
     successAction: 'vendor/uploadImageSuccess',

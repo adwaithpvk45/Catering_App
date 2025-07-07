@@ -1,5 +1,5 @@
 import axios from 'axios';
-import appConfig from '';
+import appConfig from './appConfig';
 import { toast } from 'react-toastify'; // must install: npm i react-toastify
 
 // Create Axios instance
@@ -19,11 +19,10 @@ axiosInstance.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
 
-  // Let browser handle boundary for FormData
+// Let browser handle boundary for FormData
   if (config.data instanceof FormData) {
     delete config.headers['Content-Type'];
-  }
-
+  }  
   return config;
 });
 

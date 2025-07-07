@@ -329,7 +329,7 @@ const VendorMenuItems = () => {
       <AddEditMenuItemDrawer
         open={drawerOpen}
         onClose={handleDrawerClose}
-        onSubmit={handleFormSubmit}
+        // onSubmit={handleFormSubmit}
         initialValues={selectedItem}
       />
     </Box>
