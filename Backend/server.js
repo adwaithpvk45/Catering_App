@@ -33,7 +33,6 @@ app.use('/api/service',serviceRoutes)
 
 
 app.listen(PORT,(()=>{
-
     connectDb()
     console.log(`Server running at ${PORT}`)
 }))
