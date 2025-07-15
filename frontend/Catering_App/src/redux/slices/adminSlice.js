@@ -30,5 +30,5 @@ export const {
   fetchVendorsFail,
   fetchUsersSuccess,
   fetchUsersFail,
-} = vendorSlice.actions;
-export default vendorSlice.reducer;
+} = adminSlice.actions;
+export default adminSlice.reducer;

@@ -33,7 +33,8 @@ const VendorMenuItems = () => {
       price: "₹250",
       image: "https://source.unsplash.com/80x80/?butter-chicken",
       status: "Available",
-      description: "A rich and creamy North Indian chicken curry made with tomatoes, butter, and aromatic spices.",
+      description:
+        "A rich and creamy North Indian chicken curry made with tomatoes, butter, and aromatic spices.",
     },
     {
       id: 2,
@@ -42,7 +43,8 @@ const VendorMenuItems = () => {
       price: "₹100",
       image: "https://source.unsplash.com/80x80/?gulab-jamun",
       status: "Unavailable",
-      description: "Soft deep-fried dough balls soaked in a cardamom-flavored sugar syrup.",
+      description:
+        "Soft deep-fried dough balls soaked in a cardamom-flavored sugar syrup.",
     },
     {
       id: 3,
@@ -51,7 +53,8 @@ const VendorMenuItems = () => {
       price: "₹180",
       image: "https://source.unsplash.com/80x80/?paneer-tikka",
       status: "Available",
-      description: "Chunks of paneer marinated in spicy yogurt, skewered and grilled to perfection.",
+      description:
+        "Chunks of paneer marinated in spicy yogurt, skewered and grilled to perfection.",
     },
     {
       id: 4,
@@ -60,7 +63,8 @@ const VendorMenuItems = () => {
       price: "₹200",
       image: "https://source.unsplash.com/80x80/?biryani",
       status: "Available",
-      description: "Aromatic rice dish cooked with fresh vegetables and Indian spices, served with raita.",
+      description:
+        "Aromatic rice dish cooked with fresh vegetables and Indian spices, served with raita.",
     },
     {
       id: 5,
@@ -69,7 +73,8 @@ const VendorMenuItems = () => {
       price: "₹90",
       image: "https://source.unsplash.com/80x80/?masala-dosa",
       status: "Unavailable",
-      description: "Crispy South Indian crepe filled with a flavorful spiced potato mixture.",
+      description:
+        "Crispy South Indian crepe filled with a flavorful spiced potato mixture.",
     },
     {
       id: 6,
@@ -78,7 +83,8 @@ const VendorMenuItems = () => {
       price: "₹220",
       image: "https://source.unsplash.com/80x80/?chicken-lollipop",
       status: "Available",
-      description: "Spicy Indo-Chinese style chicken wings served as an appetizer or snack.",
+      description:
+        "Spicy Indo-Chinese style chicken wings served as an appetizer or snack.",
     },
     {
       id: 7,
@@ -87,7 +93,8 @@ const VendorMenuItems = () => {
       price: "₹80",
       image: "https://source.unsplash.com/80x80/?fruit-salad",
       status: "Available",
-      description: "A refreshing mix of seasonal fruits served chilled with a touch of honey or cream.",
+      description:
+        "A refreshing mix of seasonal fruits served chilled with a touch of honey or cream.",
     },
     {
       id: 8,
@@ -96,7 +103,8 @@ const VendorMenuItems = () => {
       price: "₹70",
       image: "https://source.unsplash.com/80x80/?cold-coffee",
       status: "Available",
-      description: "Chilled, frothy coffee drink blended with ice and milk for a refreshing boost.",
+      description:
+        "Chilled, frothy coffee drink blended with ice and milk for a refreshing boost.",
     },
     {
       id: 9,
@@ -105,7 +113,8 @@ const VendorMenuItems = () => {
       price: "₹60",
       image: "https://source.unsplash.com/80x80/?idli-sambar",
       status: "Unavailable",
-      description: "Soft steamed rice cakes served with a tangy and spicy lentil-based vegetable stew.",
+      description:
+        "Soft steamed rice cakes served with a tangy and spicy lentil-based vegetable stew.",
     },
     {
       id: 10,
@@ -114,10 +123,11 @@ const VendorMenuItems = () => {
       price: "₹20",
       image: "https://source.unsplash.com/80x80/?tandoori-roti",
       status: "Available",
-      description: "Traditional Indian flatbread cooked in a tandoor, best enjoyed with curry dishes.",
+      description:
+        "Traditional Indian flatbread cooked in a tandoor, best enjoyed with curry dishes.",
     },
   ]);
-  
+
   const handleAddClick = () => {
     setSelectedItem({
       name: "",
@@ -326,12 +336,13 @@ const VendorMenuItems = () => {
           rowsPerPageOptions={[]}
         />
       </Paper>
-      <AddEditMenuItemDrawer
-        open={drawerOpen}
-        onClose={handleDrawerClose}
-        // onSubmit={handleFormSubmit}
-        initialValues={selectedItem}
-      />
+      {drawerOpen && selectedItem && (
+        <AddEditMenuItemDrawer
+          open={drawerOpen}
+          onClose={handleDrawerClose}
+          initialValues={selectedItem}
+        />
+      )}
     </Box>
   );
 };

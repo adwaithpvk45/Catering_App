@@ -4,11 +4,16 @@ import { Field, Form, Formik } from "formik";
 import { TextField, Tooltip } from "@mui/material";
 import { CookingPot, Eye, EyeOff, Loader, MessageSquare } from "lucide-react";
 // import AuthImagePattern from '../components/AuthImagePattern'
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { login } from "../api/LoginRegister/loginRegister";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   //   const{login} = useAuthStore()
 
   const validate = (values) => {
@@ -46,10 +51,10 @@ const LoginPage = () => {
             <div className="text-center mb-8">
               <div className="flex flex-col items-center gap-2 group">
                 <div className="size-12 rounded-xl bg-warning/10 flex items-center justify-center group-hover:bg-warning/20 transition-colors">
-                  <Tooltip title="Homepage" >
-                  <Link to={"/"}>
-                    <CookingPot className="size-6 text-warning" />
-                  </Link>{" "}
+                  <Tooltip title="Homepage">
+                    <Link to={"/"}>
+                      <CookingPot className="size-6 text-warning" />
+                    </Link>{" "}
                   </Tooltip>
                 </div>
                 <h1 className="text-2xl font-bold mt-2">Welcome Back!</h1>
@@ -70,9 +75,9 @@ const LoginPage = () => {
               onSubmit={async (values, { setSubmitting }) => {
                 try {
                   console.log(values);
+                  dispatch(login(values,navigate));
                   // login(values);
                   setSubmitting(false);
-                  toast.success("success");
                 } catch (error) {
                   toast.error("SignUp unsuccessfull!");
                 }

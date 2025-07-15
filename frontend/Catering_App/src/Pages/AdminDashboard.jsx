@@ -3,6 +3,8 @@ import SideBar from "../Components/Admin/SideBar";
 import { Box, Toolbar } from "@mui/material";
 import { Outlet, useNavigate } from "react-router-dom";
 import DashboardNavbar from "../Components/Admin/DashboardNavbar";
+import { useDispatch } from "react-redux";
+import { logout } from "../api/LoginRegister/loginRegister";
 
 const drawerWidth = 240;
 
@@ -10,12 +12,12 @@ function AdminDashboard() {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const dispatch = useDispatch()
 
   console.log(isSidebarOpen)
 
   const handleLogout = () => {
-    //cookie logic to logout
-    navigate("/Home");
+    dispatch(logout(navigate))
   };
 
   const handleDrawerToggle = () => {

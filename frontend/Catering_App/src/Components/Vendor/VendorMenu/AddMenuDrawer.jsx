@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Drawer,
   Box,
@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
-import { UploadIcon } from "lucide-react";
+import { Upload } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { addFoodData } from "../../../api/vendor/vendorApi";
 
@@ -25,10 +25,9 @@ const MenuItemSchema = Yup.object().shape({
   description: Yup.string().required("Description is required"),
 });
 
-const AddEditMenuItemDrawer = ({ open, onClose, onSubmit, initialValues }) => {
-  console.log("🚀 ~ AddEditMenuItemDrawer ~ initialValues:", initialValues);
+const AddEditMenuItemDrawer = ({ open, onClose, initialValues }) => {
   const [preview, setPreview] = useState("");
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   return (
     <Drawer
@@ -48,14 +47,23 @@ const AddEditMenuItemDrawer = ({ open, onClose, onSubmit, initialValues }) => {
             name: initialValues?.name || "",
             category: initialValues?.category || "",
             price: initialValues?.price || "",
-            image: initialValues?.image || "",
+            image: initialValues?.image || null,
             description: initialValues?.description || "",
             id: initialValues?.id || null,
           }}
           validationSchema={MenuItemSchema}
           onSubmit={(values, { resetForm }) => {
             // onSubmit(values);
-            dispatch(addFoodData())
+            const formData = new FormData();
+            formData.append("name", values.name);
+            formData.append("category", values.category);
+            formData.append("price", values.price);
+            formData.append("description", values.description);
+            formData.append("image", values.image);
+
+            console.log("reached here")
+
+            dispatch(addFoodData(formData));
             resetForm();
             onClose();
           }}
@@ -68,10 +76,10 @@ const AddEditMenuItemDrawer = ({ open, onClose, onSubmit, initialValues }) => {
                 label="Item Name"
                 fullWidth
                 margin="normal"
-                value={values.name}
+                value={values?.name || ""}
                 onBlur={handleBlur}
-                error={touched.name && !!errors.name}
-                helperText={touched.name && errors.name}
+                error={touched?.name && !!errors?.name}
+                helperText={touched?.name && errors?.name}
               />
 
               <Field
@@ -81,12 +89,12 @@ const AddEditMenuItemDrawer = ({ open, onClose, onSubmit, initialValues }) => {
                 label="Category"
                 fullWidth
                 margin="normal"
-                value={values.category}
+                value={values?.category || ""}
                 onBlur={handleBlur}
-                error={touched.category && !!errors.category}
-                helperText={touched.category && errors.category}
+                error={touched?.category && !!errors?.category}
+                helperText={touched?.category && errors?.category}
               >
-                {categories.map((cat) => (
+                {categories?.map((cat) => (
                   <MenuItem key={cat} value={cat}>
                     {cat}
                   </MenuItem>
@@ -100,10 +108,10 @@ const AddEditMenuItemDrawer = ({ open, onClose, onSubmit, initialValues }) => {
                 type="string"
                 fullWidth
                 margin="normal"
-                value={values.price}
+                value={values?.price || ""}
                 onBlur={handleBlur}
-                error={touched.price && !!errors.price}
-                helperText={touched.price && errors.price}
+                error={touched?.price && !!errors?.price}
+                helperText={touched?.price && errors?.price}
               />
 
               <Box
@@ -123,7 +131,7 @@ const AddEditMenuItemDrawer = ({ open, onClose, onSubmit, initialValues }) => {
                   <Tooltip title="Upload">
                     <label htmlFor="image-upload">
                       <IconButton color="primary" component="span">
-                        <UploadIcon />
+                        <Upload />
                       </IconButton>
                     </label>
                   </Tooltip>
@@ -135,15 +143,15 @@ const AddEditMenuItemDrawer = ({ open, onClose, onSubmit, initialValues }) => {
                     hidden
                     onChange={(event) => {
                       const file = event.currentTarget.files[0];
-                      if (file) {
+                      if (file && file.type.startsWith("image/")) {
                         setFieldValue("image", file);
                         setPreview(URL.createObjectURL(file));
                       }
                     }}
                   />
-                  {touched.image && errors.image && (
+                  {touched?.image && errors?.image && (
                     <Typography color="error" variant="caption">
-                      {errors.image}
+                      {errors?.image}
                     </Typography>
                   )}
                 </Box>
@@ -166,10 +174,10 @@ const AddEditMenuItemDrawer = ({ open, onClose, onSubmit, initialValues }) => {
                 rows={3}
                 fullWidth
                 margin="normal"
-                value={values.description}
+                value={values?.description || ""}
                 onBlur={handleBlur}
-                error={touched.description && !!errors.description}
-                helperText={touched.description && errors.description}
+                error={touched?.description && !!errors?.description}
+                helperText={touched?.description && errors?.description}
               />
 
               <Button

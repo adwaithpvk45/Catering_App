@@ -2,14 +2,24 @@ import { CookingPot, Eye, EyeOff, Loader2 } from "lucide-react";
 import React from "react";
 import { Form, Formik, Field } from "formik";
 import { useState } from "react";
-import { InputLabel, MenuItem, Select, TextField, Tooltip } from "@mui/material";
+import {
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  Tooltip,
+} from "@mui/material";
 // import { useAuthStore } from '../store/useAuthStore'
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 // import AuthImagePattern from '../components/AuthImagePattern'
 import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { signUp } from "../api/LoginRegister/loginRegister";
 
 const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate()
 
   const validate = (values) => {
     const errors = {};
@@ -76,17 +86,23 @@ const SignupPage = () => {
               </div>
             </div>
             <Formik
-              initialValues={{ fullName: "", email: "", password: "" }}
+              initialValues={{
+                fullName: "",
+                email: "",
+                password: "",
+                role: "",
+              }}
               validate={validate}
               validateOnChange={false}
               onSubmit={async (values, { setSubmitting }) => {
                 try {
                   console.log(values);
+                  dispatch(signUp(values,navigate));
                   // signUp(values);
-                  toast.success("Success");
-                  setSubmitting(false);
                 } catch (error) {
                   toast.error("SignUp unsuccessfull!");
+                } finally {
+                  setSubmitting(false); // optional if using Formik v2+
                 }
               }}
             >

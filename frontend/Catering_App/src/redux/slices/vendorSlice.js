@@ -19,11 +19,17 @@ const vendorSlice = createSlice({
       state.services = action.payload;
     },
     fetchServiceFail: (state, action) => {
-      state.services = action.payload;
+      state.error = action.payload;
       state.services = [];
     },
   },
 });
 
-export const { fetchMenusSuccess,fetchMenusFail,fetchServiceFail,fetchServiceSuccess} = vendorSlice.actions;
+export const {
+  fetchMenusSuccess,
+  fetchMenusFail,
+  fetchServiceSuccess,
+  fetchServiceFail,
+} = vendorSlice.actions;
+
 export default vendorSlice.reducer;

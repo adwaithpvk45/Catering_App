@@ -12,5 +12,5 @@ const userSlice = createSlice({
   },
 });
 
-export const { fetchMenusSuccess } = vendorSlice.actions;
+export const { fetchMenusSuccess } = userSlice.actions;
 export default userSlice.reducer;
