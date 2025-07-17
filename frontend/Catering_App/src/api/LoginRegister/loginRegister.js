@@ -1,4 +1,4 @@
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import commonFunction from "../common/commonApi";
 
 export const login = (values, navigate) => async (dispatch) => {
@@ -16,8 +16,8 @@ export const login = (values, navigate) => async (dispatch) => {
       dispatch
     );
     console.log("🚀 ~ login ~ res:", res);
-    if (res?.message === "Logged in successfully") {
-      toast.success(res?.message);
+    if (res?.message === "Loggedin successfully") {
+      toast.success(res?.message, { duration: 3000 });
       localStorage.setItem("userDetails", JSON.stringify(res));
       if (res?.existingUser?.role === "vendor") {
         navigate("/vendor/vendorDashboard");
@@ -26,9 +26,11 @@ export const login = (values, navigate) => async (dispatch) => {
       } else {
         navigate("/admin/dashboard");
       }
+    } else {
+      toast.error(res?.message, { duration: 3000 });
     }
   } catch (error) {
-    toast.error(error);
+    toast.error(error, { duration: 3000 });
   }
 };
 
@@ -47,23 +49,23 @@ export const signUp = (values, navigate) => async (dispatch) => {
       dispatch
     );
     if (res?.message) {
-      toast.success(res?.message);
+      toast.success(res?.message, { duration: 3000 });
       if (navigate) {
         navigate("/login");
       }
     }
   } catch (err) {
-    toast.error("Error in signing up");
+    toast.error("Error in signing up", { duration: 3000 });
   }
 };
 
-export const logout = (values, navigate) => async (dispatch) => {
+export const logout = (navigate) => async (dispatch) => {
   try {
     const res = await commonFunction(
       {
         api: "/api/auth/logout",
         method: "POST",
-        body:{},
+        body: {},
         successAction: "login/logoutSuccess",
         failureAction: "login/logoutFail",
         showSuccess: true,
@@ -71,13 +73,14 @@ export const logout = (values, navigate) => async (dispatch) => {
       },
       dispatch
     );
-    if (res?.message) {
-      toast.success(res?.message);
+    if (res?.message === "logged out") {
+      localStorage.removeItem("userDetails");
+      toast.success(res?.message, { duration: 3000 });
       if (navigate) {
         navigate("/Home");
       }
     }
   } catch (err) {
-    toast.error("Error in signing up");
+    toast.error("Error in signing up", { duration: 3000 });
   }
 };

@@ -130,7 +130,7 @@ export const logout = async (req, res) => {
     res.status(200).json({ message: "logged out" });
   } catch (error) {
     res.status(500).json({ message: "internal server error", error });
-      }
+  }
 };
 
 export const checkAuth = async (req, res) => {

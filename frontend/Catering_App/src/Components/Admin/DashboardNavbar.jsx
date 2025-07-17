@@ -17,6 +17,9 @@ import DashboardAvatarSection from "../../common ui/DashboardAvatar";
 function DashboardNavbar({ onLogout, toggleDrawer, toggleSidebarDrawer }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const role = JSON.parse(localStorage.getItem("userDetails"))?.existingUser
+    ?.role;
+  console.log("🚀 ~ DashboardNavbar ~ role:", role);
 
   return (
     <AppBar
@@ -36,12 +39,12 @@ function DashboardNavbar({ onLogout, toggleDrawer, toggleSidebarDrawer }) {
           </IconButton>
           <AdminPanelSettingsIcon />
           <Typography variant="h6" noWrap component="div">
-            Admin Panel
+            {role === "vendor" ? "Vendor Panel" : "Admin Panel"}
           </Typography>
         </Box>
         <Box sx={{ display: "flex" }}>
           <Box>
-            <Tooltip >
+            <Tooltip>
               <DashboardAvatarSection />
             </Tooltip>
           </Box>
