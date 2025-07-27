@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Table,
@@ -16,6 +16,8 @@ import {
   MenuItem,
 } from "@mui/material";
 import AddEditMenuItemDrawer from "./AddMenuDrawer"; // Adjust the path based on your project structure
+import { useDispatch, useSelector } from "react-redux";
+import { deleteFoodData, getVendorFood } from "../../../api/vendor/vendorApi";
 
 const VendorMenuItems = () => {
   const [page, setPage] = useState(0);
@@ -24,6 +26,9 @@ const VendorMenuItems = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [mode, setMode] = useState("add");
+
+  const dispatch = useDispatch();
 
   const [menuItems, setMenuItems] = useState([
     {
@@ -128,6 +133,9 @@ const VendorMenuItems = () => {
     },
   ]);
 
+  const foods = useSelector((state) => state.vendor.menus.vendorFood);
+  console.log("🚀 ~ VendorMenuItems ~ foods:", foods);
+
   const handleAddClick = () => {
     setSelectedItem({
       name: "",
@@ -149,6 +157,7 @@ const VendorMenuItems = () => {
       description: item.description || "",
     });
     setDrawerOpen(true);
+    setMode("edit")
   };
 
   const handleDrawerClose = () => {
@@ -156,28 +165,33 @@ const VendorMenuItems = () => {
   };
 
   const handleDeleteItem = (id) => {
-    setMenuItems((prev) => prev.filter((item) => item.id !== id));
+    dispatch(deleteFoodData(id))
+    // setMenuItems((prev) => prev.filter((item) => item.id !== id));
   };
 
   const handleToggleStatus = (id) => {
     setMenuItems((prev) =>
       prev.map((item) =>
-        item.id === id
+        item?.id === id
           ? {
               ...item,
-              status: item.status === "Available" ? "Unavailable" : "Available",
+              status: item?.status === "Available" ? "Unavailable" : "Available",
             }
           : item
       )
     );
   };
 
-  const filteredItems = menuItems.filter((item) => {
-    const matchesSearch = item.name
+  useEffect(() => {
+    dispatch(getVendorFood());
+  }, []);
+
+  const filteredItems = foods?.filter((item) => {
+    const matchesSearch = item?.name
       .toLowerCase()
-      .includes(searchQuery.toLowerCase());
+      .includes(searchQuery?.toLowerCase());
     const matchesCategory = selectedCategory
-      ? item.category === selectedCategory
+      ? item?.category === selectedCategory
       : true;
     return matchesSearch && matchesCategory;
   });
@@ -186,7 +200,7 @@ const VendorMenuItems = () => {
     if (data.id) {
       // Update existing
       setMenuItems((prev) =>
-        prev.map((item) => (item.id === data.id ? { ...item, ...data } : item))
+        prev.map((item) => (item?.id === data.id ? { ...item, ...data } : item))
       );
     } else {
       // Add new
@@ -199,7 +213,7 @@ const VendorMenuItems = () => {
     setPage(newPage);
   };
 
-  const paginatedItems = filteredItems.slice(
+  const paginatedItems = filteredItems?.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
@@ -243,7 +257,7 @@ const VendorMenuItems = () => {
             sx={{ minWidth: 200 }}
           >
             <MenuItem value="">All</MenuItem>
-            {categories.map((cat) => (
+            {categories?.map((cat) => (
               <MenuItem key={cat} value={cat}>
                 {cat}
               </MenuItem>
@@ -285,19 +299,19 @@ const VendorMenuItems = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {paginatedItems.map((item) => (
-                <TableRow key={item.id}>
+              {paginatedItems?.map((item) => (
+                <TableRow key={item?._id}>
                   <TableCell>
-                    <img src={item.image} alt={item.name} width="50" />
+                    <img src={item?.imageUrl} alt={item?.name} width="50" />
                   </TableCell>
-                  <TableCell>{item.name}</TableCell>
-                  <TableCell>{item.category}</TableCell>
-                  <TableCell>{item.price}</TableCell>
+                  <TableCell>{item?.name}</TableCell>
+                  <TableCell>{item?.category}</TableCell>
+                  <TableCell>{item?.price}</TableCell>
                   <TableCell>
                     <Chip
-                      label={item.status}
+                      label={item?.status}
                       color={
-                        item.status === "Available" ? "success" : "default"
+                        item?.status === "Available" ? "success" : "default"
                       }
                       onClick={() => handleToggleStatus(item.id)}
                       sx={{ cursor: "pointer" }}
@@ -316,7 +330,7 @@ const VendorMenuItems = () => {
                       variant="outlined"
                       size="small"
                       color="error"
-                      onClick={() => handleDeleteItem(item.id)}
+                      onClick={() => handleDeleteItem(item._id)}
                     >
                       Delete
                     </Button>
@@ -329,7 +343,7 @@ const VendorMenuItems = () => {
 
         <TablePagination
           component="div"
-          count={menuItems.length}
+          count={foods?.length}
           page={page}
           onPageChange={handleChangePage}
           rowsPerPage={rowsPerPage}
@@ -341,6 +355,8 @@ const VendorMenuItems = () => {
           open={drawerOpen}
           onClose={handleDrawerClose}
           initialValues={selectedItem}
+          mode={mode}
+          setMode={setMode}
         />
       )}
     </Box>

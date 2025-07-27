@@ -1,5 +1,6 @@
 import { toast } from "react-hot-toast";
 import commonFunction from "../common/commonApi";
+import { replace } from "formik";
 
 export const login = (values, navigate) => async (dispatch) => {
   try {
@@ -15,16 +16,14 @@ export const login = (values, navigate) => async (dispatch) => {
       },
       dispatch
     );
-    console.log("🚀 ~ login ~ res:", res);
     if (res?.message === "Loggedin successfully") {
       toast.success(res?.message, { duration: 3000 });
-      localStorage.setItem("userDetails", JSON.stringify(res));
       if (res?.existingUser?.role === "vendor") {
-        navigate("/vendor/vendorDashboard");
+        navigate("/vendor/vendorDashboard",{replace:true});
       } else if (res?.existingUser?.role === "user") {
-        navigate("/Home");
+        navigate("/Home",{replace:true});
       } else {
-        navigate("/admin/dashboard");
+        navigate("/admin/dashboard",{replace:true});
       }
     } else {
       toast.error(res?.message, { duration: 3000 });
@@ -74,10 +73,10 @@ export const logout = (navigate) => async (dispatch) => {
       dispatch
     );
     if (res?.message === "logged out") {
-      localStorage.removeItem("userDetails");
+      // localStorage.removeItem("userDetails");
       toast.success(res?.message, { duration: 3000 });
       if (navigate) {
-        navigate("/Home");
+        navigate("/Home",{replace:true});
       }
     }
   } catch (err) {

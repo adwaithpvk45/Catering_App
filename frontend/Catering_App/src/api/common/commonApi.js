@@ -1,5 +1,3 @@
-// src/api/common/commonFunction.js
-
 import axiosInstance from "./axiosInstance";
 import { toast } from "react-toastify";
 
@@ -22,7 +20,7 @@ const commonFunction = async (
     const response = await axiosInstance({
       url: api,
       method,
-      data: body ?? null,
+  ...(body ? { data: body } : {}), // Only include data if body is not null ?? null,
     });
 
     const data = response.data;

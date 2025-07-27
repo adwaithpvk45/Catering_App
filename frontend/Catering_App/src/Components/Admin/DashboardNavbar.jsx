@@ -19,7 +19,6 @@ function DashboardNavbar({ onLogout, toggleDrawer, toggleSidebarDrawer }) {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const role = JSON.parse(localStorage.getItem("userDetails"))?.existingUser
     ?.role;
-  console.log("🚀 ~ DashboardNavbar ~ role:", role);
 
   return (
     <AppBar

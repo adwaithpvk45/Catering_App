@@ -4,10 +4,18 @@ const vendorSlice = createSlice({
   name: "vendor",
   initialState: {
     menus: [],
+    food:[],
     error: null,
     services: [],
   },
   reducers: {
+    foodAddSuccess: (state, action) => {
+      state.food = action.payload;
+    },
+    foodAddFail: (state, action) => {
+      state.error = action.payload;
+      state.food = [];
+    },
     fetchMenusSuccess: (state, action) => {
       state.menus = action.payload;
     },
@@ -30,6 +38,7 @@ export const {
   fetchMenusFail,
   fetchServiceSuccess,
   fetchServiceFail,
+  foodAddFail,foodAddSuccess
 } = vendorSlice.actions;
 
 export default vendorSlice.reducer;
