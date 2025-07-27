@@ -22,6 +22,8 @@ import AdminBookings from './Components/Admin/Bookings/Bookings'
 import VendorBookings from './Components/Vendor/vendorBookings/VendorBookings'
 import VendorMenuItems from './Components/Vendor/VendorMenu/VendorMenuItems'
 import VendorServices from './Components/Vendor/VendorServices/VendorServiceList'
+import GuestRoute from './routes/GuestRoute'
+import ProtectedRoute from './routes/ProtectedRoute'
 
 function App() {
   const {theme} = useThemeStore()
@@ -36,33 +38,45 @@ function App() {
       <Toaster/>
       {!locationPath && <Navbar/>}
       {/* <Navbar/> */}
-    <Routes>
-      <Route path='/' element={<><HomePage/></>} ></Route>
-      <Route path='/Home' element={<><HomePage/></>} ></Route>
-      <Route path='/About' element={<AboutPage/>}></Route>
-      <Route path='/Services' element={<Services/>}></Route>
-      <Route path='/Contact' element={<Contact/>}></Route>
-      <Route path='/login' element={<LoginPage/>}></Route>
-      <Route path='/signup' element={<SignupPage/>}></Route>
-      <Route path='/food' element={<FoodPage/>}></Route>
-      <Route path='/admin' element={<AdminDashboard/>}>
-      <Route index element={<Dashboard />} /> {/*this allows the /admin to show the dashboard */}
-      <Route path='dashboard' element={<Dashboard/>}/>
-      <Route path='bookings' element={<AdminBookings/>}/>
-      <Route path='complaints' element={<Complaints/>}/>
-      <Route path='vendors' element={<VendorsList/>}/>
-      <Route path='users' element={<UsersList/>}/>
-      </Route>
-      <Route path='/vendor' element={<AdminDashboard/>}>
-      <Route index element={<Dashboard />} /> {/*this allows the /admin to show the dashboard */}
-      <Route path='vendorDashboard' element={<Dashboard/>}/>
-      <Route path='vendorBookings' element={<VendorBookings/>}/>
-      <Route path='vendorServices' element={<VendorServices/>}/>
-      <Route path='vendorMenu' element={<VendorMenuItems/>}/>
-      <Route path='users' element={<UsersList/>}/>
-      </Route>
+   <Routes>
+  {/* Public pages */}
+  <Route path="/" element={<HomePage />} />
+  <Route path="/home" element={<HomePage />} />
+  <Route path="/about" element={<AboutPage />} />
+  <Route path="/services" element={<Services />} />
+  <Route path="/contact" element={<Contact />} />
+  <Route path="/food" element={<FoodPage />} />
 
-    </Routes>
+  {/* Guest-only routes */}
+  <Route element={<GuestRoute/>}>
+    <Route path="/login" element={<LoginPage />} />
+    <Route path="/signup" element={<SignupPage />} />
+  </Route>
+
+  {/* Admin */}
+  <Route element={<ProtectedRoute roles={['admin']} />}>
+    <Route path="/admin" element={<AdminDashboard />}>
+      <Route index element={<Dashboard />} />
+      <Route path="dashboard" element={<Dashboard />} />
+      <Route path="bookings" element={<AdminBookings />} />
+      <Route path="complaints" element={<Complaints />} />
+      <Route path="vendors" element={<VendorsList />} />
+      <Route path="users" element={<UsersList />} />
+    </Route>
+  </Route>
+
+  {/* Vendor */}
+  <Route element={<ProtectedRoute roles={['vendor']} />}>
+    <Route path="/vendor" element={<AdminDashboard />}>
+      <Route index element={<Dashboard />} />
+      <Route path="vendorDashboard" element={<Dashboard />} />
+      <Route path="vendorBookings" element={<VendorBookings />} />
+      <Route path="vendorServices" element={<VendorServices />} />
+      <Route path="vendorMenu" element={<VendorMenuItems />} />
+      <Route path="users" element={<UsersList />} />
+    </Route>
+  </Route>
+</Routes>
     {!locationPath && <Footer/>}
     </div>
     

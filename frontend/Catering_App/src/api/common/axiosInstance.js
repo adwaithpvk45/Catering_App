@@ -1,14 +1,16 @@
-import axios from 'axios';
-import appConfig from './appConfig';
-import { toast } from 'react-toastify'; // must install: npm i react-toastify
+import axios from "axios";
+import appConfig from "./appConfig";
+import { toast } from "react-toastify"; // must install: npm i react-toastify
+import store from "../../redux/store";
+import { logout } from "../LoginRegister/loginRegister";
 
 // Create Axios instance
 const axiosInstance = axios.create({
   baseURL: appConfig.baseURL,
   withCredentials: true,
   headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
+    Accept: "application/json",
+    "Content-Type": "application/json",
   },
 });
 
@@ -19,10 +21,10 @@ axiosInstance.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
 
-// Let browser handle boundary for FormData
+  // Let browser handle boundary for FormData
   if (config.data instanceof FormData) {
-    delete config.headers['Content-Type'];
-  }  
+    delete config.headers["Content-Type"];
+  }
   return config;
 });
 
@@ -32,11 +34,10 @@ axiosInstance.interceptors.response.use(
   (error) => {
     const status = error?.response?.status;
     if (status === 401 || status === 403) {
-      toast.error('Session expired. Logging out...');
-      localStorage.removeItem('token');
-      setTimeout(() => {
-        window.location.href = '/login';
-      }, 1500);
+      toast.error("Session expired. Logging out...");
+      localStorage.removeItem("token");
+      store.dispatch(logout());
+      window.history.pushState({}, "", "/login"); // or use navigate if available
     }
     return Promise.reject(error);
   }
