@@ -17,7 +17,10 @@ import {
 } from "@mui/material";
 import AddEditMenuItemDrawer from "./AddMenuDrawer"; // Adjust the path based on your project structure
 import { useDispatch, useSelector } from "react-redux";
-import { deleteFoodData, getVendorFood } from "../../../api/vendor/vendorApi";
+import {
+  deleteFoodData,
+  getVendorFood,
+} from "../../../api/vendor/vendorFoodApi";
 
 const VendorMenuItems = () => {
   const [page, setPage] = useState(0);
@@ -133,8 +136,7 @@ const VendorMenuItems = () => {
     },
   ]);
 
-  const foods = useSelector((state) => state.vendor.menus.vendorFood);
-  console.log("🚀 ~ VendorMenuItems ~ foods:", foods);
+  const foods = useSelector((state) => state.vendorFood.menus.vendorFood);
 
   const handleAddClick = () => {
     setSelectedItem({
@@ -149,15 +151,16 @@ const VendorMenuItems = () => {
 
   const handleEditClick = (item) => {
     setSelectedItem({
-      id: item.id,
+      id: item._id,
       name: item.name,
       category: item.category,
       price: item.price,
-      image: item.image,
+      image: item.imageUrl,
       description: item.description || "",
+      status:item.status
     });
     setDrawerOpen(true);
-    setMode("edit")
+    setMode("edit");
   };
 
   const handleDrawerClose = () => {
@@ -165,7 +168,7 @@ const VendorMenuItems = () => {
   };
 
   const handleDeleteItem = (id) => {
-    dispatch(deleteFoodData(id))
+    dispatch(deleteFoodData(id));
     // setMenuItems((prev) => prev.filter((item) => item.id !== id));
   };
 
@@ -175,7 +178,8 @@ const VendorMenuItems = () => {
         item?.id === id
           ? {
               ...item,
-              status: item?.status === "Available" ? "Unavailable" : "Available",
+              status:
+                item?.status === "Available" ? "Unavailable" : "Available",
             }
           : item
       )
@@ -313,7 +317,6 @@ const VendorMenuItems = () => {
                       color={
                         item?.status === "Available" ? "success" : "default"
                       }
-                      onClick={() => handleToggleStatus(item.id)}
                       sx={{ cursor: "pointer" }}
                     />
                   </TableCell>

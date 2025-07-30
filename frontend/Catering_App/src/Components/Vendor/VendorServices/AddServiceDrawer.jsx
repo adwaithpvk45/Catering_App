@@ -10,36 +10,65 @@ import {
 } from "@mui/material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import {
+  addServiceData,
+  editServiceData,
+} from "../../../api/vendor/vendorServiceApi";
+import { useDispatch } from "react-redux";
 
 const AddEditServiceDrawer = ({
   open,
   onClose,
-  onSubmit,
+  mode,
+  setMode,
   initialValues,
   serviceTypes,
 }) => {
-  const isEdit = Boolean(initialValues?.id);
+  const dispatch = useDispatch();
 
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      serviceName: initialValues?.serviceName || "",
-      serviceType: initialValues?.serviceType || "",
-      rate: initialValues?.rate || "",
+      name: initialValues?.name || "",
+      category: initialValues?.category || "",
+      price: initialValues?.price || "",
       duration: initialValues?.duration || "",
       description: initialValues?.description || "",
-      id: initialValues?.id || null,
+      id: initialValues?._id || null,
+      status:initialValues?.status
     },
     validationSchema: Yup.object().shape({
-      serviceName: Yup.string().required("Service name is required"),
-      serviceType: Yup.string().required("Service type is required"),
-      rate: Yup.string().required("Rate is required"),
+      name: Yup.string().required("Service name is required"),
+      category: Yup.string().required("Service type is required"),
+      price: Yup.number().positive().required("Price is required"),
       duration: Yup.string().required("Duration is required"),
       description: Yup.string().required("Description is required"),
     }),
-    onSubmit: (values) => {
-      onSubmit(values);
-      onClose();
+    onSubmit: async (values, { resetForm }) => {
+      try {
+        const id = values.id;
+        const formData = new FormData();
+        formData.append("name", values.name);
+        formData.append("category", values.category);
+        formData.append("price", values.price);
+        formData.append("description", values.description);
+        formData.append("foodImage", values.image);
+        formData.append("duration", values.duration);
+        formData.append("id", values.id);
+        if (mode === "edit" && values.status) {
+          formData.append("status", values.status);
+        }
+        mode === "add"
+          ? await dispatch(addServiceData(formData))
+          : await dispatch(editServiceData({ id, formData }));
+        resetForm();
+        setMode("add");
+        onClose();
+      } catch (err) {
+        console.error("Error adding menu item:", err);
+      } finally {
+        setSubmitting(false);
+      }
     },
   });
 
@@ -49,33 +78,33 @@ const AddEditServiceDrawer = ({
 
   return (
     <Drawer anchor="right" open={open} onClose={onClose}>
-          <Box sx={{ width: 400, p: 3 }}>
-              <Typography variant="h4" mb={4} mt={10}>
-          {isEdit ? "Edit Service" : "Add New Service"}
+      <Box sx={{ width: 400, p: 3 }}>
+        <Typography variant="h4" mb={4} mt={10}>
+          {mode === "edit" ? "Edit Service" : "Add New Service"}
         </Typography>
 
         <form onSubmit={formik.handleSubmit}>
           <Stack spacing={5}>
             <TextField
               label="Service Name"
-              name="serviceName"
-              value={formik.values.serviceName}
+              name="name"
+              value={formik.values.name}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              error={formik.touched.serviceName && Boolean(formik.errors.serviceName)}
-              helperText={formik.touched.serviceName && formik.errors.serviceName}
+              error={formik.touched.name && Boolean(formik.errors.name)}
+              helperText={formik.touched.name && formik.errors.name}
               fullWidth
             />
 
             <TextField
               select
               label="Service Type"
-              name="serviceType"
-              value={formik.values.serviceType}
+              name="category"
+              value={formik.values.category}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              error={formik.touched.serviceType && Boolean(formik.errors.serviceType)}
-              helperText={formik.touched.serviceType && formik.errors.serviceType}
+              error={formik.touched.category && Boolean(formik.errors.category)}
+              helperText={formik.touched.category && formik.errors.category}
               fullWidth
             >
               {serviceTypes.map((type) => (
@@ -87,12 +116,12 @@ const AddEditServiceDrawer = ({
 
             <TextField
               label="Rate"
-              name="rate"
-              value={formik.values.rate}
+              name="price"
+              value={formik.values.price}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              error={formik.touched.rate && Boolean(formik.errors.rate)}
-              helperText={formik.touched.rate && formik.errors.rate}
+              error={formik.touched.price && Boolean(formik.errors.price)}
+              helperText={formik.touched.price && formik.errors.price}
               fullWidth
             />
 
@@ -113,17 +142,39 @@ const AddEditServiceDrawer = ({
               value={formik.values.description}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              error={formik.touched.description && Boolean(formik.errors.description)}
-              helperText={formik.touched.description && formik.errors.description}
+              error={
+                formik.touched.description && Boolean(formik.errors.description)
+              }
+              helperText={
+                formik.touched.description && formik.errors.description
+              }
               multiline
               rows={3}
               fullWidth
             />
 
+            <TextField
+              label="Status"
+              name="status"
+              value={formik.values.status}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              rows={3}
+              select
+              fullWidth
+            >
+              <MenuItem key={1} value={"Available"}>
+                Available
+              </MenuItem>
+              <MenuItem key={2} value={"Unavailable"}>
+                Unavailable
+              </MenuItem>
+            </TextField>
+
             <Box display="flex" justifyContent="flex-end" gap={2}>
               <Button onClick={onClose}>Cancel</Button>
               <Button type="submit" variant="contained">
-                {isEdit ? "Update" : "Add"}
+                {mode === "edit" ? "Update" : "Add"}
               </Button>
             </Box>
           </Stack>

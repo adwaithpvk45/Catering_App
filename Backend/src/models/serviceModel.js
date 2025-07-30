@@ -1,7 +1,6 @@
 // const mongoose = require("mongoose");
 
-import mongoose from 'mongoose';
-
+import mongoose from "mongoose";
 
 const serviceSchema = new mongoose.Schema({
   vendor: {
@@ -12,7 +11,7 @@ const serviceSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    trim: true, 
+    trim: true,
   },
   description: {
     type: String,
@@ -20,7 +19,14 @@ const serviceSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    enum: ["Wedding", "Birthday", "Graduation Party", "Housewarming","Anniversary", "Others"],
+    enum: [
+      "Wedding",
+      "Birthday",
+      "Graduation Party",
+      "Housewarming",
+      "Anniversary",
+      "Others",
+    ],
     required: true,
   },
   price: {
@@ -34,6 +40,12 @@ const serviceSchema = new mongoose.Schema({
   ],
   duration: {
     type: String, // Example: "3 hours", "Full day"
+  },
+  status: {
+    type: String,
+    enum: ["Available", "Unavailable"],
+    default: "Available", // Set default status if needed
+    required: true,
   },
   // // availableDates: [
   // //   {
@@ -53,4 +65,4 @@ const serviceSchema = new mongoose.Schema({
 
 const Service = mongoose.model("Service", serviceSchema);
 
-export default Service
+export default Service;

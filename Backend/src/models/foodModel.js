@@ -22,6 +22,12 @@ const foodSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    status: {
+      type: String,
+      enum: ["Available", "Unavailable"],
+      default: "Available", // Set default status if needed
+      required: true,
+    },
     vendor: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -37,4 +43,4 @@ const foodSchema = mongoose.Schema(
 
 const Food = mongoose.model("Food", foodSchema);
 
-export default Food
+export default Food;

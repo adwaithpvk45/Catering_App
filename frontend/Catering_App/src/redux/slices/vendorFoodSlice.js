@@ -1,12 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const vendorSlice = createSlice({
-  name: "vendor",
+const vendorFoodSlice = createSlice({
+  name: "vendorFood",
   initialState: {
     menus: [],
     food:[],
     error: null,
-    services: [],
   },
   reducers: {
     foodAddSuccess: (state, action) => {
@@ -23,22 +22,13 @@ const vendorSlice = createSlice({
       state.error = action.payload;
       state.menus = [];
     },
-    fetchServiceSuccess: (state, action) => {
-      state.services = action.payload;
-    },
-    fetchServiceFail: (state, action) => {
-      state.error = action.payload;
-      state.services = [];
-    },
   },
 });
 
 export const {
   fetchMenusSuccess,
   fetchMenusFail,
-  fetchServiceSuccess,
-  fetchServiceFail,
   foodAddFail,foodAddSuccess
-} = vendorSlice.actions;
+} = vendorFoodSlice.actions;
 
-export default vendorSlice.reducer;
+export default vendorFoodSlice.reducer;

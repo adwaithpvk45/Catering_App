@@ -13,7 +13,7 @@ import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import { Upload } from "lucide-react";
 import { useDispatch } from "react-redux";
-import { addFoodData } from "../../../api/vendor/vendorApi";
+import { addFoodData, editFoodData } from "../../../api/vendor/vendorFoodApi";
 
 const categories = ["Starters", "Main Course", "Desserts", "Drinks"];
 
@@ -25,8 +25,14 @@ const MenuItemSchema = Yup.object().shape({
   description: Yup.string().required("Description is required"),
 });
 
-const AddEditMenuItemDrawer = ({ open, onClose, initialValues,mode,setMode }) => {
-  const [preview, setPreview] = useState("");
+const AddEditMenuItemDrawer = ({
+  open,
+  onClose,
+  initialValues,
+  mode,
+  setMode,
+}) => {
+  const [preview, setPreview] = useState(initialValues?.image || "");
 
   const dispatch = useDispatch();
 
@@ -36,7 +42,7 @@ const AddEditMenuItemDrawer = ({ open, onClose, initialValues,mode,setMode }) =>
       open={open}
       onClose={() => {
         onClose();
-        setMode("add")
+        setMode("add");
         setPreview("");
       }}
     >
@@ -52,24 +58,30 @@ const AddEditMenuItemDrawer = ({ open, onClose, initialValues,mode,setMode }) =>
             image: initialValues?.image || null,
             description: initialValues?.description || "",
             id: initialValues?.id || null,
+            status: initialValues?.status,
           }}
           validationSchema={MenuItemSchema}
           onSubmit={async (values, { resetForm }) => {
             // onSubmit(values);
             console.log("Submitted", values);
             try {
-              console.log("Submitting form");
+              const id = values.id;
               const formData = new FormData();
               formData.append("name", values.name);
               formData.append("category", values.category);
               formData.append("price", values.price);
               formData.append("description", values.description);
               formData.append("foodImage", values.image);
+              formData.append("id", values.id);
+              if (mode === "edit" && values.status) {
+                formData.append("status", values.status);
+              }
+
               mode === "add"
                 ? await dispatch(addFoodData(formData))
-                : await dispatch(editFoodData(formData));
+                : await dispatch(editFoodData({ id, formData }));
               resetForm();
-              setMode("add")
+              setMode("add");
               onClose();
             } catch (err) {
               console.error("Error adding menu item:", err);
@@ -78,8 +90,7 @@ const AddEditMenuItemDrawer = ({ open, onClose, initialValues,mode,setMode }) =>
             }
           }}
         >
-          {({ values, errors, touched, handleBlur, setFieldValue }) => {
-            console.log(errors);
+          {({ values, errors, touched, handleBlur, setFieldValue,handleChange }) => {
             return (
               <Form
                 onSubmitCapture={(e) => {
@@ -196,6 +207,24 @@ const AddEditMenuItemDrawer = ({ open, onClose, initialValues,mode,setMode }) =>
                   error={touched?.description && !!errors?.description}
                   helperText={touched?.description && errors?.description}
                 />
+
+                <TextField
+                  label="Status"
+                  name="status"
+                  value={values?.status}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  rows={3}
+                  select
+                  fullWidth
+                >
+                  <MenuItem key={1} value={"Available"}>
+                    Available
+                  </MenuItem>
+                  <MenuItem key={2} value={"Unavailable"}>
+                    Unavailable
+                  </MenuItem>
+                </TextField>
 
                 <Button
                   type="submit"

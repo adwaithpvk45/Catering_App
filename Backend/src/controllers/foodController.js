@@ -24,7 +24,6 @@ export const addFood = async (req, res) => {
     });
 
     const foodadded = await newFood.save();
-    console.log("Food added")
     return res.status(200).json({ message: "New Item added", foodadded });
   } catch (error) {
     console.error("Error adding food:", error);
@@ -33,6 +32,27 @@ export const addFood = async (req, res) => {
         .status(500)
         .json({ message: "Internal server error" + error.message });
     }
+  }
+};
+
+export const editFood = async (req, res) => {
+  try {
+    const { foodId } = req.params;
+    const updateData = req.body;
+
+    const updatedFood = await Food.findByIdAndUpdate(foodId, updateData, {
+      new: true, // returns updated document
+      runValidators: true, // runs schema validation
+    });
+
+    if (!updatedFood) {
+      return res.status(404).json({ message: "Food item not found" });
+    }
+
+    res.status(200).json({ message: "Food item updated", updatedFood });
+  } catch (error) {
+    console.error("Update error:", error);
+    res.status(500).json({ message: "Internal server error", error });
   }
 };
 
@@ -48,7 +68,6 @@ export const getAllFood = async (req, res) => {
 
 export const getVendorFood = async (req, res) => {
   try {
-    console.log(req.params)
     const { vendorId } = req.params;
     const vendorFood = await Food.find({ vendor: vendorId });
     res.status(200).json({ message: "Fetched all data", vendorFood });
@@ -59,10 +78,8 @@ export const getVendorFood = async (req, res) => {
 
 export const deleteVendorFood = async (req, res) => {
   try {
-    console.log("-----------------------------",req.params)
     const { foodId } = req.params;
-    const vendorFood = await Food.findOneAndDelete({ _id:foodId });
-    console.log("🚀 ~ deleteVendorFood ~ vendorFood:", vendorFood)
+    const vendorFood = await Food.findOneAndDelete({ _id: foodId });
     res.status(200).json({ message: "Item deleted", vendorFood });
   } catch (error) {
     res.status(400).json({ message: "Error in getting vendorFood", error });
