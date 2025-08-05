@@ -8,9 +8,9 @@ import ApexCharts from "react-apexcharts";
 import dayjs from 'dayjs';
 
 function Dashboard() {
-
-
-
+  
+  
+  
   const stats = [
     { label: "Total Users", value: 124, icon: <PeopleIcon color="primary" sx={{fontSize:50}}/> },
     { label: "Vendors", value: 37, icon: <BusinessIcon color="secondary" sx={{fontSize:50}}/> },

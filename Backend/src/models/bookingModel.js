@@ -4,7 +4,7 @@ const bookingSchema = mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref:"User",
+      ref: "User",
       required: [true],
     },
     description: {
@@ -23,6 +23,33 @@ const bookingSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    services: [
+      {
+        type: String, // or ObjectId if linked to a service/menu collection
+      },
+    ],
+    eventDate: {
+      type: Date,
+      required: true,
+    },
+    guestCount: {
+      type: Number,
+      required: true,
+    },
+    venueLocation: {
+      type: String,
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: ["pending", "accepted", "rejected", "cancelled"],
+      default: "pending",
+    },
+    notes: String,
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
     vendor: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -36,6 +63,6 @@ const bookingSchema = mongoose.Schema(
   }
 );
 
-const Food = mongoose.model("Food", foodSchema);
+const Booking = mongoose.model("Booking", bookingSchema);
 
-export default Food;
+export default Booking;
