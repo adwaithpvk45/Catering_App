@@ -7,7 +7,7 @@ const router = express.Router()
 
 router.patch("/updateVendorProfilepic",protectedRoute,uploadProfilePic.single("profileImage"),updateVendorProfilePic)
 
-router.patch("/updateVendorProfilepic",protectedRoute,updateVendorProfile)
+router.patch("/updateVendorProfile",protectedRoute,updateVendorProfile)
 
 // router.post("/addFood",protectedRoute,checkRole("vendor"),uploadFoodImages.single('foodImage'),addFood) // foodImage is the file name in front end wher the file input is present. 
 
