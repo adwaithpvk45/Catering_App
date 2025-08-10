@@ -4,6 +4,7 @@ import vendorServiceReducer from "./slices/vendorServiceSlice";
 import userReducer from "./slices/userSlice";
 import adminReducer from "./slices/adminSlice";
 import loginReducer from "./slices/loginSlice";
+import bookingReducer from "./slices/bookingSlice";
 import logger from "redux-logger";
 
 const store = configureStore({
@@ -13,6 +14,7 @@ const store = configureStore({
     admin: adminReducer,
     user: userReducer,
     login: loginReducer,
+    booking:bookingReducer
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger),
 });

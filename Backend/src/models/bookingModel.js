@@ -23,11 +23,16 @@ const bookingSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    services: [
-      {
-        type: String, // or ObjectId if linked to a service/menu collection
-      },
-    ],
+   services: [
+  {
+    serviceId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Service",
+    },
+    name: String,
+    priceAtBooking: Number,
+  },
+],
     eventDate: {
       type: Date,
       required: true,

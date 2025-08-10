@@ -6,7 +6,7 @@ import authRoutes from "./src/routes/authRoutes.js";
 import cookieParser from "cookie-parser";
 import userRoutes from "./src/routes/userRoutes.js";
 import foodRoutes from "./src/routes/foodRoutes.js";
-import bookingRoutes from "./src/routes/booingRoutes.js"
+import bookingRoutes from "./src/routes/bookingRoutes.js"
 import vendorRoutes from "./src/routes/vendorRoutes.js";
 import serviceRoutes from "./src/routes/serviceRoutes.js";
 
