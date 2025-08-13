@@ -5,6 +5,7 @@ const bookingSlice = createSlice({
   initialState: {
     booking: [],
     error: null,
+    status:[]
   },
   reducers: {
     fetchBookingSuccess: (state, action) => {
@@ -14,6 +15,14 @@ const bookingSlice = createSlice({
       state.error = action.payload;
       state.booking = [];
     },
+    statusSuccess: (state, action) => {
+      state.status = action.payload.data;
+    },
+    statusFail: (state, action) => {
+      state.error = action.payload;
+      state.status = [];
+    },
+
 
     // fetchServiceSuccess: (state, action) => {
     //   state.services = action.payload;

@@ -20,7 +20,10 @@ import {
 import BookingDetailsDrawer from "./VendorBookingsDrawer";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
-import { getVendorBookings } from "../../../api/vendor/bookingApi";
+import {
+  getVendorBookings,
+  statusChange,
+} from "../../../api/vendor/bookingApi";
 
 const VendorBookings = () => {
   const id = JSON.parse(localStorage.getItem("userDetails")).existingUser._id;
@@ -28,53 +31,14 @@ const VendorBookings = () => {
   const [eventFilter, setEventFilter] = useState("All");
   const dispatch = useDispatch();
 
-  // const [bookings, setBookings] = useState([
-  //   {
-  //     id: 1,
-  //     user: 'Alice K',
-  //     event: 'Wedding',
-  //     date: '2025-05-18',
-  //     status: 'Pending',
-  //     contact: 'alice@example.com',
-  //   },
-  //   {
-  //     id: 2,
-  //     user: 'Ravi S',
-  //     event: 'Birthday',
-  //     date: '2025-05-22',
-  //     status: 'Confirmed',
-  //     contact: 'ravi@gmail.com',
-  //   },
-  //   {
-  //     id: 3,
-  //     user: 'Renu Thomas',
-  //     event: 'Anniversary',
-  //     date: '2025-05-30',
-  //     status: 'Pending',
-  //     contact: 'renu.t@gmail.com',
-  //   },
-  // ]);
-
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const bookings = useSelector((state) => state.booking.booking);
+  console.log("🚀 ~ VendorBookings ~ bookings:", bookings);
 
   useEffect(() => {
     dispatch(getVendorBookings(id));
-  }, []);
-
-  const toggleStatus = (id) => {
-    setBookings((prev) =>
-      prev.map((booking) =>
-        booking.id === id
-          ? {
-              ...booking,
-              status: booking.status === "Pending" ? "Confirmed" : "Pending",
-            }
-          : booking
-      )
-    );
-  };
+  }, [dispatch]);
 
   const handleRowClick = (booking) => {
     setSelectedBooking(booking);
@@ -201,13 +165,13 @@ const VendorBookings = () => {
                     <Chip
                       label={booking.status}
                       color={
-                        booking.status === "accepted"
+                        booking.status === "Accepted"
                           ? "success"
-                          : booking.status === "rejected"
+                          : booking.status === "Cancelled"
                           ? "error"
-                          : booking.status === "cancelled"
-                          ? "default"
-                          : "warning"
+                          : booking.status === "Pending"
+                          ? "warning"
+                          : "default"
                       }
                     />
                   </TableCell>
@@ -219,11 +183,19 @@ const VendorBookings = () => {
                       variant="outlined"
                       onClick={(e) => {
                         e.stopPropagation(); // Prevent row click
-                        toggleStatus(booking._id);
+                        dispatch(
+                          statusChange({
+                            id: booking._id,
+                            status:
+                              booking.status === "Pending"
+                                ? "Accepted"
+                                : "Pending",
+                          })
+                        );
                       }}
                     >
                       Mark as{" "}
-                      {booking.status === "pending" ? "Accepted" : "Pending"}
+                      {booking.status === "Pending" ? "Accepted" : "Pending"}
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -245,7 +217,6 @@ const VendorBookings = () => {
         open={drawerOpen}
         onClose={handleDrawerClose}
         booking={selectedBooking}
-        onToggleStatus={toggleStatus}
       />
     </Box>
   );

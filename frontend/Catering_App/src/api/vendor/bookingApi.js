@@ -15,33 +15,32 @@ export const getVendorBookings = (id) => async (dispatch) => {
     dispatch
   );
 
-  console.log(res);
-
   if (res.message === "Booking data fetched") {
-    return
+    return;
   } else {
     toast.error(res.message);
   }
 };
 
-export const statusChange = ({ formData, id }) => {
+export const statusChange = ({ status, id }) => {
+  const _id = JSON.parse(localStorage.getItem("userDetails")).existingUser._id;
+  console.log("sdfghjk");
   return async (dispatch) => {
-
     const res = await commonFunction(
       {
-        api: `/api/food/editFood/${id}`,
+        api: `/api/booking/${id}`,
         method: "PUT",
-        body: formData,
-        successAction: "vendorFood/foodAddSuccess",
-        failureAction: "vendorFood/foodAddFail",
+        body: JSON.stringify({ status }),
+        successAction: "booking/statusSuccess",
+        failureAction: "booking/statusFail",
         showSuccess: true,
-        successMessage: "Food data edited successfully!",
+        successMessage: "Status updated successfully!",
       },
       dispatch
     );
     console.log(res);
-    if (res.message === "Food item updated") {
-      dispatch(getVendorFood());
+    if (res.message === "Status updated successfully") {
+      dispatch(getVendorBookings(_id));
       toast.success(res.message);
     } else {
       toast.error(res.message);

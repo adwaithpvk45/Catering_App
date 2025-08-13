@@ -5,6 +5,6 @@ const router = express.Router();
 
 router.post("/enquire", createBooking);
 router.get("/vendor/:vendorId", getBookingsByVendor);
-router.patch("/:id", updateBookingStatus);
+router.put("/:id", updateBookingStatus);
 
 export default router;
