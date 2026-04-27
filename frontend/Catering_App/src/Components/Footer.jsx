@@ -1,5 +1,6 @@
 import React from 'react'
 import { FaFacebookF, FaInstagram, FaTwitter } from "react-icons/fa";
+import { Link } from 'react-router-dom';
 
 function Footer() {
   return (
@@ -16,10 +17,10 @@ function Footer() {
 
       {/* Navigation Links */}
       <div className="flex flex-wrap justify-center gap-6 mt-4 ">
-        <a href="#" className="hover:text-yellow-400 transition">Home</a>
-        <a href="#" className="hover:text-yellow-400 transition">Services</a>
-        <a href="#" className="hover:text-yellow-400 transition">About</a>
-        <a href="#" className="hover:text-yellow-400 transition">Contact</a>
+        <Link to="/" className="hover:text-yellow-400 transition">Home</Link>
+        <Link to="/Services" className="hover:text-yellow-400 transition">Services</Link>
+        <Link to="/About" className="hover:text-yellow-400 transition">About</Link>
+        <Link to="/Contact" className="hover:text-yellow-400 transition">Contact</Link>
       </div>
 
       {/* Social Media Links */}
