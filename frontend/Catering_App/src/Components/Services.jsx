@@ -9,31 +9,31 @@ import { Link } from 'react-router-dom';
 const images = [
     {
         id: 1,
-        url: 'https://teresajohnson.com/wp-content/uploads/2024/02/the-lace-factory-ct-7.jpg',
+        url: '/wedding_service.png',
         title: 'Wedding',
         width: '40%',
     },
     {
         id: 2,
-        url: 'https://roomescapedc.com/wp-content/uploads/2024/01/birthday-party-fairfax-1024x585.png',
+        url: '/birthday_service.png',
         title: 'Birthday',
         width: '30%',
     },
     {
         id: 3,
-        url: 'https://cdn2.momjunction.com/wp-content/uploads/2021/10/Light-Up.jpg.webp',
+        url: '/anniversary_service.png',
         title: 'Anniversary',
         width: '30%',
     },
     {
         id: 4,
-        url: 'https://www.richmondamerican.com/blog/wp-content/uploads/2018/06/housewarming_party-1.jpg',
+        url: '/housewarming_service.png',
         title: 'House Warming',
         width: '35%',
     },
     {
         id: 5,
-        url: 'https://yourteenmag.com/wp-content/uploads/2023/04/No-Graduation-Party.jpg',
+        url: '/graduation_service.png',
         title: 'Graduation Party',
         width: '35%',
     }
