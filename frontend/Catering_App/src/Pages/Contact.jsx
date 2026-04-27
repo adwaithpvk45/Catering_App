@@ -8,29 +8,6 @@ import { submitComplaint } from '../api/public/complaints';
 
 function Contact() {
 
-  const validate = (values) => {
-    const errors = {};
-    if (!values.fullName) {
-      errors.fullName = 'Name is required';
-    }
-    if (!values.email) {
-      errors.email = 'Email is required';
-    } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)) {
-      errors.email = 'Invalid email address';
-    }
-    if (!values.subject) {
-      errors.subject = 'Subject is required';
-    }
-    if (!values.message) {
-      errors.message = 'Message is required';
-    }
-    
-    // Show first error in toast if any
-    const firstError = Object.values(errors)[0];
-    if (firstError) toast.error(firstError);
-    
-    return errors;
-  };
 
   return (
       <div className='min-h-screen grid pt-10'>
@@ -47,15 +24,34 @@ function Contact() {
         </div>
         <Formik 
           initialValues={{ fullName: '', email: '', subject: '', message: '' }}
-          validate={validate}
-          validateOnChange={false}
           onSubmit={async (values, { setSubmitting, resetForm }) => {   
+            // 1. Manual Validation Check
+            let errorMessage = "";
+            if (!values.fullName) errorMessage = "Name is required";
+            else if (!values.email) errorMessage = "Email is required";
+            else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)) errorMessage = "Invalid email address";
+            else if (!values.subject) errorMessage = "Subject is required";
+            else if (!values.message) errorMessage = "Message is required";
+
+            // 2. If there's an error, show toast and STOP
+            if (errorMessage) {
+              toast.error(errorMessage, { duration: 3000 });
+              setSubmitting(false);
+              return; // <--- This prevents the API from being called
+            }
+
+            // 3. If validation passes, call the API
             try {
               const res = await submitComplaint(values);
-              toast.success(res.message || "Complaint submitted successfully!");
-              resetForm();
+              toast.success(res.message || "Complaint submitted successfully!", {
+                duration: 4000,
+                position: 'top-center'
+              });
+              resetForm({ values: { fullName: '', email: '', subject: '', message: '' } });
             } catch (error) {
-              toast.error(error.message || "Failed to submit complaint.");
+              toast.error(error.message || "Failed to submit complaint.", {
+                duration: 4000
+              });
             } finally {
               setSubmitting(false);
             }
@@ -64,16 +60,38 @@ function Contact() {
           {({ handleSubmit, isSubmitting }) => (
             <Form className='space-y-6' onSubmit={handleSubmit}>
               <div>
-                <Field as={TextField} className="w-full" variant="standard" type="text" name="fullName" label="Full Name" />
+                <Field name="fullName">
+                  {({ field }) => (
+                    <TextField {...field} value={field.value || ''} className="w-full" variant="standard" label="Full Name" />
+                  )}
+                </Field>
               </div>
               <div>
-                <Field as={TextField} className="w-full" variant="standard" type="email" name="email" label="Email Address" />
+                <Field name="email">
+                  {({ field }) => (
+                    <TextField {...field} value={field.value || ''} className="w-full" variant="standard" type="email" label="Email Address" />
+                  )}
+                </Field>
               </div>
               <div>
-                <Field as={TextField} className="w-full" variant="standard" type="text" name="subject" label="Subject" />
+                <Field name="subject">
+                  {({ field }) => (
+                    <TextField {...field} value={field.value || ''} className="w-full" variant="standard" label="Subject" />
+                  )}
+                </Field>
               </div>
               <div>
-                <Field as={TextareaAutosize} name="message" minRows={5} placeholder="How can we help you?" className="w-full p-4 border rounded-xl mt-4 focus:outline-warning" />
+                <Field name="message">
+                  {({ field }) => (
+                    <TextareaAutosize
+                      {...field}
+                      value={field.value || ''}
+                      minRows={5}
+                      placeholder="How can we help you?"
+                      className="w-full p-4 border rounded-xl mt-4 focus:outline-warning"
+                    />
+                  )}
+                </Field>
               </div>
               <button className="btn btn-warning w-full" type="submit" disabled={isSubmitting}>
                 {isSubmitting ? (
