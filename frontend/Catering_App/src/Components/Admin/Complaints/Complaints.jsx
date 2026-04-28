@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Paper, Button, Chip, Typography, Dialog, DialogTitle,
@@ -8,65 +8,26 @@ import {
   Divider,
   TextField
 } from '@mui/material';
+import { useDispatch, useSelector } from 'react-redux';
+import { getComplaints, updateStatus } from '../../../api/admin/adminActions';
+import toast from 'react-hot-toast';
 
 const AdminComplaintsSection = () => {
+  const dispatch = useDispatch();
+  const { complaints } = useSelector((state) => state.admin);
 
-      const [searchQuery, setSearchQuery] = useState("");
-      const [selectedComplaint, setSelectedComplaint] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedComplaint, setSelectedComplaint] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-    
-  const [complaints, setComplaints] = useState([
-    {
-      id: 1,
-      name: 'John Doe',
-      email: 'john@example.com',
-      subject: 'Late Delivery',
-      message: 'The food was delivered 30 minutes late.',
-      status: 'Pending',
-    },
-    {
-      id: 2,
-      name: 'Priya Sharma',
-      email: 'priya@gmail.com',
-      subject: 'Bad Taste',
-      message: 'The wedding food was not up to the mark.',
-      status: 'Resolved',
-    },
-    {
-      id: 3,
-      name: 'Arjun Nair',
-      email: 'arjun@outlook.com',
-      subject: 'Unresponsive Vendor',
-      message: 'Vendor did not respond to my queries.',
-      status: 'Pending',
-    },
-    {
-      id: 4,
-      name: 'Meena R',
-      email: 'meena.r@xyzmail.com',
-      subject: 'Website Bug',
-      message: 'The contact form doesn’t work on the home page.',
-      status: 'Pending',
-    },
-    {
-      id: 5,
-      name: 'Anonymous',
-      email: 'guestuser@demo.com',
-      subject: 'Slow Website',
-      message: 'The services page takes too long to load.',
-      status: 'Resolved',
-    },
-  ]);
+  useEffect(() => {
+    dispatch(getComplaints()).finally(() => setLoading(false));
+  }, [dispatch]);
 
 
-  const toggleStatus = (id) => {
-    setComplaints((prev) =>
-      prev.map((c) =>
-        c.id === id
-          ? { ...c, status: c.status === 'Pending' ? 'Resolved' : 'Pending' }
-          : c
-      )
-    );
+  const toggleStatus = async (id, currentStatus) => {
+    const newStatus = currentStatus === 'Pending' ? 'Resolved' : 'Pending';
+    dispatch(updateStatus(id, newStatus));
   };
 
   const handleView = (complaint) => {
@@ -109,8 +70,13 @@ const AdminComplaintsSection = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {complaints.map((c) => (
-                <TableRow key={c.id}>
+              {complaints
+                .filter(c => 
+                  c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                  c.subject.toLowerCase().includes(searchQuery.toLowerCase())
+                )
+                .map((c) => (
+                <TableRow key={c._id}>
                   <TableCell>{c.name}</TableCell>
                   <TableCell>{c.email}</TableCell>
                   <TableCell>{c.subject}</TableCell>
@@ -132,7 +98,7 @@ const AdminComplaintsSection = () => {
                     <Button
                       size="small"
                       variant="outlined"
-                      onClick={() => toggleStatus(c.id)}
+                      onClick={() => toggleStatus(c._id, c.status)}
                     >
                       Mark as {c.status === 'Pending' ? 'Resolved' : 'Pending'}
                     </Button>
