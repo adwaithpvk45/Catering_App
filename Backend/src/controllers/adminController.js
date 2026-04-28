@@ -50,9 +50,8 @@ export const getAllVendors = async (req, res) => {
 export const getAllBookings = async (req, res) => {
     try {
         const bookings = await Booking.find()
-            .populate('userId', 'fullName email')
-            .populate('vendorId', 'vendorName')
-            .populate('serviceId', 'serviceName');
+            .populate('user', 'fullName email')
+            .populate('vendor', 'vendorName');
         res.status(200).json({ success: true, bookings });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });

@@ -45,3 +45,12 @@ export const getVendors = () => async (dispatch) => {
         failureAction: "admin/fetchVendorsFail",
     }, dispatch);
 };
+
+export const getBookings = () => async (dispatch) => {
+    return await commonFunction({
+        api: "/api/admin/bookings",
+        method: "GET",
+        successAction: "admin/fetchBookingsSuccess",
+        failureAction: "admin/fetchBookingsFail",
+    }, dispatch);
+};

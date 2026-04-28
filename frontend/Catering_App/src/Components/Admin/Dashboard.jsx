@@ -1,4 +1,4 @@
-import { Box, Card, CardContent, Grid, Paper, Typography } from '@mui/material'
+import { Box, Card, CardContent, Grid, Paper, Typography, CircularProgress } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import PeopleIcon from "@mui/icons-material/People";
 import BusinessIcon from "@mui/icons-material/Business";
@@ -6,16 +6,22 @@ import BookOnlineIcon from "@mui/icons-material/BookOnline";
 import ReportIcon from "@mui/icons-material/Report";
 import ApexCharts from "react-apexcharts";
 import dayjs from 'dayjs';
+import { useDispatch, useSelector } from 'react-redux';
+import { getStats } from '../../../api/admin/adminActions';
 
 function Dashboard() {
-  
-  
+  const dispatch = useDispatch();
+  const { stats: realStats } = useSelector((state) => state.admin);
+
+  useEffect(() => {
+    dispatch(getStats());
+  }, [dispatch]);
   
   const stats = [
-    { label: "Total Users", value: 124, icon: <PeopleIcon color="primary" sx={{fontSize:50}}/> },
-    { label: "Vendors", value: 37, icon: <BusinessIcon color="secondary" sx={{fontSize:50}}/> },
-    { label: "Bookings", value: 210, icon: <BookOnlineIcon color="success" sx={{fontSize:50}}/> },
-    { label: "Complaints", value: 12, icon: <ReportIcon color="error" sx={{fontSize:50}}/> },
+    { label: "Total Users", value: realStats?.totalUsers || 0, icon: <PeopleIcon color="primary" sx={{fontSize:50}}/> },
+    { label: "Vendors", value: realStats?.totalVendors || 0, icon: <BusinessIcon color="secondary" sx={{fontSize:50}}/> },
+    { label: "Bookings", value: realStats?.totalBookings || 0, icon: <BookOnlineIcon color="success" sx={{fontSize:50}}/> },
+    { label: "Complaints", value: realStats?.totalComplaints || 0, icon: <ReportIcon color="error" sx={{fontSize:50}}/> },
   ];
 
   const monthlyBookings = [

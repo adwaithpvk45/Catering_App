@@ -6,6 +6,7 @@ const adminSlice = createSlice({
     vendors: [],
     users: [],
     complaints: [],
+    bookings: [],
     stats: null,
     errors: null,
   },
@@ -31,6 +32,13 @@ const adminSlice = createSlice({
       state.errors = action.payload;
       state.complaints = [];
     },
+    fetchBookingsSuccess: (state, action) => {
+      state.bookings = action.payload.bookings;
+    },
+    fetchBookingsFail: (state, action) => {
+      state.errors = action.payload;
+      state.bookings = [];
+    },
     fetchStatsSuccess: (state, action) => {
       state.stats = action.payload.stats;
     },
@@ -48,6 +56,8 @@ export const {
   fetchUsersFail,
   fetchComplaintsSuccess,
   fetchComplaintsFail,
+  fetchBookingsSuccess,
+  fetchBookingsFail,
   fetchStatsSuccess,
   updateComplaintStatusSuccess
 } = adminSlice.actions;

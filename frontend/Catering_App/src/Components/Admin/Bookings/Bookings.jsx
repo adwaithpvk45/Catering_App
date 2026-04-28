@@ -15,26 +15,9 @@ import {
 } from "@mui/material";
 import UserDetails from "../Users/UserDetails";
 
-const dummyBookings = [
-  {
-    id: 1,
-    userName: "John Doe",
-    vendorName: "Tasty Treats",
-    eventType: "Wedding",
-    eventDate: "2025-06-15",
-    location: "City Hall",
-    status: "Pending",
-  },
-  {
-    id: 2,
-    userName: "Jane Smith",
-    vendorName: "Spicy Kitchen",
-    eventType: "Birthday",
-    eventDate: "2025-07-01",
-    location: "Garden Venue",
-    status: "Approved",
-  },
-];
+import { useDispatch, useSelector } from "react-redux";
+import { getBookings } from "../../../api/admin/adminActions";
+import dayjs from "dayjs";
 
 const statusColor = (status) => {
   switch (status) {
@@ -52,10 +35,16 @@ const statusColor = (status) => {
 };
 
 const AdminBookings = () => {
-  const [bookings, setBookings] = useState(dummyBookings);
+  const dispatch = useDispatch();
+  const { bookings } = useSelector((state) => state.admin);
+
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  React.useEffect(() => {
+    dispatch(getBookings());
+  }, [dispatch]);
 
   const handleView = (booking) => {
     setSelectedBooking(booking);
@@ -64,15 +53,7 @@ const AdminBookings = () => {
 
   const handleDrawerClose=()=>{
     setDrawerOpen(false)
-}
-
-  const handleStatusChange = (e) => {
-    const updated = bookings.map((b) =>
-      b.id === selectedBooking.id ? { ...b, status: e.target.value } : b
-    );
-    setBookings(updated);
-    setSelectedBooking((prev) => ({ ...prev, status: e.target.value }));
-  };
+  }
 
   const columns = [
     { field: "id", headerName: "ID", flex: 0.5 },
@@ -101,10 +82,22 @@ const AdminBookings = () => {
     },
   ];
 
-  const filteredUsers = dummyBookings.filter(
-    (user) =>
-      user.vendorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.eventType.toLowerCase().includes(searchQuery.toLowerCase())
+  // Map backend data to DataGrid format
+  const formattedBookings = bookings.map((b) => ({
+    id: b._id,
+    userName: b.user?.fullName || "Unknown User",
+    vendorName: b.vendor && b.vendor.length > 0 ? b.vendor[0].vendorName : "Unknown Vendor",
+    eventType: b.category,
+    eventDate: dayjs(b.eventDate).format("YYYY-MM-DD"),
+    location: b.venueLocation,
+    status: b.status,
+    raw: b // Keep raw data for view modal
+  }));
+
+  const filteredUsers = formattedBookings.filter(
+    (booking) =>
+      booking.vendorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      booking.eventType.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
