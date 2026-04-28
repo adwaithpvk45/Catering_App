@@ -2,21 +2,19 @@ import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  IconButton,
-  Button,
   TextField,
 } from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
+import { getVendors } from "../../../api/admin/adminActions";
+import dayjs from "dayjs";
+
 import TableContent from "../../../common ui/Table";
 import UserDetails from "../Users/UserDetails";
 
 export default function VendorsList() {
-  const [users, setUsers] = useState([]);
+  const dispatch = useDispatch();
+  const { vendors } = useSelector((state) => state.admin);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -30,55 +28,27 @@ export default function VendorsList() {
     setDrawerOpen(true);
   };
 
-  // Fetch users (dummy for now)
   useEffect(() => {
-    // API call will go here later
-    setUsers([
-      {
-        id: 1,
-        name: "John Doe",
-        email: "john@example.com",
-        status: "active",
-        createdTime: new Date().toISOString().split("T")[0],
-      },
-      {
-        id: 2,
-        name: "Jane Smith",
-        email: "jane@example.com",
-        status: "blocked",
-        createdTime: new Date().toISOString().split("T")[0],
-      },
-    ]);
-  }, []);
+    dispatch(getVendors());
+  }, [dispatch]);
 
   const handleBlockUnblock = (id, action) => {
     console.log(`User ${id} ${action}`);
   };
 
-  const filteredUsers = users.filter(
-    (user) =>
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const formattedVendors = vendors.map(vendor => ({
+    id: vendor._id,
+    name: vendor.vendorName || "Unknown Vendor",
+    email: vendor.userId?.email || "No Email",
+    status: vendor.isApproved ? "active" : "pending",
+    createdTime: dayjs(vendor.createdAt).format("YYYY-MM-DD")
+  }));
 
-  useEffect(() => {
-    setUsers([
-      {
-        id: 1,
-        name: "John Doe",
-        email: "john@example.com",
-        status: "active",
-        createdTime: new Date().toISOString().split("T")[0],
-      },
-      {
-        id: 2,
-        name: "Jane Smith",
-        email: "jane@example.com",
-        status: "blocked",
-        createdTime: new Date().toISOString().split("T")[0],
-      },
-    ]);
-  }, []);
+  const filteredUsers = formattedVendors.filter(
+    (vendor) =>
+      vendor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      vendor.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <Box sx={{ paddingY: "30px", maxWidth: "100%", height:'100%'}}>

@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Button, TextField } from "@mui/material";
+import { Box, Typography, TextField } from "@mui/material";
 import TableContent from "../../../common ui/Table";
 import UserDetails from "./UserDetails";
+import { useDispatch, useSelector } from "react-redux";
+import { getUsers } from "../../../api/admin/adminActions";
+import dayjs from "dayjs";
 
 const UsersList = () => {
-  const [users, setUsers] = useState([]);
+  const dispatch = useDispatch();
+  const { users } = useSelector((state) => state.admin);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [drawerOpen,setDrawerOpen] = useState(false)
   const [selectedUser,setSelectedUser] = useState(null)
@@ -18,30 +23,23 @@ const UsersList = () => {
       setDrawerOpen(true)
     }
 
-  // Fetch users (dummy for now)
   useEffect(() => {
-    // API call will go here later
-    setUsers([
-      { 
-        id: 1, 
-        name: "John Doe", 
-        email: "john@example.com", 
-        status: "active", 
-        createdTime: new Date().toISOString().split('T')[0]      },
-      { 
-        id: 2, 
-        name: "Jane Smith", 
-        email: "jane@example.com", 
-        status: "blocked", 
-        createdTime: new Date().toISOString().split('T')[0]      },
-    ])
-  }, []);
+    dispatch(getUsers());
+  }, [dispatch]);
 
   const handleBlockUnblock = (id, action) => {
     console.log(`User ${id} ${action}`);
   };
 
-  const filteredUsers = users.filter(user =>
+  const formattedUsers = users.map(user => ({
+    id: user._id,
+    name: user.fullName || "Unknown User",
+    email: user.email,
+    status: user.status || "active",
+    createdTime: dayjs(user.createdAt).format("YYYY-MM-DD")
+  }));
+
+  const filteredUsers = formattedUsers.filter(user =>
     user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     user.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
