@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import BookOnlineIcon from "@mui/icons-material/BookOnline";
 import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 import { useDispatch, useSelector } from 'react-redux';
-import { getVendorStats } from '../../../api/vendor/vendorActions';
+import { getVendorStats } from '../../api/vendor/vendorActions';
 
 function VendorDashboardStats() {
   const dispatch = useDispatch();

@@ -26,31 +26,23 @@ const SignupPage = () => {
     console.log(values);
     if (!values.fullName) {
       errors.fullName = "Name is required";
-      toast.error(errors.fullName);
     }
     if (!values.email) {
       errors.email = "Email is required";
-      toast.error(errors.email);
     } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)) {
       errors.email = "Invalid email address";
-      toast.error(errors.email);
     }
     if (!values.password) {
       errors.password = "Password is required";
-      toast.error(errors.password);
     } else if (values.password.length < 8) {
       errors.password = "Password must be at least 8 characters";
-      toast.error(errors.password);
     } else if (!/[A-Z]/.test(values.password)) {
       errors.password = "Must contain at least one uppercase letter";
-      toast.error(errors.password);
     } else if (!/[0-9]/.test(values.password)) {
       errors.password = "Must contain at least one number";
-      toast.error(errors.password);
     }
     if (!values.role) {
       errors.role = "Role should be selected";
-      toast.error(errors.role);
     }
     return errors;
   };
@@ -106,7 +98,7 @@ const SignupPage = () => {
                 }
               }}
             >
-              {({ handleSubmit, isSubmitting }) => (
+              {({ handleSubmit, isSubmitting, errors, touched }) => (
                 <Form className="space-y-6" onSubmit={handleSubmit}>
                   <div>
                     <Field
@@ -116,6 +108,8 @@ const SignupPage = () => {
                       type="text"
                       name="fullName"
                       label="FullName"
+                      error={touched.fullName && Boolean(errors.fullName)}
+                      helperText={touched.fullName && errors.fullName}
                     ></Field>
                   </div>
                   <div>
@@ -126,6 +120,8 @@ const SignupPage = () => {
                       as={TextField}
                       variant="standard"
                       label="Email"
+                      error={touched.email && Boolean(errors.email)}
+                      helperText={touched.email && errors.email}
                     ></Field>
                   </div>
                   <div className="relative">
@@ -136,6 +132,8 @@ const SignupPage = () => {
                       className="w-full pl-10"
                       variant="standard"
                       label="Password"
+                      error={touched.password && Boolean(errors.password)}
+                      helperText={touched.password && errors.password}
                     ></Field>
                     <button
                       type="button"
@@ -161,6 +159,7 @@ const SignupPage = () => {
                       variant="standard"
                       label="Role"
                       default="User"
+                      error={touched.role && Boolean(errors.role)}
                     >
                       <MenuItem value="" disabled>
                         --Select Role--
@@ -168,6 +167,9 @@ const SignupPage = () => {
                       <MenuItem value="user">User</MenuItem>
                       <MenuItem value="vendor">Vendor</MenuItem>
                     </Field>
+                    {touched.role && errors.role && (
+                      <div className="text-red-500 text-xs mt-1 ml-3">{errors.role}</div>
+                    )}
                   </div>
                   <button
                     className="btn btn-md lg:btn-lg xl:btn-xl w-full pl-10"

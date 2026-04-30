@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Box, Typography, Paper, TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Chip } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { getUserComplaints } from '../../../api/user/userActions';
+import { getUserComplaints } from '../../api/user/userActions';
 
 const CustomerComplaints = () => {
   const dispatch = useDispatch();

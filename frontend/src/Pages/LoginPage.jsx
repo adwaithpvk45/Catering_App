@@ -21,23 +21,17 @@ const LoginPage = () => {
 
     if (!values.email) {
       errors.email = "Email is required";
-      toast.error(errors.email);
     } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)) {
       errors.email = "Invalid email address";
-      toast.error(errors.email);
     }
     if (!values.password) {
       errors.password = "Password is required";
-      toast.error(errors.password);
     } else if (values.password.length < 8) {
       errors.password = "Password must be at least 8 characters";
-      toast.error(errors.password);
     } else if (!/[A-Z]/.test(values.password)) {
       errors.password = "Must contain at least one uppercase letter";
-      toast.error(errors.password);
     } else if (!/[0-9]/.test(values.password)) {
       errors.password = "Must contain at least one number";
-      toast.error(errors.password);
     }
     return errors;
   };
@@ -79,11 +73,11 @@ const LoginPage = () => {
                   // login(values);
                   setSubmitting(false);
                 } catch (error) {
-                  toast.error("SignUp unsuccessfull!");
+                  toast.error("Login unsuccessfull!");
                 }
               }}
             >
-              {({ handleSubmit, isSubmitting }) => (
+              {({ handleSubmit, isSubmitting, errors, touched }) => (
                 <Form className="space-y-6" onSubmit={handleSubmit}>
                   <div>
                     <Field
@@ -93,6 +87,8 @@ const LoginPage = () => {
                       as={TextField}
                       variant="standard"
                       label="Email"
+                      error={touched.email && Boolean(errors.email)}
+                      helperText={touched.email && errors.email}
                     ></Field>
                   </div>
                   <div className="relative">
@@ -103,6 +99,8 @@ const LoginPage = () => {
                       className="w-full pl-10"
                       variant="standard"
                       label="Password"
+                      error={touched.password && Boolean(errors.password)}
+                      helperText={touched.password && errors.password}
                     ></Field>
                     <button
                       type="button"

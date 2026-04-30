@@ -7,7 +7,7 @@ import ReportIcon from "@mui/icons-material/Report";
 import ApexCharts from "react-apexcharts";
 import dayjs from 'dayjs';
 import { useDispatch, useSelector } from 'react-redux';
-import { getStats } from '../../../api/admin/adminActions';
+import { getStats } from '../../api/admin/adminActions';
 
 function Dashboard() {
   const dispatch = useDispatch();
