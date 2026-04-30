@@ -22,8 +22,10 @@ import AdminBookings from './Components/Admin/Bookings/Bookings'
 import VendorBookings from './Components/Vendor/vendorBookings/VendorBookings'
 import VendorMenuItems from './Components/Vendor/VendorMenu/VendorMenuItems'
 import VendorServices from './Components/Vendor/VendorServices/VendorServiceList'
+import VendorDashboardStats from './Components/Vendor/VendorDashboardStats'
 import GuestRoute from './routes/GuestRoute'
 import ProtectedRoute from './routes/ProtectedRoute'
+
 
 function App() {
   const {theme} = useThemeStore()
@@ -68,8 +70,8 @@ function App() {
   {/* Vendor */}
   <Route element={<ProtectedRoute roles={['vendor']} />}>
     <Route path="/vendor" element={<AdminDashboard />}>
-      <Route index element={<Dashboard />} />
-      <Route path="vendorDashboard" element={<Dashboard />} />
+      <Route index element={<VendorDashboardStats />} />
+      <Route path="vendorDashboard" element={<VendorDashboardStats />} />
       <Route path="vendorBookings" element={<VendorBookings />} />
       <Route path="vendorServices" element={<VendorServices />} />
       <Route path="vendorMenu" element={<VendorMenuItems />} />

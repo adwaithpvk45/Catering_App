@@ -8,29 +8,31 @@ import {
   AppBar,
   Box,
   Drawer,
-  // IconButton,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
   Toolbar,
-  Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
 import BookOnlineIcon from '@mui/icons-material/BookOnline';
 import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import MenuIcon from '@mui/icons-material/Menu';
-
+import { useSelector } from "react-redux";
 
 function SideBar({ open, onclose, isSidebarOpen }) {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const [selected,setSelected] = useState(0)
+  const [selected, setSelected] = useState(0);
 
-  const items = [
+  // Get user role from Redux or LocalStorage
+  const reduxRole = useSelector((state) => state.login.role);
+  const localData = JSON.parse(localStorage.getItem("userDetails")) || {};
+  const role = reduxRole || localData?.existingUser?.role;
+
+  const adminItems = [
     { text: "Dashboard", icon: <DashboardIcon />, path: "/admin/dashboard" },
     { text: "Users", icon: <PeopleIcon />, path: "/admin/users" },
     { text: "Vendors", icon: <BusinessIcon />, path: "/admin/vendors" },
@@ -38,70 +40,67 @@ function SideBar({ open, onclose, isSidebarOpen }) {
     { text: "Complaints", icon: <ReportIcon />, path: "/admin/complaints" },
   ];
 
-  
-const menuItems = [
-  { text: 'Dashboard', icon: <DashboardIcon />, path: '/vendor/vendorDashboard' },
-  { text: 'My Bookings', icon: <BookOnlineIcon />, path: '/vendor/vendorBookings' },
-  { text: 'My Services', icon: <RestaurantMenuIcon />, path: '/vendor/vendorServices' },
-  { text: 'My Menu', icon: <MenuIcon />, path: '/vendor/vendorMenu' },
-];
+  const vendorItems = [
+    { text: 'Dashboard', icon: <DashboardIcon />, path: '/vendor/vendorDashboard' },
+    { text: 'My Bookings', icon: <BookOnlineIcon />, path: '/vendor/vendorBookings' },
+    { text: 'My Services', icon: <RestaurantMenuIcon />, path: '/vendor/vendorServices' },
+    { text: 'My Menu', icon: <MenuIcon />, path: '/vendor/vendorMenu' },
+  ];
 
+  const displayItems = role === 'admin' ? adminItems : vendorItems;
 
   const drawerWidth = isSidebarOpen ? 240 : 60;
 
   const drawerContent = (
     <Box
       sx={{
-        maxWidth:'100%',
+        maxWidth: '100%',
         width: drawerWidth,
-        // overflowX:'clip',
         transition: "width 0.3s ease",
         height: "100%",
-        bgcolor:'wheat',
-        border:'1px whitesmoke solid'
+        bgcolor: 'wheat',
+        border: '1px whitesmoke solid'
       }}
     >
-      <Toolbar/>
-      <Box >
-      <List sx={{marginBottom:'300px',margin:0}}>
-        {menuItems.map((item,index) => (
-          <ListItem
-            button
-            key={item.text}
-            onClick={() => {navigate(item.path);setSelected(index)}}
-            sx={{
-              pb: 2,
-              mb:5,
-              justifyContent: isSidebarOpen ? "initial" : "center",
-              "&:hover": { cursor: "pointer" },
-              color:selected==index?'black':'inherit',
-              backgroundColor:selected==index?'whitesmoke':'inherit',
-              border:selected==index?'0px whitesmoke':'inherit',
-              borderTopRightRadius:'-10px'
-
-            }}
-          >
-            <ListItemIcon
+      <Toolbar />
+      <Box>
+        <List sx={{ marginBottom: '300px', margin: 0 }}>
+          {displayItems.map((item, index) => (
+            <ListItem
+              button
+              key={item.text}
+              onClick={() => { navigate(item.path); setSelected(index); }}
               sx={{
-                minWidth: 0,
-                mr: isSidebarOpen ? 2 : "auto",
+                pb: 2,
+                mb: 5,
+                justifyContent: isSidebarOpen ? "initial" : "center",
+                "&:hover": { cursor: "pointer" },
+                color: selected === index ? 'black' : 'inherit',
+                backgroundColor: selected === index ? 'whitesmoke' : 'inherit',
+                borderTopRightRadius: '10px'
               }}
             >
-              {item.icon}
-            </ListItemIcon>
-            <ListItemText
-              primary={item.text}
-              primaryTypographyProps={{
-                fontSize: '24px' // or '1rem', or use theme-based values
-              }}
-              sx={{
-                opacity: isSidebarOpen ? 1 : 0,
-                transition: "opacity 0.3s ease",
-                              }}
-            />
-          </ListItem>
-        ))}
-      </List>
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  mr: isSidebarOpen ? 2 : "auto",
+                }}
+              >
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText
+                primary={item.text}
+                primaryTypographyProps={{
+                  fontSize: '24px'
+                }}
+                sx={{
+                  opacity: isSidebarOpen ? 1 : 0,
+                  transition: "opacity 0.3s ease",
+                }}
+              />
+            </ListItem>
+          ))}
+        </List>
       <img
         src="/Feastify.png"
         className="h-11 w-11 m-2 block rounded-3xl"
