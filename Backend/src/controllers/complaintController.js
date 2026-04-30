@@ -29,3 +29,13 @@ export const createComplaint = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+// Get complaints for a specific user
+export const getUserComplaints = async (req, res) => {
+    try {
+        const complaints = await Complaint.find({ userId: req.user._id }).sort({ createdAt: -1 });
+        res.status(200).json({ success: true, complaints, message: "User complaints fetched successfully" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};

@@ -33,3 +33,15 @@ export const updateBookingStatus = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
+// 4. Get bookings for a specific user
+export const getUserBookings = async (req, res) => {
+  try {
+    const bookings = await Booking.find({ user: req.user._id })
+      .populate("vendor", "vendorName profile")
+      .sort({ createdAt: -1 });
+    res.status(200).json({ success: true, bookings, message: "User bookings fetched successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

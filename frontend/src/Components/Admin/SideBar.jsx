@@ -47,7 +47,13 @@ function SideBar({ open, onclose, isSidebarOpen }) {
     { text: 'My Menu', icon: <MenuIcon />, path: '/vendor/vendorMenu' },
   ];
 
-  const displayItems = role === 'admin' ? adminItems : vendorItems;
+  const userItems = [
+    { text: 'Profile', icon: <PeopleIcon />, path: '/user/profile' },
+    { text: 'My Bookings', icon: <BookOnlineIcon />, path: '/user/bookings' },
+    { text: 'My Complaints', icon: <ReportIcon />, path: '/user/complaints' },
+  ];
+
+  const displayItems = role === 'admin' ? adminItems : role === 'vendor' ? vendorItems : userItems;
 
   const drawerWidth = isSidebarOpen ? 240 : 60;
 

@@ -25,6 +25,9 @@ import VendorServices from './Components/Vendor/VendorServices/VendorServiceList
 import VendorDashboardStats from './Components/Vendor/VendorDashboardStats'
 import GuestRoute from './routes/GuestRoute'
 import ProtectedRoute from './routes/ProtectedRoute'
+import CustomerProfile from './Components/Customer/CustomerProfile'
+import CustomerBookings from './Components/Customer/CustomerBookings'
+import CustomerComplaints from './Components/Customer/CustomerComplaints'
 
 
 function App() {
@@ -76,6 +79,16 @@ function App() {
       <Route path="vendorServices" element={<VendorServices />} />
       <Route path="vendorMenu" element={<VendorMenuItems />} />
       <Route path="users" element={<UsersList />} />
+    </Route>
+  </Route>
+
+  {/* User */}
+  <Route element={<ProtectedRoute roles={['user']} />}>
+    <Route path="/user" element={<AdminDashboard />}>
+      <Route index element={<CustomerProfile />} />
+      <Route path="profile" element={<CustomerProfile />} />
+      <Route path="bookings" element={<CustomerBookings />} />
+      <Route path="complaints" element={<CustomerComplaints />} />
     </Route>
   </Route>
 </Routes>
