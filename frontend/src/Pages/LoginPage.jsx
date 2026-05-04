@@ -133,7 +133,12 @@ const LoginPage = () => {
                 </Form>
               )}
             </Formik>
-            <div className="text-center">
+            <div className="text-center space-y-2">
+              <p className="text-base-content/60">
+                <Link to="/forgot-password" className="link link-primary hover:underline">
+                  Forgot Password?
+                </Link>
+              </p>
               <p className="text-base-content/60">
                 New to Hello?{"  "}
                 <Link to="/signup" className="link link-primary">

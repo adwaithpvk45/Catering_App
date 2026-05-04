@@ -83,3 +83,48 @@ export const logout = (navigate) => async (dispatch) => {
     toast.error("Error in signing up", { duration: 3000 });
   }
 };
+
+export const forgotPasswordAction = (email, navigate) => async (dispatch) => {
+  try {
+    const res = await commonFunction(
+      {
+        api: "/api/auth/forgot-password",
+        method: "POST",
+        body: JSON.stringify({ email }),
+        showSuccess: false,
+      },
+      dispatch
+    );
+    if (res?.message) {
+      toast.success(res?.message, { duration: 5000 });
+      if (navigate) {
+        navigate("/login");
+      }
+    }
+  } catch (err) {
+    toast.error("Error sending reset link", { duration: 3000 });
+  }
+};
+
+export const resetPasswordAction = (token, password, navigate) => async (dispatch) => {
+  try {
+    const res = await commonFunction(
+      {
+        api: `/api/auth/reset-password/${token}`,
+        method: "POST",
+        body: JSON.stringify({ password }),
+        showSuccess: false,
+      },
+      dispatch
+    );
+    if (res?.message) {
+      toast.success(res?.message, { duration: 3000 });
+      if (navigate) {
+        navigate("/login");
+      }
+    }
+  } catch (err) {
+    toast.error("Error resetting password", { duration: 3000 });
+  }
+};
+

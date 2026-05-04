@@ -28,6 +28,8 @@ import ProtectedRoute from './routes/ProtectedRoute'
 import CustomerProfile from './Components/Customer/CustomerProfile'
 import CustomerBookings from './Components/Customer/CustomerBookings'
 import CustomerComplaints from './Components/Customer/CustomerComplaints'
+import ForgotPasswordPage from './Pages/ForgotPasswordPage'
+import ResetPasswordPage from './Pages/ResetPasswordPage'
 
 
 function App() {
@@ -35,7 +37,7 @@ function App() {
 
   const location = useLocation()
 
-  const locationPath = location.pathname === "/login" || location.pathname==="/signup" ||  location.pathname.startsWith("/admin")|| location.pathname.startsWith("/vendor"); 
+  const locationPath = location.pathname === "/login" || location.pathname==="/signup" || location.pathname==="/forgot-password" || location.pathname.startsWith("/reset-password") || location.pathname.startsWith("/admin")|| location.pathname.startsWith("/vendor"); 
 
   return (
     <>
@@ -54,6 +56,8 @@ function App() {
 
   {/* Guest-only routes */}
   <Route element={<GuestRoute/>}>
+    <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+    <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
     <Route path="/login" element={<LoginPage />} />
     <Route path="/signup" element={<SignupPage />} />
   </Route>
