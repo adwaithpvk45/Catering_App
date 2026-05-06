@@ -126,7 +126,7 @@ function Navbar() {
 
         <Link to={"/login"}>
           <button
-            className={`btn btn-warning shadow-md transition-all duration-300 ${scrolled ? 'btn-sm sm:btn-md' : 'btn-md'}`}
+            className={`btn btn-warning text-white shadow-md transition-all duration-300 ${scrolled ? 'btn-sm sm:btn-md' : 'btn-md'}`}
             style={{ visibility: locationPath || role ? "hidden" : "visible" }}
           >
             Login

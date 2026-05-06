@@ -185,7 +185,7 @@ function AboutPage() {
         <div className="max-w-4xl mx-auto px-4">
           <h2 className="text-3xl md:text-5xl font-black mb-8">Ready to make your next event <span className="text-[#FF7D44]">Unforgettable?</span></h2>
           <div className="flex flex-wrap justify-center gap-4">
-            <Link to="/services" className="btn btn-warning px-8 rounded-xl text-lg font-bold">
+            <Link to="/services" className="btn btn-warning text-white px-8 rounded-xl text-lg font-bold">
               Explore Services
             </Link>
             <Link to="/contact" className="btn btn-outline px-8 rounded-xl text-lg font-bold">

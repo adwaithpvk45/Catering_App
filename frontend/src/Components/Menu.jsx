@@ -22,7 +22,7 @@ function Menu() {
     <h2 className="card-title">{item.title}</h2>
     <p>{item.description}</p>
     <div className="card-actions justify-end">
-    <Link><button className="btn btn-warning btn-xs sm:btn-sm md:btn-md hover:bg-white hover:text-black">Explore</button></Link>
+    <Link><button className="btn btn-warning text-white btn-xs sm:btn-sm md:btn-md hover:bg-white hover:text-black">Explore</button></Link>
      </div>
   </div>
 </div>
@@ -31,7 +31,7 @@ function Menu() {
     }
     </div>
     <div className='flex justify-center lg:justify-end p-3  '>
-    <Link to={"/food"}><button className="btn btn-warning btn-xs sm:btn-sm md:btn-md ">View All</button></Link>
+    <Link to={"/food"}><button className="btn btn-warning text-white btn-xs sm:btn-sm md:btn-md ">View All</button></Link>
     </div>
 
    </div>

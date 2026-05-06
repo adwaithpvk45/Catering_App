@@ -13,7 +13,7 @@ function AboutUs() {
               </h1>
             </div>
             <div className='pt-15 flex justify-end'>
-            <Link to={"/About"}><button className="btn hover:btn-soft w-30 btn-warning">Learn more</button></Link>
+            <Link to={"/About"}><button className="btn hover:btn-soft w-30 btn-warning text-white">Learn more</button></Link>
             </div>
             </div>
 
@@ -37,7 +37,7 @@ function AboutUs() {
             <img src='/pizzaguy.png' alt='Chef' className='max-h-100' />
             </div>
             <div className='pt-15 lg:hidden text-end'>
-            <button className="btn btn-ghost w-30 btn-warning ">Learn more</button>
+            <button className="btn btn-ghost w-30 btn-warning text-white ">Learn more</button>
             </div>
         </div>
     </div>
