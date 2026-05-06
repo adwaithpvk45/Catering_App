@@ -41,62 +41,63 @@ function App() {
 
   return (
     <>
-    <div data-theme={theme}>
+    <div data-theme={theme} className="min-h-screen flex flex-col">
       <Toaster/>
       {!locationPath && <Navbar/>}
-      {/* <Navbar/> */}
-   <Routes>
-  {/* Public pages */}
-  <Route path="/" element={<HomePage />} />
-  <Route path="/home" element={<HomePage />} />
-  <Route path="/about" element={<AboutPage />} />
-  <Route path="/services" element={<Services />} />
-  <Route path="/contact" element={<Contact />} />
-  <Route path="/food" element={<FoodPage />} />
+      <div className={`${!locationPath ? "pt-16" : ""} flex-grow`}>
+        <Routes>
+          {/* Public pages */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/food" element={<FoodPage />} />
 
-  {/* Guest-only routes */}
-  <Route element={<GuestRoute/>}>
-    <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-    <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
-    <Route path="/login" element={<LoginPage />} />
-    <Route path="/signup" element={<SignupPage />} />
-  </Route>
+          {/* Guest-only routes */}
+          <Route element={<GuestRoute/>}>
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+          </Route>
 
-  {/* Admin */}
-  <Route element={<ProtectedRoute roles={['admin']} />}>
-    <Route path="/admin" element={<AdminDashboard />}>
-      <Route index element={<Dashboard />} />
-      <Route path="dashboard" element={<Dashboard />} />
-      <Route path="bookings" element={<AdminBookings />} />
-      <Route path="complaints" element={<Complaints />} />
-      <Route path="vendors" element={<VendorsList />} />
-      <Route path="users" element={<UsersList />} />
-    </Route>
-  </Route>
+          {/* Admin */}
+          <Route element={<ProtectedRoute roles={['admin']} />}>
+            <Route path="/admin" element={<AdminDashboard />}>
+              <Route index element={<Dashboard />} />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="bookings" element={<AdminBookings />} />
+              <Route path="complaints" element={<Complaints />} />
+              <Route path="vendors" element={<VendorsList />} />
+              <Route path="users" element={<UsersList />} />
+            </Route>
+          </Route>
 
-  {/* Vendor */}
-  <Route element={<ProtectedRoute roles={['vendor']} />}>
-    <Route path="/vendor" element={<AdminDashboard />}>
-      <Route index element={<VendorDashboardStats />} />
-      <Route path="vendorDashboard" element={<VendorDashboardStats />} />
-      <Route path="vendorBookings" element={<VendorBookings />} />
-      <Route path="vendorServices" element={<VendorServices />} />
-      <Route path="vendorMenu" element={<VendorMenuItems />} />
-      <Route path="users" element={<UsersList />} />
-    </Route>
-  </Route>
+          {/* Vendor */}
+          <Route element={<ProtectedRoute roles={['vendor']} />}>
+            <Route path="/vendor" element={<AdminDashboard />}>
+              <Route index element={<VendorDashboardStats />} />
+              <Route path="vendorDashboard" element={<VendorDashboardStats />} />
+              <Route path="vendorBookings" element={<VendorBookings />} />
+              <Route path="vendorServices" element={<VendorServices />} />
+              <Route path="vendorMenu" element={<VendorMenuItems />} />
+              <Route path="users" element={<UsersList />} />
+            </Route>
+          </Route>
 
-  {/* User */}
-  <Route element={<ProtectedRoute roles={['user']} />}>
-    <Route path="/user" element={<AdminDashboard />}>
-      <Route index element={<CustomerProfile />} />
-      <Route path="profile" element={<CustomerProfile />} />
-      <Route path="bookings" element={<CustomerBookings />} />
-      <Route path="complaints" element={<CustomerComplaints />} />
-    </Route>
-  </Route>
-</Routes>
-    {!locationPath && <Footer/>}
+          {/* User */}
+          <Route element={<ProtectedRoute roles={['user']} />}>
+            <Route path="/user" element={<AdminDashboard />}>
+              <Route index element={<CustomerProfile />} />
+              <Route path="profile" element={<CustomerProfile />} />
+              <Route path="bookings" element={<CustomerBookings />} />
+              <Route path="complaints" element={<CustomerComplaints />} />
+            </Route>
+          </Route>
+        </Routes>
+      </div>
+      {!locationPath && <Footer/>}
     </div>
     
     </>
