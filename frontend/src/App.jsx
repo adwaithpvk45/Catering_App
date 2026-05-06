@@ -41,7 +41,7 @@ function App() {
 
   return (
     <>
-    <div data-theme={theme} className="min-h-screen flex flex-col">
+    <div data-theme={theme} className="min-h-screen flex flex-col bg-base-100 text-base-content transition-colors duration-300">
       <Toaster/>
       {!locationPath && <Navbar/>}
       <div className={`${!locationPath ? "pt-16" : ""} flex-grow`}>

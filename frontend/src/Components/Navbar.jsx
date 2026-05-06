@@ -1,35 +1,19 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import { useThemeStore } from "../store/useThemeStore";
+import { Sun, Moon } from "lucide-react";
 
 function Navbar() {
+  const { theme, setTheme } = useThemeStore();
   const location = useLocation();
   const role = JSON.parse(localStorage.getItem("userDetails"))?.existingUser
     ?.role;
-  console.log("🚀 ~ Navbar ~ role:", role)
 
   const locationPath =
     location.pathname === "/login" || location.pathname === "/signup";
 
   return (
-    //    <div className='bg-grey-500 h-20 flex items-center justify-between'>
-    //     <div className='flex justify-between items-center'>
-    //         <img src='/Feastify_icon.png'className='h-11 m-4 rounded-lg hidden md:block ' alt="logo"/>
-    //         <img src='./public/Feastify.png' className='h-11 m-4 block md:hidden' alt="logo"/>
-    //         <h2 className='text-lg font-bold'>Feastify</h2>
-    //     </div>
-    //     <div className='list'>
-    //         <ul className='flex justify-around'>
-    //             <Link to={'/'} className='cursor-pointer text-[20px] pb-[5px] border-b-0 scale-100 transition-all duration-700 ease-in text-dark'><li>Home</li></Link>
-    //             <Link to={'/About'} className='cursor-pointer text-[20px]'><li>About</li></Link>
-    //             <Link to={'/Services'} className='cursor-pointer text-[20px]'><li>Services</li></Link>
-    //             <Link to={'/Carrers'} className='cursor-pointer text-[20px]'><li>Carrers</li></Link>
-    //         </ul>
-    //     </div>
-    //     <div>
-    //         <Link><button className="btn btn-ghost m-4">Login</button></Link>
-    //     </div>
-    //    </div>
     <div className="navbar bg-base-100 shadow-sm fixed z-50">
       <div className="navbar-start">
         <div className="dropdown">
@@ -89,7 +73,6 @@ function Navbar() {
           className="h-11 m-3 rounded-lg hidden lg:block "
           alt="logo"
         />
-        {/* <img src='./public/Feastify.png' className='h-11 m-3 block lg:hidden' alt="logo"/> */}
         <a className="btn btn-ghost text-xl hidden lg:block">Feastify</a>
       </div>
       <div className="navbar-center hidden lg:flex">
@@ -120,10 +103,23 @@ function Navbar() {
           </Link>
         </ul>
       </div>
-       <div className="navbar-end pr-4">
+      <div className="navbar-end pr-4 space-x-4">
+        {/* Theme Toggle Button */}
+        <button
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          className="btn btn-ghost btn-circle"
+          title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+        >
+          {theme === "dark" ? (
+            <Sun className="size-5 text-yellow-400" />
+          ) : (
+            <Moon className="size-5 text-gray-600" />
+          )}
+        </button>
+
         <Link to={"/login"}>
           <button
-            className="btn"
+            className="btn btn-warning"
             style={{ visibility: locationPath || role ? "hidden" : "visible" }}
           >
             Login

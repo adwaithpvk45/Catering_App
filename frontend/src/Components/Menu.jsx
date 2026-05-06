@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 
 function Menu() {
   return (
-   <div className='flex flex-col p-10 bg-amber-100'>
+   <div className='flex flex-col p-10 bg-base-200 transition-colors duration-300'>
     <div className='flex '>
         <h1 className='text-5xl'>Cuisines<span className='text-amber-300 text-9xl'>.</span></h1>
     </div>
