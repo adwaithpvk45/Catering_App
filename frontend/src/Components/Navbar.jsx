@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { useThemeStore } from "../store/useThemeStore";
-import { Sun, Moon } from "lucide-react";
+import { Sun, Moon, UtensilsCrossed } from "lucide-react";
 
 function Navbar() {
   const { theme, setTheme } = useThemeStore();
@@ -68,12 +68,15 @@ function Navbar() {
             </Link>
           </ul>
         </div>
-        <img
-          src="/Feastify_icon.png"
-          className="h-11 m-3 rounded-lg hidden lg:block "
-          alt="logo"
-        />
-        <a className="btn btn-ghost text-xl hidden lg:block">Feastify</a>
+        <div className="flex items-center gap-2 group cursor-pointer">
+          <div className="size-10 rounded-xl bg-gradient-to-br from-[#FF7D44] to-[#ff9d6e] flex items-center justify-center shadow-lg group-hover:rotate-12 transition-transform duration-300">
+            <UtensilsCrossed className="size-6 text-white" />
+          </div>
+          <span className="text-2xl font-black tracking-tighter hidden lg:block">
+            <span className="text-[#FF7D44]">FEAST</span>
+            <span className="text-base-content">IFY</span>
+          </span>
+        </div>
       </div>
       <div className="navbar-center hidden lg:flex">
         <ul className=" menu menu-horizontal px-1 space-x-13">
