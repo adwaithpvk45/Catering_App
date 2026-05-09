@@ -30,6 +30,7 @@ import CustomerBookings from './Components/Customer/CustomerBookings'
 import CustomerComplaints from './Components/Customer/CustomerComplaints'
 import ForgotPasswordPage from './Pages/ForgotPasswordPage'
 import ResetPasswordPage from './Pages/ResetPasswordPage'
+import ScrollToTop from './Components/ScrollToTop'
 
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
 
   return (
     <>
+    <ScrollToTop />
     <div data-theme={theme} className="min-h-screen flex flex-col bg-base-100 text-base-content transition-colors duration-300">
       <Toaster/>
       {!locationPath && <Navbar/>}
