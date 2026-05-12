@@ -61,7 +61,7 @@ function Navbar() {
             tabIndex={0}
             className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow-2xl border border-base-content/5"
           >
-            {['Home', 'About', 'Services', 'Contact'].map((item) => (
+            {['Home', 'About', 'Services', 'Food', 'Contact'].map((item) => (
               <li key={item}>
                 <Link
                   to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
@@ -93,7 +93,7 @@ function Navbar() {
 
       <div className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal px-1 gap-8">
-          {['Home', 'About', 'Services', 'Contact'].map((item) => (
+          {['Home', 'About', 'Services', 'Food', 'Contact'].map((item) => (
             <Link
               key={item}
               to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
