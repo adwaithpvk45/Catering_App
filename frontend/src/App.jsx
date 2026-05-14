@@ -31,6 +31,7 @@ import CustomerComplaints from './Components/Customer/CustomerComplaints'
 import ForgotPasswordPage from './Pages/ForgotPasswordPage'
 import ResetPasswordPage from './Pages/ResetPasswordPage'
 import ScrollToTop from './Components/ScrollToTop'
+import ServiceDetailPage from './Pages/ServiceDetailPage'
 
 
 function App() {
@@ -55,6 +56,7 @@ function App() {
           <Route path="/services" element={<Services />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/food" element={<FoodPage />} />
+          <Route path="/food/:id" element={<ServiceDetailPage />} />
 
           {/* Guest-only routes */}
           <Route element={<GuestRoute/>}>

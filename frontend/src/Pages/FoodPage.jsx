@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Filter, Star, Clock, MapPin, ArrowRight, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import cateringServices from '../store/data';
 
 const categories = ["All", "Indian", "North Indian", "South Indian", "Continental", "Asian"];
@@ -62,9 +63,11 @@ const FoodCard = ({ item, index }) => (
           <span className="text-[#FF7D44] font-black tracking-tighter text-lg">{item.priceRange}</span>
         </div>
         
-        <button className="btn btn-warning btn-circle text-white shadow-lg shadow-orange-500/20 group-hover:scale-110 transition-transform">
-          <ArrowRight className="size-5" />
-        </button>
+        <Link to={`/food/${item.id}`}>
+          <button className="btn btn-warning btn-circle text-white shadow-lg shadow-orange-500/20 group-hover:scale-110 transition-transform">
+            <ArrowRight className="size-5" />
+          </button>
+        </Link>
       </div>
     </div>
   </motion.div>

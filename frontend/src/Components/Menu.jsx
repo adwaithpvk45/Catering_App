@@ -40,7 +40,7 @@ const CuisineCard = ({ item, index }) => (
       </p>
       
       <div className="flex items-center justify-between">
-        <Link to="/food" className="flex items-center gap-2 font-black text-[#FF7D44] group/link">
+        <Link to={`/food/${item.id}`} className="flex items-center gap-2 font-black text-[#FF7D44] group/link">
           Explore Menu
           <ArrowRight className="size-5 group-hover/link:translate-x-2 transition-transform" />
         </Link>
