@@ -129,33 +129,75 @@ function ServiceDetailPage() {
                 </div>
               </div>
 
-              <h2 className="text-3xl font-black mb-6">About this Package</h2>
-              <p className="text-lg text-base-content/70 font-medium leading-relaxed mb-10">
-                {service.description} Our {service.title} package is meticulously curated to provide an unforgettable culinary journey. 
-                We combine traditional techniques with modern presentation to ensure your event stands out. 
-                Whether it's a small gathering or a grand celebration, we bring the same level of passion and excellence to every plate.
-              </p>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-                {['Customizable Menu', 'Professional Servers', 'Premium Cutlery', 'Full Setup & Cleanup'].map((feat, i) => (
-                  <div key={i} className="flex items-center gap-3 bg-base-100 p-4 rounded-2xl border border-base-content/5">
-                    <CheckCircle2 className="text-success size-5" />
-                    <span className="font-bold">{feat}</span>
+              <h2 className="text-3xl font-black mb-8 flex items-center gap-3">
+                <ShieldCheck className="text-[#FF7D44]" />
+                Service Inclusions
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
+                {service.includedServices?.map((feat, i) => (
+                  <div key={i} className="flex items-start gap-4 bg-base-100 p-6 rounded-[2rem] border border-base-content/5 hover:border-[#FF7D44]/20 transition-all group">
+                    <div className="size-10 rounded-xl bg-success/10 flex items-center justify-center text-success shrink-0 group-hover:bg-success group-hover:text-white transition-colors">
+                      <CheckCircle2 className="size-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-black text-lg mb-1">{feat.title}</h4>
+                      <p className="text-sm text-base-content/60 font-medium">{feat.description}</p>
+                    </div>
                   </div>
-                ))}
+                )) || (
+                  ['Customizable Menu', 'Professional Servers', 'Premium Cutlery', 'Full Setup & Cleanup'].map((feat, i) => (
+                    <div key={i} className="flex items-center gap-3 bg-base-100 p-4 rounded-2xl border border-base-content/5">
+                      <CheckCircle2 className="text-success size-5" />
+                      <span className="font-bold">{feat}</span>
+                    </div>
+                  ))
+                )}
               </div>
 
-              <h2 className="text-3xl font-black mb-8">Menu Highlights</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {menuHighlights.map((item, i) => (
-                  <div key={i} className="group p-6 rounded-[2rem] bg-base-100 border border-base-content/5 hover:border-[#FF7D44]/30 transition-all duration-300">
-                    <div className="size-10 rounded-xl bg-base-200 flex items-center justify-center mb-4 text-[#FF7D44] group-hover:bg-[#FF7D44] group-hover:text-white transition-colors">
-                      <UtensilsCrossed className="size-5" />
+              <h2 className="text-3xl font-black mb-10 flex items-center gap-3">
+                <UtensilsCrossed className="text-[#FF7D44]" />
+                The Full Menu
+              </h2>
+              
+              <div className="space-y-12">
+                {service.fullMenu && Object.entries(service.fullMenu).map(([category, items], idx) => (
+                  <div key={category} className="relative">
+                    <h3 className="text-xl font-black uppercase tracking-[0.2em] text-[#FF7D44] mb-8 flex items-center gap-4">
+                      {category.replace(/([A-Z])/g, ' $1').trim()}
+                      <div className="h-[2px] flex-grow bg-[#FF7D44]/10 rounded-full"></div>
+                    </h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      {items.map((item, i) => (
+                        <motion.div 
+                          initial={{ opacity: 0, x: -20 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: i * 0.1 }}
+                          key={i} 
+                          className="group relative pl-6 border-l-2 border-base-content/5 hover:border-[#FF7D44] transition-colors"
+                        >
+                          <h4 className="font-black text-xl mb-2 group-hover:text-[#FF7D44] transition-colors">{item.name}</h4>
+                          <p className="text-sm text-base-content/60 font-medium leading-relaxed">{item.description}</p>
+                        </motion.div>
+                      ))}
                     </div>
-                    <h4 className="font-black text-xl mb-2">{item.name}</h4>
-                    <p className="text-sm text-base-content/60 font-medium">{item.description}</p>
                   </div>
                 ))}
+
+                {!service.fullMenu && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {menuHighlights.map((item, i) => (
+                      <div key={i} className="group p-6 rounded-[2rem] bg-base-100 border border-base-content/5 hover:border-[#FF7D44]/30 transition-all duration-300">
+                        <div className="size-10 rounded-xl bg-base-200 flex items-center justify-center mb-4 text-[#FF7D44] group-hover:bg-[#FF7D44] group-hover:text-white transition-colors">
+                          <UtensilsCrossed className="size-5" />
+                        </div>
+                        <h4 className="font-black text-xl mb-2">{item.name}</h4>
+                        <p className="text-sm text-base-content/60 font-medium">{item.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </motion.div>
           </div>
@@ -172,6 +214,29 @@ function ServiceDetailPage() {
               <div className="absolute top-0 right-0 size-32 bg-[#FF7D44]/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
 
               <div className="relative">
+                {/* Vendor Info Section */}
+                <div className="mb-10 p-5 rounded-[2rem] bg-base-200/50 border border-base-content/5">
+                  <div className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-4 ml-1">Service Provider</div>
+                  <div className="flex items-center gap-4">
+                    <div className="size-14 rounded-2xl overflow-hidden shadow-md ring-2 ring-[#FF7D44]/20">
+                      <img src={service.vendor.image} alt={service.vendor.name} className="w-full h-full object-cover" />
+                    </div>
+                    <div>
+                      <h4 className="font-black text-lg leading-tight mb-1 flex items-center gap-2">
+                        {service.vendor.name}
+                        <CheckCircle2 className="size-4 text-info" />
+                      </h4>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1 bg-success/10 text-success px-2 py-0.5 rounded-lg">
+                          <Star className="size-3 fill-success" />
+                          <span className="text-[10px] font-black">{service.vendor.rating}</span>
+                        </div>
+                        <span className="text-[10px] font-bold opacity-40 uppercase tracking-widest">({service.vendor.reviews} reviews)</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="mb-8">
                   <div className="text-xs font-black uppercase tracking-widest opacity-40 mb-2">Starting from</div>
                   <div className="flex items-baseline gap-2">
