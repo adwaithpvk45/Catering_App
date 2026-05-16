@@ -26,10 +26,11 @@ export const login = (values, navigate) => async (dispatch) => {
         navigate("/admin/dashboard",{replace:true});
       }
     } else {
-      toast.error(res?.message, { duration: 3000 });
+      toast.error(res?.message || "Invalid credentials", { duration: 3000 });
     }
   } catch (error) {
-    toast.error(error, { duration: 3000 });
+    const errorMessage = typeof error === 'string' ? error : (error?.message || "Something went wrong");
+    toast.error(errorMessage, { duration: 3000 });
   }
 };
 

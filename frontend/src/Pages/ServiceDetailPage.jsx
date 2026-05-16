@@ -51,7 +51,7 @@ function ServiceDetailPage() {
           alt={service.title}
           className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-base-100 via-base-100/40 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
         
         <div className="absolute inset-0 flex flex-col justify-end container mx-auto px-6 pb-12 sm:px-12">
           <motion.div
@@ -78,7 +78,7 @@ function ServiceDetailPage() {
               )}
             </div>
             
-            <h1 className="text-5xl md:text-8xl font-black tracking-tight text-white mb-4 leading-none">
+            <h1 className="text-5xl md:text-8xl font-black tracking-tight text-white mb-4 leading-none drop-shadow-2xl">
               {service.title}
             </h1>
           </motion.div>

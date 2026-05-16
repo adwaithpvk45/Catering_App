@@ -2,16 +2,18 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { useThemeStore } from "../store/useThemeStore";
-import { Sun, Moon, UtensilsCrossed } from "lucide-react";
+import { useSelector } from "react-redux";
+import { Sun, Moon, UtensilsCrossed, User, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 function Navbar() {
+  const { isAuthenticated, loginData } = useSelector((state) => state.login);
+  const user = loginData?.existingUser || JSON.parse(localStorage.getItem("userDetails"))?.existingUser;
+  const role = user?.role;
+  
   const { theme, setTheme } = useThemeStore();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
-  
-  const role = JSON.parse(localStorage.getItem("userDetails"))?.existingUser
-    ?.role;
 
   const locationPath =
     location.pathname === "/login" || location.pathname === "/signup" || location.pathname === "/forgot-password" || location.pathname.startsWith("/reset-password");
@@ -124,14 +126,66 @@ function Navbar() {
           )}
         </button>
 
-        <Link to={"/login"}>
-          <button
-            className={`btn btn-warning text-white shadow-md transition-all duration-300 ${scrolled ? 'btn-sm sm:btn-md' : 'btn-md'}`}
-            style={{ visibility: locationPath || role ? "hidden" : "visible" }}
-          >
-            Login
-          </button>
-        </Link>
+        {/* Auth Actions: Login or User Profile */}
+        {!locationPath && (
+          role ? (
+            <div className="dropdown dropdown-end">
+              <div 
+                tabIndex={0} 
+                role="button" 
+                className="flex items-center gap-3 p-1.5 pr-4 rounded-2xl bg-base-content/5 hover:bg-base-content/10 transition-all border border-base-content/5"
+              >
+                <div className="size-10 rounded-xl bg-[#FF7D44] flex items-center justify-center text-white font-black shadow-lg">
+                  {JSON.parse(localStorage.getItem("userDetails"))?.existingUser?.name?.[0] || "U"}
+                </div>
+                <div className="hidden sm:block text-left">
+                  <div className="text-[10px] font-black uppercase tracking-widest opacity-40 leading-none mb-1">Welcome</div>
+                  <div className="text-sm font-black leading-none">
+                    {JSON.parse(localStorage.getItem("userDetails"))?.existingUser?.name || "User"}
+                  </div>
+                </div>
+              </div>
+              <ul tabIndex={0} className="dropdown-content menu p-2 shadow-2xl bg-base-100 rounded-[2rem] w-64 mt-4 border border-base-content/5 z-[100]">
+                <li className="menu-title px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] opacity-40">Account Management</li>
+                <li>
+                  <Link to="/dashboard" className="flex items-center gap-3 py-4 rounded-xl hover:bg-[#FF7D44]/5 group">
+                    <div className="size-10 rounded-xl bg-base-200 flex items-center justify-center group-hover:bg-[#FF7D44] group-hover:text-white transition-colors">
+                      <User className="size-5" />
+                    </div>
+                    <div>
+                      <div className="font-black text-sm">My Dashboard</div>
+                      <div className="text-[10px] font-medium opacity-50 italic">View your bookings</div>
+                    </div>
+                  </Link>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => {
+                      localStorage.removeItem("userDetails");
+                      window.location.href = "/";
+                    }}
+                    className="flex items-center gap-3 py-4 rounded-xl hover:bg-error/5 group mt-2"
+                  >
+                    <div className="size-10 rounded-xl bg-error/10 text-error flex items-center justify-center group-hover:bg-error group-hover:text-white transition-colors">
+                      <LogOut className="size-5" />
+                    </div>
+                    <div className="font-black text-sm text-error">Logout</div>
+                  </button>
+                </li>
+              </ul>
+            </div>
+          ) : (
+            <Link to="/login">
+              <button
+                className={`bg-[#FF7D44] hover:bg-[#e66a35] text-white px-6 sm:px-8 py-2 sm:py-2.5 rounded-xl font-black shadow-lg shadow-orange-500/20 transition-all active:scale-95 whitespace-nowrap ${
+                  scrolled ? "text-xs sm:text-sm" : "text-sm sm:text-base"
+                }`}
+              >
+                Login
+              </button>
+            </Link>
+          )
+        )}
       </div>
     </motion.div>
   );
