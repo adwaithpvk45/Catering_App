@@ -148,7 +148,7 @@ function Navbar() {
               <ul tabIndex={0} className="dropdown-content menu p-2 shadow-2xl bg-base-100 rounded-[2rem] w-64 mt-4 border border-base-content/5 z-[100]">
                 <li className="menu-title px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] opacity-40">Account Management</li>
                 <li>
-                  <Link to="/dashboard" className="flex items-center gap-3 py-4 rounded-xl hover:bg-[#FF7D44]/5 group">
+                  <Link to={role === "vendor" ? "/vendor/vendorDashboard" : role === "admin" ? "/admin/dashboard" : "/user"} className="flex items-center gap-3 py-4 rounded-xl hover:bg-[#FF7D44]/5 group">
                     <div className="size-10 rounded-xl bg-base-200 flex items-center justify-center group-hover:bg-[#FF7D44] group-hover:text-white transition-colors">
                       <User className="size-5" />
                     </div>

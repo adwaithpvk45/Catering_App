@@ -1,6 +1,6 @@
 import './App.css'
 import Navbar from './Components/Navbar'
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, Navigate } from 'react-router-dom'
 import HomePage from './Pages/HomePage'
 import AboutPage from './Pages/AboutPage'
 import Services from './Pages/Services'
@@ -32,7 +32,15 @@ import ForgotPasswordPage from './Pages/ForgotPasswordPage'
 import ResetPasswordPage from './Pages/ResetPasswordPage'
 import ScrollToTop from './Components/ScrollToTop'
 import ServiceDetailPage from './Pages/ServiceDetailPage'
-
+function DashboardRedirect() {
+  const user = JSON.parse(localStorage.getItem("userDetails"))?.existingUser;
+  const role = user?.role;
+  
+  if (role === "vendor") return <Navigate to="/vendor/vendorDashboard" replace />;
+  if (role === "admin") return <Navigate to="/admin/dashboard" replace />;
+  if (role === "user") return <Navigate to="/user" replace />;
+  return <Navigate to="/login" replace />;
+}
 
 function App() {
   const {theme} = useThemeStore()
@@ -57,6 +65,7 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/food" element={<FoodPage />} />
           <Route path="/food/:id" element={<ServiceDetailPage />} />
+          <Route path="/dashboard" element={<DashboardRedirect />} />
 
           {/* Guest-only routes */}
           <Route element={<GuestRoute/>}>
