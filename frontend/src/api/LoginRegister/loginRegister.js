@@ -73,15 +73,22 @@ export const logout = (navigate) => async (dispatch) => {
       },
       dispatch
     );
-    if (res?.message === "logged out") {
-      // localStorage.removeItem("userDetails");
-      toast.success(res?.message, { duration: 3000 });
-      if (navigate) {
-        navigate("/Home",{replace:true});
-      }
+    
+    // Always clear localStorage for safety
+    localStorage.removeItem("userDetails");
+    
+    if (navigate) {
+      navigate("/", { replace: true });
     }
   } catch (err) {
-    toast.error("Error in signing up", { duration: 3000 });
+    // Graceful fallback: clear local state even if backend request fails
+    localStorage.removeItem("userDetails");
+    dispatch({ type: "login/logoutSuccess", payload: {} });
+    
+    toast.error("Logged out with backend sync issue", { duration: 3000 });
+    if (navigate) {
+      navigate("/", { replace: true });
+    }
   }
 };
 

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useThemeStore } from "../store/useThemeStore";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Sun, Moon, UtensilsCrossed, User, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { logout } from "../api/LoginRegister/loginRegister";
 
 function Navbar() {
   const { isAuthenticated, loginData } = useSelector((state) => state.login);
@@ -13,6 +13,8 @@ function Navbar() {
   
   const { theme, setTheme } = useThemeStore();
   const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [scrolled, setScrolled] = useState(false);
 
   const locationPath =
@@ -161,8 +163,7 @@ function Navbar() {
                 <li>
                   <button 
                     onClick={() => {
-                      localStorage.removeItem("userDetails");
-                      window.location.href = "/";
+                      dispatch(logout(navigate));
                     }}
                     className="flex items-center gap-3 py-4 rounded-xl hover:bg-error/5 group mt-2"
                   >

@@ -25,8 +25,10 @@ const loginSlice = createSlice({
     },
     logoutSuccess: (state, action) => {
       state.logoutData = action.payload;
-      localStorage.removeItem("userDetails");
+      state.loginData = [];
+      state.role = null;
       state.isAuthenticated = false;
+      localStorage.removeItem("userDetails");
     },
     logoutFail: (state, action) => {
       state.error = action.payload;
@@ -42,7 +44,13 @@ const loginSlice = createSlice({
   },
 });
 
-export const { loginSuccess, loginFail, registerFail, registerSuccess } =
-  loginSlice.actions;
+export const { 
+  loginSuccess, 
+  loginFail, 
+  registerFail, 
+  registerSuccess, 
+  logoutSuccess, 
+  logoutFail 
+} = loginSlice.actions;
 
 export default loginSlice.reducer;
