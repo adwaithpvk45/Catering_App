@@ -14,10 +14,10 @@ import { Form, Formik } from "formik";
 import { statusChange } from "../../../api/vendor/bookingApi";
 import { useDispatch } from "react-redux";
 
-const BookingDetailsDrawer = ({ open, onClose, booking, onToggleStatus }) => {
-  if (!booking) return null;
-
+const BookingDetailsDrawer = ({ open, onClose, booking }) => {
   const dispatch = useDispatch();
+
+  if (!booking) return null;
 
   const bookingFields = [
     { label: "User", value: booking.user?.name },

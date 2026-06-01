@@ -114,11 +114,29 @@ const AdminBookings = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
           sx={{ mb: "30px", maxWidth: "300px" }}
         />
+      </Box>
+      <Box sx={{ height: "calc(100vh - 280px)", width: "100%" }}>
         <DataGrid
           rows={filteredUsers}
           columns={columns}
-          pageSize={5}
+          pageSize={10}
+          rowsPerPageOptions={[5, 10, 20]}
           columnBuffer={0}
+          sx={{
+            border: "none",
+            "& .MuiDataGrid-cell": {
+              fontFamily: "Outfit, sans-serif",
+              fontWeight: 600,
+              fontSize: "14px",
+            },
+            "& .MuiDataGrid-columnHeaderTitle": {
+              fontFamily: "Outfit, sans-serif",
+              fontWeight: 900,
+              fontSize: "13px",
+              letterSpacing: "0.5px",
+              opacity: 0.8,
+            },
+          }}
         />
       </Box>
 

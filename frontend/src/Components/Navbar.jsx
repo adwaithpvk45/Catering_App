@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useThemeStore } from "../store/useThemeStore";
 import { useSelector, useDispatch } from "react-redux";
-import { Sun, Moon, UtensilsCrossed, User, LogOut } from "lucide-react";
+import { Sun, Moon, UtensilsCrossed, User, LogOut, AlertTriangle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { logout } from "../api/LoginRegister/loginRegister";
 
 function Navbar() {
-  const { isAuthenticated, loginData } = useSelector((state) => state.login);
+  const { loginData } = useSelector((state) => state.login);
   const user = loginData?.existingUser || JSON.parse(localStorage.getItem("userDetails"))?.existingUser;
   const role = user?.role;
   
@@ -16,6 +17,7 @@ function Navbar() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [scrolled, setScrolled] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const locationPath =
     location.pathname === "/login" || location.pathname === "/signup" || location.pathname === "/forgot-password" || location.pathname.startsWith("/reset-password");
@@ -163,7 +165,7 @@ function Navbar() {
                 <li>
                   <button 
                     onClick={() => {
-                      dispatch(logout(navigate));
+                      setShowLogoutConfirm(true);
                     }}
                     className="flex items-center gap-3 py-4 rounded-xl hover:bg-error/5 group mt-2"
                   >
@@ -188,6 +190,66 @@ function Navbar() {
           )
         )}
       </div>
+
+      {/* Logout Confirmation Modal */}
+      {createPortal(
+        <AnimatePresence>
+          {showLogoutConfirm && (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+              {/* Overlay */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowLogoutConfirm(false)}
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              />
+
+              {/* Card */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                transition={{ type: "spring", duration: 0.4 }}
+                className="relative overflow-hidden bg-base-100 rounded-[2rem] border border-base-content/10 max-w-sm w-full p-6 shadow-2xl z-[10000] font-outfit text-center"
+              >
+                {/* Warning Icon */}
+                <div className="mx-auto size-12 rounded-2xl bg-error/10 text-error flex items-center justify-center mb-4">
+                  <AlertTriangle className="size-6" />
+                </div>
+
+                <h3 className="text-lg font-black text-base-content mb-2">
+                  Confirm Logout
+                </h3>
+                
+                <p className="text-xs font-semibold text-base-content/60 mb-6 leading-relaxed">
+                  Are you sure you want to log out of Feastify? You will need to sign in again to access bookings.
+                </p>
+
+                {/* Actions */}
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowLogoutConfirm(false)}
+                    className="w-1/2 btn btn-ghost h-11 rounded-xl font-black text-xs cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowLogoutConfirm(false);
+                      dispatch(logout(navigate));
+                    }}
+                    className="w-1/2 btn btn-error h-11 rounded-xl text-white font-black text-xs shadow-lg shadow-error/10 cursor-pointer"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </motion.div>
   );
 }

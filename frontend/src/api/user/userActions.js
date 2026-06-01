@@ -17,3 +17,13 @@ export const getUserComplaints = () => async (dispatch) => {
         failureAction: "User/fetchComplaintsFail",
     }, dispatch);
 };
+
+export const createComplaintAction = (complaintData) => async (dispatch) => {
+    return await commonFunction({
+        api: "/api/complaints/submit",
+        method: "POST",
+        body: complaintData,
+        showSuccess: true,
+        successMessage: "Ticket submitted successfully!",
+    }, dispatch);
+};

@@ -27,20 +27,17 @@ export const updateUserProfilePic = async(req,res) =>{ // for updating the profi
 
 export const updateUserProfile = async(req,res) =>{ // for updating the profile
     try {
-        const {phone,address} = req.body
+        const {name, phone,address} = req.body
         const userId = req.user._id
 
-    // if(!phone||!address){
-    //   res.status(400).json({message:"Profile pic is required"})
-    // }
+        const updateData = {};
+        if (name) updateData.name = name;
+        if (phone) updateData.phone = phone;
+        if (address) updateData.address = address;
 
-//    const uploadResponse =  await cloudinary.uploader.upload(profilePic,{
-//     folder:"Catering/profilepics"
-//    })
+        const updatedUser = await User.findByIdAndUpdate(userId, updateData, {new:true})
 
-   const updatedUser =await User.findByIdAndUpdate(userId,{phone,address},{new:true})
-
-   return res.status(200).json({message:"User Profile Updated",updatedUser})
+        return res.status(200).json({message:"User Profile Updated",updatedUser})
 
   } catch (error) {
     console.log("internal server error:" + error)

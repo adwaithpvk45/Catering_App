@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react'
 import './App.css'
 import Navbar from './Components/Navbar'
 import { Route, Routes, Navigate } from 'react-router-dom'
@@ -45,9 +46,13 @@ function DashboardRedirect() {
 function App() {
   const {theme} = useThemeStore()
 
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
   const location = useLocation()
 
-  const locationPath = location.pathname === "/login" || location.pathname==="/signup" || location.pathname==="/forgot-password" || location.pathname.startsWith("/reset-password") || location.pathname.startsWith("/admin")|| location.pathname.startsWith("/vendor"); 
+  const locationPath = location.pathname === "/login" || location.pathname==="/signup" || location.pathname==="/forgot-password" || location.pathname.startsWith("/reset-password") || location.pathname.startsWith("/admin")|| location.pathname.startsWith("/vendor") || location.pathname.startsWith("/user"); 
 
   return (
     <>
