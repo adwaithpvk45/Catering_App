@@ -92,7 +92,7 @@ export default function ResetPassword({
                 toast.success("Password has been successfully updated!");
                 resetForm();
                 closeHandler();
-              } catch (error) {
+              } catch {
                 toast.error("Failed to update password");
               } finally {
                 setSubmitting(false);
