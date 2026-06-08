@@ -1,9 +1,10 @@
 /* eslint-disable no-unused-vars */
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getVendorStats } from '../../api/vendor/vendorActions';
 import Chart from 'react-apexcharts';
 import { motion } from 'framer-motion';
+import { useThemeStore } from '../../store/useThemeStore';
 import { 
   UtensilsCrossed, 
   CalendarCheck, 
@@ -19,6 +20,7 @@ import {
 function VendorDashboardStats() {
   const dispatch = useDispatch();
   const { stats, errors } = useSelector((state) => state.vendor);
+  const { theme } = useThemeStore();
 
   // Get current user details from local storage
   const localData = JSON.parse(localStorage.getItem("userDetails")) || {};
@@ -37,7 +39,11 @@ function VendorDashboardStats() {
     }).format(value);
   };
 
-  const trendChartConfig = {
+  const textColor = theme === 'dark' ? '#f3f4f6' : '#1f2937';
+  const gridColor = theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)';
+  const tooltipTheme = theme === 'dark' ? 'dark' : 'light';
+
+  const trendChartConfig = useMemo(() => ({
     options: {
       chart: {
         id: "booking-trends",
@@ -62,8 +68,8 @@ function VendorDashboardStats() {
         axisTicks: { show: false },
         labels: {
           style: {
-            colors: "currentColor",
-            opacity: 0.5,
+            colors: textColor,
+            opacity: 0.7,
             fontWeight: 700,
           },
         },
@@ -71,18 +77,18 @@ function VendorDashboardStats() {
       yaxis: {
         labels: {
           style: {
-            colors: "currentColor",
-            opacity: 0.5,
+            colors: textColor,
+            opacity: 0.7,
             fontWeight: 700,
           },
         },
       },
       grid: {
-        borderColor: "rgba(156, 163, 175, 0.1)",
+        borderColor: gridColor,
         strokeDashArray: 4,
       },
       dataLabels: { enabled: false },
-      tooltip: { theme: "dark" },
+      tooltip: { theme: tooltipTheme },
     },
     series: [
       {
@@ -90,20 +96,20 @@ function VendorDashboardStats() {
         data: stats?.monthlyBookingTrends?.map((t) => t.bookings) || [],
       },
     ],
-  };
+  }), [stats?.monthlyBookingTrends, textColor, gridColor, tooltipTheme]);
 
-  const donutChartConfig = {
+  const donutChartConfig = useMemo(() => ({
     options: {
       chart: {
         id: "category-distribution",
         fontFamily: 'Outfit, sans-serif',
       },
       labels: stats?.categoryStats?.map((t) => t.category) || [],
-      colors: ["#FF7D44", "#fbbf24", "#f43f5e", "#10b981", "#3b82f6"],
+      colors: ['#FF7D44', '#FFA37A', '#FFC2A8', '#FFE1D4', '#FFF0EA'], // Reduced color monochromatic brand palette
       legend: {
         position: "bottom",
         labels: {
-          colors: "currentColor",
+          colors: textColor,
           useSeriesColors: false,
         },
         itemMargin: { horizontal: 10, vertical: 5 },
@@ -124,21 +130,21 @@ function VendorDashboardStats() {
               total: {
                 show: true,
                 label: "Total Bookings",
-                color: "currentColor",
+                color: textColor,
                 formatter: () => stats?.totalBookings || 0,
               },
               value: {
-                color: "currentColor",
+                color: textColor,
                 fontWeight: 900,
               },
             },
           },
         },
       },
-      tooltip: { theme: "dark" },
+      tooltip: { theme: tooltipTheme },
     },
     series: stats?.categoryStats?.map((t) => t.count) || [],
-  };
+  }), [stats?.categoryStats, stats?.totalBookings, textColor, tooltipTheme]);
 
   const hasStats = stats && !errors;
   const bookingSuccessRate = stats?.totalBookings 
