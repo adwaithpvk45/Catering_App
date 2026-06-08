@@ -23,30 +23,35 @@ const DashboardAvatarSection = () => {
   const user = localData?.existingUser || {};
 
   // Form states for profile settings
+  const isVendor = user.role === "vendor";
   const [name, setName] = useState(user.name || "");
   const [phone, setPhone] = useState(user.phone || "");
-  const [address, setAddress] = useState(user.address || "");
+  const [address, setAddress] = useState(isVendor ? (user.location || "") : (user.address || ""));
+  const [description, setDescription] = useState(user.description || "");
 
   const handleSaveProfile = async (e) => {
     e.preventDefault();
-    if (!name.trim()) {
+    if (!isVendor && !name.trim()) {
       toast.error("Name is required!");
       return;
     }
 
     setSaving(true);
     try {
-      const response = await axiosInstance.patch("/api/user/updateProfile", {
-        name,
-        phone,
-        address
-      });
+      const url = isVendor ? "/api/vendor/updateVendorProfile" : "/api/user/updateProfile";
+      const payload = isVendor 
+        ? { description, phone, location: address } 
+        : { name, phone, address };
+
+      const response = await axiosInstance.patch(url, payload);
       const data = response.data;
-      if (data.updatedUser) {
+      const updatedUser = data.updatedUser || data.updatedVendor;
+
+      if (updatedUser) {
         // Sync local storage
         const updatedLocalData = {
           ...localData,
-          existingUser: data.updatedUser
+          existingUser: updatedUser
         };
         localStorage.setItem("userDetails", JSON.stringify(updatedLocalData));
         
@@ -179,7 +184,8 @@ const DashboardAvatarSection = () => {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Your display name"
-                        className="w-full bg-base-200 h-12 rounded-2xl pl-12 pr-4 font-bold outline-none border-2 border-transparent focus:border-[#FF7D44]/30 transition-all text-sm"
+                        disabled={isVendor}
+                        className={`w-full bg-base-200 h-12 rounded-2xl pl-12 pr-4 font-bold outline-none border-2 border-transparent focus:border-[#FF7D44]/30 transition-all text-sm ${isVendor ? 'opacity-65 cursor-not-allowed' : ''}`}
                         required
                       />
                     </div>
@@ -200,16 +206,33 @@ const DashboardAvatarSection = () => {
                     </div>
                   </div>
 
+                  {/* Vendor Description (Only for vendors) */}
+                  {isVendor && (
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-black uppercase tracking-widest opacity-40 ml-2">Vendor Description</label>
+                      <textarea 
+                        rows={2}
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="Describe your catering services..."
+                        className="w-full bg-base-200 rounded-2xl px-4 py-3 font-bold outline-none border-2 border-transparent focus:border-[#FF7D44]/30 transition-all text-sm leading-relaxed resize-none"
+                        maxLength={150}
+                      />
+                    </div>
+                  )}
+
                   {/* Address Input */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-black uppercase tracking-widest opacity-40 ml-2">Delivery Address</label>
+                    <label className="text-xs font-black uppercase tracking-widest opacity-40 ml-2">
+                      {isVendor ? "Vendor Location" : "Delivery Address"}
+                    </label>
                     <div className="relative">
                       <MapPin className="absolute left-4 top-4 size-5 opacity-40" />
                       <textarea 
-                        rows={3}
+                        rows={isVendor ? 2 : 3}
                         value={address}
                         onChange={(e) => setAddress(e.target.value)}
-                        placeholder="Enter your default home address..."
+                        placeholder={isVendor ? "e.g. Cochin, Kerala" : "Enter your default home address..."}
                         className="w-full bg-base-200 rounded-2xl pl-12 pr-4 py-3 font-bold outline-none border-2 border-transparent focus:border-[#FF7D44]/30 transition-all text-sm leading-relaxed"
                       />
                     </div>
