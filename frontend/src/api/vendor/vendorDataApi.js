@@ -1,26 +1,18 @@
-import toast from "react-hot-toast";
 import commonFunction from "../common/commonApi";
 
-export const profileData = () => {
+export const updateVendorProfile = (profileDetails) => {
   return async (dispatch) => {
-    const res = await commonFunction(
+    return await commonFunction(
       {
         api: `/api/vendor/updateVendorProfile`,
-        method: "PUT",
-        body: formData,
-        successAction: "vendorFood/foodAddSuccess",
-        failureAction: "vendorFood/foodAddFail",
+        method: "PATCH",
+        body: JSON.stringify(profileDetails),
+        successAction: "vendor/updateProfileSuccess",
+        failureAction: "vendor/updateProfileFail",
         showSuccess: true,
-        successMessage: "Food data edited successfully!",
+        successMessage: "Vendor profile updated successfully!",
       },
       dispatch
     );
-    console.log(res);
-    if (res.message === "Food item updated") {
-      dispatch(getVendorFood());
-      toast.success(res.message);
-    } else {
-      toast.error(res.message);
-    }
   };
 };

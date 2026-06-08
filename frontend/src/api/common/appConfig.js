@@ -1,6 +1,6 @@
 const appConfig = {
   baseURL: 'http://localhost:5001',
-  env: process.env.NODE_ENV || 'development',
+  env: import.meta.env.MODE || 'development',
 
   // Always get latest token
   get token() {

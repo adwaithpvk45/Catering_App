@@ -5,7 +5,7 @@ import { LogOut, Menu, ShieldAlert, Sun, Moon, AlertTriangle } from "lucide-reac
 import { useThemeStore } from "../../store/useThemeStore";
 import DashboardAvatarSection from "../../common ui/DashboardAvatar";
 
-function DashboardNavbar({ onLogout, toggleDrawer, toggleSidebarDrawer }) {
+function DashboardNavbar({ onLogout, toggleSidebarDrawer }) {
   const role = JSON.parse(localStorage.getItem("userDetails"))?.existingUser?.role;
   const { theme, setTheme } = useThemeStore();
   const [showConfirm, setShowConfirm] = useState(false);

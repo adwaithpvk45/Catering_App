@@ -1,6 +1,5 @@
 import { toast } from "react-hot-toast";
 import commonFunction from "../common/commonApi";
-import { replace } from "formik";
 
 export const login = (values, navigate) => async (dispatch) => {
   try {
@@ -53,7 +52,7 @@ export const signUp = (values, navigate) => async (dispatch) => {
         navigate("/login");
       }
     }
-  } catch (err) {
+  } catch {
     toast.error("Error in signing up", { duration: 3000 });
   }
 };
@@ -79,7 +78,7 @@ export const logout = (navigate) => async (dispatch) => {
         navigate("/Home",{replace:true});
       }
     }
-  } catch (err) {
+  } catch {
     toast.error("Error in signing up", { duration: 3000 });
   }
 };

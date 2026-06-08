@@ -2,7 +2,6 @@ import toast from "react-hot-toast";
 import commonFunction from "../common/commonApi";
 
 export const getAllFood = () => async (dispatch) => {
-  const id = JSON.parse(localStorage.getItem("userDetails")).existingUser._id;
   return await commonFunction(
     {
       api: `/api/food/getAllFood`,
@@ -35,7 +34,6 @@ export const getVendorFood = () => async (dispatch) => {
 
 
 export const getAllServices = () => async (dispatch) => {
-  const id = JSON.parse(localStorage.getItem("userDetails")).existingUser._id;
   return await commonFunction(
     {
       api: `/api/service/getAllServices`,

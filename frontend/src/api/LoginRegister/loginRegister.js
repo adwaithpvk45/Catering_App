@@ -1,6 +1,5 @@
 import { toast } from "react-hot-toast";
 import commonFunction from "../common/commonApi";
-import { replace } from "formik";
 
 export const login = (values, navigate) => async (dispatch) => {
   try {
@@ -54,14 +53,14 @@ export const signUp = (values, navigate) => async (dispatch) => {
         navigate("/login");
       }
     }
-  } catch (err) {
+  } catch {
     toast.error("Error in signing up", { duration: 3000 });
   }
 };
 
 export const logout = (navigate) => async (dispatch) => {
   try {
-    const res = await commonFunction(
+    await commonFunction(
       {
         api: "/api/auth/logout",
         method: "POST",
@@ -80,7 +79,7 @@ export const logout = (navigate) => async (dispatch) => {
     if (navigate) {
       navigate("/", { replace: true });
     }
-  } catch (err) {
+  } catch {
     // Graceful fallback: clear local state even if backend request fails
     localStorage.removeItem("userDetails");
     dispatch({ type: "login/logoutSuccess", payload: {} });
@@ -109,7 +108,7 @@ export const forgotPasswordAction = (email, navigate) => async (dispatch) => {
         navigate("/login");
       }
     }
-  } catch (err) {
+  } catch {
     toast.error("Error sending reset link", { duration: 3000 });
   }
 };
@@ -131,7 +130,7 @@ export const resetPasswordAction = (token, password, navigate) => async (dispatc
         navigate("/login");
       }
     }
-  } catch (err) {
+  } catch {
     toast.error("Error resetting password", { duration: 3000 });
   }
 };

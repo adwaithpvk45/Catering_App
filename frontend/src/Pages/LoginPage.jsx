@@ -13,7 +13,6 @@ import {
   Chrome 
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { toast } from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { login } from "../api/LoginRegister/loginRegister";
 
@@ -138,7 +137,7 @@ const LoginPage = () => {
               try {
                 await dispatch(login(values, navigate));
                 setSubmitting(false);
-              } catch (error) {
+              } catch {
                 setSubmitting(false);
               }
             }}

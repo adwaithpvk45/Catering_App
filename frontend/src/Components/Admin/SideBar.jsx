@@ -13,7 +13,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { useSelector } from "react-redux";
 import { UtensilsCrossed } from "lucide-react";
 
-function SideBar({ open, onclose, isSidebarOpen, toggleSidebar }) {
+function SideBar({ open, onclose, isSidebarOpen }) {
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();

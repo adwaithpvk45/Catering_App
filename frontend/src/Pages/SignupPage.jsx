@@ -167,7 +167,7 @@ const SignupPage = () => {
                 const payload = { ...values, role: selectedRole };
                 dispatch(signUp(payload, navigate));
                 setSubmitting(false);
-              } catch (error) {
+              } catch {
                 toast.error("Registration failed!");
                 setSubmitting(false);
               }

@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars */
+ 
 import React, { useEffect, useState } from "react";
 import TableContent from "../../../common ui/Table";
 import UserDetails from "./UserDetails";

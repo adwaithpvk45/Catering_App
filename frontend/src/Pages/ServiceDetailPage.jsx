@@ -160,7 +160,7 @@ function ServiceDetailPage() {
               </h2>
               
               <div className="space-y-12">
-                {service.fullMenu && Object.entries(service.fullMenu).map(([category, items], idx) => (
+                {service.fullMenu && Object.entries(service.fullMenu).map(([category, items]) => (
                   <div key={category} className="relative">
                     <h3 className="text-xl font-black uppercase tracking-[0.2em] text-[#FF7D44] mb-8 flex items-center gap-4">
                       {category.replace(/([A-Z])/g, ' $1').trim()}
