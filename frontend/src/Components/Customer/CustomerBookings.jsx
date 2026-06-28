@@ -12,6 +12,8 @@ const CustomerBookings = () => {
     dispatch(getUserBookings());
   }, [dispatch]);
 
+  console.log("CustomerBookings: bookings =", bookings);
+
   const getStatusBadge = (status) => {
     switch (status) {
       case 'Accepted':
@@ -90,15 +92,17 @@ const CustomerBookings = () => {
                     <td className="py-5 px-6">
                       <div className="flex items-center gap-3">
                         <div className="size-10 rounded-xl bg-base-200 overflow-hidden flex items-center justify-center border border-[#FF7D44]/20 shadow-sm">
-                          {booking.vendor?.profile ? (
-                            <img src={booking.vendor.profile} alt="Vendor" className="size-full object-cover" />
+                          {booking.vendor && booking.vendor.length > 0 && booking.vendor[0]?.profilePic ? (
+                            <img src={booking.vendor[0].profilePic} alt="Vendor" className="size-full object-cover" />
                           ) : (
                             <UtensilsCrossed className="size-5 text-[#FF7D44]" />
                           )}
                         </div>
                         <div>
                           <div className="font-black text-sm text-base-content leading-tight">
-                            {booking.vendor?.vendorName || "Unknown Vendor"}
+                            {booking.vendor && booking.vendor.length > 0 && typeof booking.vendor[0] === 'object' && (booking.vendor[0]?.name || booking.vendor[0]?.email)
+                              ? (booking.vendor[0].name || booking.vendor[0].email)
+                              : "Unknown Vendor"}
                           </div>
                           <div className="text-[10px] font-bold opacity-40 uppercase tracking-widest mt-0.5">Verified Partner</div>
                         </div>

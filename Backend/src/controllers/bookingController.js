@@ -38,8 +38,9 @@ export const updateBookingStatus = async (req, res) => {
 export const getUserBookings = async (req, res) => {
   try {
     const bookings = await Booking.find({ user: req.user._id })
-      .populate("vendor", "vendorName profile")
+      .populate("vendor", "name profilePic")
       .sort({ createdAt: -1 });
+    console.log("getUserBookings backend response payload:", JSON.stringify(bookings, null, 2));
     res.status(200).json({ success: true, bookings, message: "User bookings fetched successfully" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

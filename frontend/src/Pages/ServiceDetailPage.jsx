@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useMemo, useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   Star, 
@@ -10,8 +10,13 @@ import {
   ArrowLeft, 
   ShieldCheck, 
   UtensilsCrossed,
-  Calendar
+  Calendar,
+  MapPin,
+  FileText
 } from 'lucide-react';
+import { useDispatch } from 'react-redux';
+import { createBookingAction } from '../api/user/userActions';
+import toast from 'react-hot-toast';
 import cateringServices from '../store/data';
 
 function ServiceDetailPage() {
@@ -20,6 +25,106 @@ function ServiceDetailPage() {
   const service = useMemo(() => {
     return cateringServices.find(item => item.id === parseInt(id));
   }, [id]);
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const [guestCount, setGuestCount] = useState(20);
+  const [eventDate, setEventDate] = useState("");
+  const [venueLocation, setVenueLocation] = useState("");
+  const [notes, setNotes] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const getMappedVendorId = (mockVendorId) => {
+    const mapping = {
+      "v1": "67e9560d36f21d0a0e9c6671", // John D
+      "v2": "6873b56efeeb2405317bd106", // Janak
+      "v3": "67e95562aa748f8eecf98f1d", // John Doe
+      "v4": "6873bc36306ddea019fc624d", // Arshad K
+      "v5": "68738ebc75d1d72696b917da", // AdwaithPVK
+      "v6": "6a26f08f52fb2c9024442933", // Anjusha D
+    };
+    return mapping[mockVendorId] || mockVendorId;
+  };
+
+  const handleBooking = async () => {
+    const userDetailsStr = localStorage.getItem("userDetails");
+    if (!userDetailsStr) {
+      toast.error("Please login to proceed with booking.");
+      navigate("/login");
+      return;
+    }
+
+    const userDetails = JSON.parse(userDetailsStr);
+    const currentUser = userDetails?.existingUser;
+    
+    if (!currentUser) {
+      toast.error("Invalid user session. Please login again.");
+      navigate("/login");
+      return;
+    }
+
+    if (currentUser.role !== "user") {
+      toast.error("Only customers can create booking enquiries.");
+      return;
+    }
+
+    if (!eventDate) {
+      toast.error("Please select an event date.");
+      return;
+    }
+
+    const selectedDate = new Date(eventDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (selectedDate < today) {
+      toast.error("Event date must be today or in the future.");
+      return;
+    }
+
+    if (!guestCount || guestCount < 20) {
+      toast.error("Guest count must be at least 20.");
+      return;
+    }
+
+    if (!venueLocation.trim()) {
+      toast.error("Please enter a venue location.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const vendorId = getMappedVendorId(service.vendor?.id || "v1");
+
+      const bookingPayload = {
+        user: currentUser._id,
+        description: service.description || "Catering Service Package Enquired",
+        price: service.priceRange || (service.price ? service.price.toString() : "$$$"),
+        category: service.category || "Catering",
+        imageUrl: service.image || "",
+        eventDate: eventDate,
+        guestCount: parseInt(guestCount),
+        venueLocation: venueLocation,
+        notes: notes || "",
+        vendor: [vendorId],
+        services: [
+          {
+            serviceId: service._id || "6873b10a5dfaefdbd87a64ed",
+            name: service.title || service.name,
+            priceAtBooking: service.price || 500,
+          }
+        ]
+      };
+
+      await dispatch(createBookingAction(bookingPayload));
+      navigate("/user/bookings");
+    } catch (err) {
+      console.error("Booking error:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   if (!service) {
     return (
@@ -246,33 +351,80 @@ function ServiceDetailPage() {
                 </div>
 
                 <div className="space-y-6 mb-10">
+                  {/* Number of Guests */}
                   <div className="space-y-2">
                     <label className="text-xs font-black uppercase tracking-widest opacity-40 ml-2">Number of Guests</label>
                     <div className="relative">
                       <Users className="absolute left-4 top-1/2 -translate-y-1/2 size-5 opacity-40" />
                       <input 
                         type="number" 
+                        min="20"
+                        value={guestCount}
+                        onChange={(e) => setGuestCount(e.target.value)}
                         placeholder="Min. 20 guests" 
-                        className="w-full bg-base-200 h-14 rounded-2xl pl-12 pr-4 font-bold outline-none border-2 border-transparent focus:border-[#FF7D44]/30 transition-all"
+                        className="w-full bg-base-200 h-14 rounded-2xl pl-12 pr-4 font-bold outline-none border-2 border-transparent focus:border-[#FF7D44]/30 transition-all text-sm"
                       />
                     </div>
                   </div>
 
+                  {/* Event Date */}
                   <div className="space-y-2">
                     <label className="text-xs font-black uppercase tracking-widest opacity-40 ml-2">Event Date</label>
                     <div className="relative">
                       <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 size-5 opacity-40" />
                       <input 
                         type="date" 
-                        className="w-full bg-base-200 h-14 rounded-2xl pl-12 pr-4 font-bold outline-none border-2 border-transparent focus:border-[#FF7D44]/30 transition-all"
+                        value={eventDate}
+                        onChange={(e) => setEventDate(e.target.value)}
+                        className="w-full bg-base-200 h-14 rounded-2xl pl-12 pr-4 font-bold outline-none border-2 border-transparent focus:border-[#FF7D44]/30 transition-all text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Venue Location */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-black uppercase tracking-widest opacity-40 ml-2">Venue Location</label>
+                    <div className="relative">
+                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 size-5 opacity-40" />
+                      <input 
+                        type="text" 
+                        value={venueLocation}
+                        onChange={(e) => setVenueLocation(e.target.value)}
+                        placeholder="e.g. Grand Plaza Banquet, Kochi" 
+                        className="w-full bg-base-200 h-14 rounded-2xl pl-12 pr-4 font-bold outline-none border-2 border-transparent focus:border-[#FF7D44]/30 transition-all text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Special Notes (Optional) */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-black uppercase tracking-widest opacity-40 ml-2">Special Instructions / Notes</label>
+                    <div className="relative">
+                      <FileText className="absolute left-4 top-4 size-5 opacity-40" />
+                      <textarea 
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        placeholder="e.g. Vegetarian preferred, live counter setup requirements..." 
+                        rows={2}
+                        className="w-full bg-base-200 rounded-2xl pl-12 pr-4 py-3 font-bold outline-none border-2 border-transparent focus:border-[#FF7D44]/30 transition-all text-sm resize-none"
                       />
                     </div>
                   </div>
                 </div>
 
-                <button className="w-full btn btn-warning h-16 rounded-2xl text-white font-black text-lg shadow-xl shadow-orange-500/20 group">
-                  Proceed to Booking
-                  <ChevronRight className="size-5 group-hover:translate-x-1 transition-transform" />
+                <button 
+                  onClick={handleBooking}
+                  disabled={isSubmitting}
+                  className="w-full btn btn-warning h-16 rounded-2xl text-white font-black text-lg shadow-xl shadow-orange-500/20 group flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95 disabled:opacity-50"
+                >
+                  {isSubmitting ? (
+                    <span className="loading loading-spinner loading-md"></span>
+                  ) : (
+                    <>
+                      Proceed to Booking
+                      <ChevronRight className="size-5 group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
                 </button>
 
                 <div className="mt-8 text-center">

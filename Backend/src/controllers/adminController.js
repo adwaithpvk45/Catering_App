@@ -12,13 +12,52 @@ export const getDashboardStats = async (req, res) => {
         const totalBookings = await Booking.countDocuments();
         const totalComplaints = await Complaint.countDocuments({ status: 'Pending' });
 
+        // Get all bookings to calculate trends and distribution
+        const bookings = await Booking.find();
+
+        // 1. Group bookings by category for all bookings
+        const categoryMap = {};
+        bookings.forEach(b => {
+            const cat = b.category || "Others";
+            categoryMap[cat] = (categoryMap[cat] || 0) + 1;
+        });
+        const categoryStats = Object.keys(categoryMap).map(cat => ({
+            name: cat,
+            value: categoryMap[cat]
+        }));
+
+        // 2. Group by month (last 6 months) for all bookings
+        const monthlyStats = {};
+        // Initialize last 6 months with 0
+        for (let i = 5; i >= 0; i--) {
+            const d = new Date();
+            d.setMonth(d.getMonth() - i);
+            const monthName = d.toLocaleString('default', { month: 'short' });
+            monthlyStats[monthName] = 0;
+        }
+
+        bookings.forEach(b => {
+            const date = new Date(b.eventDate || b.createdAt);
+            const monthName = date.toLocaleString('default', { month: 'short' });
+            if (monthName in monthlyStats) {
+                monthlyStats[monthName]++;
+            }
+        });
+
+        const monthlyBookingTrends = Object.keys(monthlyStats).map(month => ({
+            month,
+            bookings: monthlyStats[month]
+        }));
+
         res.status(200).json({
             success: true,
             stats: {
                 totalUsers,
                 totalVendors,
                 totalBookings,
-                totalComplaints
+                totalComplaints,
+                categoryStats,
+                monthlyBookingTrends
             }
         });
     } catch (error) {

@@ -61,6 +61,29 @@ function Dashboard() {
     dispatch(getStats());
   }, [dispatch]);
 
+  const bookingTrends = useMemo(() => {
+    return realStats?.monthlyBookingTrends && realStats.monthlyBookingTrends.length > 0
+      ? realStats.monthlyBookingTrends
+      : [
+          { month: "Jan", bookings: 0 },
+          { month: "Feb", bookings: 0 },
+          { month: "Mar", bookings: 0 },
+          { month: "Apr", bookings: 0 },
+          { month: "May", bookings: 0 },
+        ];
+  }, [realStats]);
+
+  const categoryStats = useMemo(() => {
+    return realStats?.categoryStats && realStats.categoryStats.length > 0
+      ? realStats.categoryStats
+      : [
+          { name: "Weddings", value: 0 },
+          { name: "Birthdays", value: 0 },
+          { name: "Corporate", value: 0 },
+          { name: "Others", value: 0 },
+        ];
+  }, [realStats]);
+
   const stats = [
     { 
       label: "Total Users", 
@@ -120,7 +143,7 @@ function Dashboard() {
       strokeDashArray: 4,
     },
     xaxis: {
-      categories: monthlyBookings.map((item) => item.month),
+      categories: bookingTrends.map((item) => item.month),
       axisBorder: { show: false },
       axisTicks: { show: false },
       labels: {
@@ -142,12 +165,12 @@ function Dashboard() {
     },
     dataLabels: { enabled: false },
     tooltip: { theme: tooltipTheme },
-  }), [textColor, gridColor, tooltipTheme]);
+  }), [textColor, gridColor, tooltipTheme, bookingTrends]);
 
-  const lineChartSeries = [{
+  const lineChartSeries = useMemo(() => [{
     name: "Bookings",
-    data: monthlyBookings.map((item) => item.bookings)
-  }];
+    data: bookingTrends.map((item) => item.bookings)
+  }], [bookingTrends]);
 
   const donutChatOptions = useMemo(() => ({
     chart: {
@@ -178,15 +201,15 @@ function Dashboard() {
             total: {
               show: true,
               label: 'Total',
-              formatter: () => '1,000',
+              formatter: () => categoryStats.reduce((sum, item) => sum + item.value, 0).toLocaleString(),
               color: textColor,
             }
           }
         }
       }
     },
-    labels: serviceCategoryData.map((item) => item.name),
-    colors: ['#FF7D44', '#FFA37A', '#FFC2A8', '#FFE1D4'], // Reduced color monochromatic brand palette
+    labels: categoryStats.map((item) => item.name),
+    colors: ['#FF7D44', '#FFA37A', '#FFC2A8', '#FFE1D4', '#FFF0EA', '#FFEFEB'], // Monochromatic brand palette
     legend: {
       position: 'bottom',
       labels: {
@@ -197,9 +220,9 @@ function Dashboard() {
     },
     dataLabels: { enabled: false },
     tooltip: { theme: tooltipTheme },
-  }), [textColor, tooltipTheme]);
+  }), [textColor, tooltipTheme, categoryStats]);
 
-  const donutChatSeries = serviceCategoryData.map((item) => item.value);
+  const donutChatSeries = useMemo(() => categoryStats.map((item) => item.value), [categoryStats]);
 
   return (
     <div className="py-6 px-1 max-w-full font-outfit select-none space-y-8">

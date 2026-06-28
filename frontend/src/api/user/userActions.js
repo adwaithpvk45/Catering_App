@@ -27,3 +27,14 @@ export const createComplaintAction = (complaintData) => async (dispatch) => {
         successMessage: "Ticket submitted successfully!",
     }, dispatch);
 };
+
+export const createBookingAction = (bookingData) => async (dispatch) => {
+    return await commonFunction({
+        api: "/api/booking/enquire",
+        method: "POST",
+        body: JSON.stringify(bookingData),
+        showSuccess: true,
+        successMessage: "Booking request submitted successfully!",
+    }, dispatch);
+};
+
