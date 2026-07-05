@@ -174,7 +174,7 @@ const CustomerComplaints = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.15 }}
           className="lg:col-span-8 bg-base-100 rounded-[2rem] border border-base-content/10 shadow-2xl overflow-hidden"
-          style={{ height: 'calc(100vh - 280px)' }}
+          style={{ height: 'calc(100vh - 357px)' }}
         >
           <div className="overflow-auto w-full h-full">
             <table className="table w-full border-collapse">
