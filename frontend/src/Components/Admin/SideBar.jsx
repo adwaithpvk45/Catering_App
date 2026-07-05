@@ -40,6 +40,7 @@ function SideBar({ open, onclose, isSidebarOpen }) {
   ];
 
   const userItems = [
+    { text: 'Explore Cuisines', icon: <RestaurantMenuIcon />, path: '/food' },
     { text: 'Profile', icon: <PeopleIcon />, path: '/user/profile' },
     { text: 'My Bookings', icon: <BookOnlineIcon />, path: '/user/bookings' },
     { text: 'My Complaints', icon: <ReportIcon />, path: '/user/complaints' },

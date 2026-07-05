@@ -84,3 +84,21 @@ export const statusChange = ({ status, id }) => {
 //     toast.error(res.message);
 //   }
 // };
+
+export const markBookingFullyPaidAction = (id) => async (dispatch) => {
+  const _id = JSON.parse(localStorage.getItem("userDetails")).existingUser._id;
+  const res = await commonFunction(
+    {
+      api: `/api/booking/${id}/mark-fully-paid`,
+      method: "PATCH",
+      showSuccess: true,
+      successMessage: "Booking marked as fully paid!",
+    },
+    dispatch
+  );
+  if (res.success) {
+    dispatch(getVendorBookings(_id));
+  } else {
+    toast.error(res.message || "Failed to mark as fully paid");
+  }
+};

@@ -17,7 +17,7 @@ import {
 import { useDispatch } from 'react-redux';
 import { createBookingAction } from '../api/user/userActions';
 import toast from 'react-hot-toast';
-import cateringServices from '../store/data';
+import cateringServices, { getRepresentativeName } from '../store/data';
 
 function ServiceDetailPage() {
   const { id } = useParams();
@@ -331,6 +331,11 @@ function ServiceDetailPage() {
                         {service.vendor.name}
                         <CheckCircle2 className="size-4 text-info" />
                       </h4>
+                      {service.vendor.id && (
+                        <span className="text-[10px] font-black text-[#FF7D44] uppercase tracking-widest block mb-1">
+                          Managed by {getRepresentativeName(service.vendor.id)}
+                        </span>
+                      )}
                       <div className="flex items-center gap-2">
                         <div className="flex items-center gap-1 bg-success/10 text-success px-2 py-0.5 rounded-lg">
                           <Star className="size-3 fill-success" />

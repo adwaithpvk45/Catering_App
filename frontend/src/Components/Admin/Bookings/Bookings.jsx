@@ -13,6 +13,7 @@ import {
   Eye,
   Briefcase,
 } from "lucide-react";
+import { getVendorBrandName } from "../../../store/data";
 
 const AdminBookings = () => {
   const dispatch = useDispatch();
@@ -47,7 +48,13 @@ const AdminBookings = () => {
   const formattedBookings = bookings.map((b) => ({
     id: b._id,
     userName: b.user?.name || (typeof b.user === 'string' ? b.user : b.user?.email) || "Unknown User",
-    vendorName: b.vendor && b.vendor.length > 0 ? (b.vendor[0]?.name || b.vendor[0]?.email) : "Unknown Vendor",
+    vendorName: b.vendor && b.vendor.length > 0
+      ? (() => {
+          const v = b.vendor[0];
+          const brand = getVendorBrandName(v._id);
+          return v.name ? `${brand} (${v.name})` : brand;
+        })()
+      : "Unknown Vendor",
     eventType: b.category || "N/A",
     eventDate: b.eventDate ? dayjs(b.eventDate).format("YYYY-MM-DD") : "N/A",
     location: b.venueLocation || "N/A",

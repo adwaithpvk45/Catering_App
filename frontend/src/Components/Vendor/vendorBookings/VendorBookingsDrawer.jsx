@@ -171,48 +171,103 @@ const BookingDetailsDrawer = ({ open, onClose, booking }) => {
                   {/* Price */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-black uppercase tracking-widest opacity-40 ml-2 flex items-center gap-1">
-                      <DollarSign className="size-3" /> Price
+                      <DollarSign className="size-3" /> Price Per Head
                     </label>
                     <input
                       type="text"
-                      value={booking.price || "N/A"}
+                      value={booking.services?.[0]?.priceAtBooking ? `₹${booking.services[0].priceAtBooking}` : (booking.price || "N/A")}
                       disabled
                       className="w-full bg-base-200 h-11 rounded-xl px-4 border border-base-content/5 text-xs font-bold opacity-75 cursor-not-allowed text-base-content"
                     />
                   </div>
 
+                  {/* Total Cost */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-black uppercase tracking-widest opacity-40 ml-2 flex items-center gap-1">
+                      Total Cost
+                    </label>
+                    <input
+                      type="text"
+                      value={(() => {
+                        const pricePerHead = booking.services?.[0]?.priceAtBooking || parseFloat(booking.price) || 0;
+                        const guestCount = booking.guestCount || 0;
+                        const total = pricePerHead * guestCount;
+                        return `₹${total.toLocaleString()}`;
+                      })()}
+                      disabled
+                      className="w-full bg-base-200 h-11 rounded-xl px-4 border border-base-content/5 text-xs font-bold opacity-75 cursor-not-allowed text-base-content"
+                    />
+                  </div>
+
+                  {/* Payment Status */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-black uppercase tracking-widest opacity-40 ml-2 flex items-center gap-1">
+                      Payment Status
+                    </label>
+                    <input
+                      type="text"
+                      value={booking.paymentStatus || "Unpaid"}
+                      disabled
+                      className={`w-full bg-base-200 h-11 rounded-xl px-4 border border-base-content/5 text-xs font-bold opacity-75 cursor-not-allowed ${booking.paymentStatus === 'Fully Paid' || booking.paymentStatus === 'Advance Paid' ? 'text-success' : 'text-base-content'}`}
+                    />
+                  </div>
+
+                  {/* Transaction ID */}
+                  {booking.paymentDetails?.paymentId && (
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <label className="text-xs font-black uppercase tracking-widest opacity-40 ml-2 flex items-center gap-1">
+                        Transaction ID
+                      </label>
+                      <input
+                        type="text"
+                        value={booking.paymentDetails.paymentId}
+                        disabled
+                        className="w-full bg-base-200 h-11 rounded-xl px-4 border border-base-content/5 text-xs font-bold opacity-75 cursor-not-allowed text-base-content"
+                      />
+                    </div>
+                  )}
+
                   {/* Booking Status Dropdown */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-black uppercase tracking-widest opacity-40 ml-2 flex items-center gap-1">
-                      <Activity className="size-3" /> Status
+                      <Activity className="size-3" /> Booking Status
                     </label>
-                    <div className="dropdown dropdown-bottom w-full">
-                      <div 
-                        tabIndex={0}
-                        role="button"
-                        className="w-full bg-base-200 h-11 rounded-xl px-4 flex items-center justify-between font-bold text-xs cursor-pointer border border-base-content/10 focus:border-[#FF7D44]/50 transition-all"
-                      >
-                        <span>{values.status}</span>
-                        <ChevronDown className="size-4 opacity-50" />
+                    {booking.paymentStatus === "Advance Paid" || booking.paymentStatus === "Fully Paid" || booking.status === "Confirmed" || booking.status === "Cancelled" ? (
+                      <input
+                        type="text"
+                        value={booking.status || "Confirmed"}
+                        disabled
+                        className="w-full bg-base-200 h-11 rounded-xl px-4 border border-base-content/5 text-xs font-bold opacity-75 cursor-not-allowed text-base-content"
+                      />
+                    ) : (
+                      <div className="dropdown dropdown-bottom w-full">
+                        <div 
+                          tabIndex={0}
+                          role="button"
+                          className="w-full bg-base-200 h-11 rounded-xl px-4 flex items-center justify-between font-bold text-xs cursor-pointer border border-base-content/10 focus:border-[#FF7D44]/50 transition-all"
+                        >
+                          <span>{values.status}</span>
+                          <ChevronDown className="size-4 opacity-50" />
+                        </div>
+                        <ul 
+                          tabIndex={0}
+                          className="dropdown-content menu p-2 bg-base-100 border border-base-content/10 rounded-2xl w-full z-[50] shadow-2xl mt-1 font-bold text-xs"
+                        >
+                          {["Pending", "Accepted", "Cancelled", "Confirmed"].map((status) => (
+                            <li key={status}>
+                              <a 
+                                onClick={() => {
+                                  setFieldValue("status", status);
+                                  document.activeElement.blur();
+                                }}
+                              >
+                                {status}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
                       </div>
-                      <ul 
-                        tabIndex={0}
-                        className="dropdown-content menu p-2 bg-base-100 border border-base-content/10 rounded-2xl w-full z-[50] shadow-2xl mt-1 font-bold text-xs"
-                      >
-                        {["Pending", "Accepted", "Cancelled"].map((status) => (
-                          <li key={status}>
-                            <a 
-                              onClick={() => {
-                                setFieldValue("status", status);
-                                document.activeElement.blur();
-                              }}
-                            >
-                              {status}
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                    )}
                   </div>
 
                   {/* Description */}
@@ -244,15 +299,17 @@ const BookingDetailsDrawer = ({ open, onClose, booking }) => {
                 </div>
 
                 {/* Submit button at bottom */}
-                <div className="pt-6 pb-2">
-                  <button
-                    type="submit"
-                    className="w-full btn btn-warning h-12 rounded-xl text-white font-black text-sm shadow-xl shadow-orange-500/10 flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95"
-                  >
-                    Save Changes
-                    <Check className="size-4" />
-                  </button>
-                </div>
+                {!(booking.paymentStatus === "Advance Paid" || booking.paymentStatus === "Fully Paid" || booking.status === "Confirmed" || booking.status === "Cancelled") && (
+                  <div className="pt-6 pb-2">
+                    <button
+                      type="submit"
+                      className="w-full btn btn-warning h-12 rounded-xl text-white font-black text-sm shadow-xl shadow-orange-500/10 flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95"
+                    >
+                      Save Changes
+                      <Check className="size-4" />
+                    </button>
+                  </div>
+                )}
 
               </Form>
             )}

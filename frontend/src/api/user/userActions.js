@@ -38,3 +38,32 @@ export const createBookingAction = (bookingData) => async (dispatch) => {
     }, dispatch);
 };
 
+export const payBookingAdvanceAction = (id, paymentData) => async (dispatch) => {
+    return await commonFunction({
+        api: `/api/booking/${id}/pay-advance`,
+        method: "PATCH",
+        body: JSON.stringify(paymentData),
+        showSuccess: true,
+        successMessage: "Advance paid successfully! Booking Confirmed.",
+    }, dispatch);
+};
+
+export const createRazorpayOrderAction = (id) => async (dispatch) => {
+    return await commonFunction({
+        api: `/api/booking/${id}/razorpay-order`,
+        method: "POST",
+        body: null,
+        showSuccess: false,
+    }, dispatch);
+};
+
+export const verifyRazorpayPaymentAction = (id, verificationData) => async (dispatch) => {
+    return await commonFunction({
+        api: `/api/booking/${id}/verify-payment`,
+        method: "POST",
+        body: JSON.stringify(verificationData),
+        showSuccess: true,
+        successMessage: "Payment verified successfully! Booking Confirmed.",
+    }, dispatch);
+};
+

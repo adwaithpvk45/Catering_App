@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import BookingDetailsDrawer from "./VendorBookingsDrawer";
 import { useDispatch, useSelector } from "react-redux";
-import { getVendorBookings, statusChange } from "../../../api/vendor/bookingApi";
+import { getVendorBookings, statusChange, markBookingFullyPaidAction } from "../../../api/vendor/bookingApi";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -75,6 +75,11 @@ const VendorBookings = () => {
     e.stopPropagation(); // Prevent row click opening drawer
     const newStatus = booking.status === "Pending" ? "Accepted" : "Pending";
     dispatch(statusChange({ id: booking._id, status: newStatus }));
+  };
+
+  const handleMarkFullyPaid = (e, bookingId) => {
+    e.stopPropagation();
+    dispatch(markBookingFullyPaidAction(bookingId));
   };
 
   return (
@@ -173,7 +178,8 @@ const VendorBookings = () => {
                 <th className="py-5 px-6 text-left text-xs font-black uppercase tracking-widest opacity-80 text-base-content">Event Date</th>
                 <th className="py-5 px-6 text-left text-xs font-black uppercase tracking-widest opacity-80 text-base-content">Guests</th>
                 <th className="py-5 px-6 text-left text-xs font-black uppercase tracking-widest opacity-80 text-base-content">Venue</th>
-                <th className="py-5 px-6 text-left text-xs font-black uppercase tracking-widest opacity-80 text-base-content">Status</th>
+                <th className="py-5 px-6 text-left text-xs font-black uppercase tracking-widest opacity-80 text-base-content">Booking Status</th>
+                <th className="py-5 px-6 text-left text-xs font-black uppercase tracking-widest opacity-80 text-base-content">Payment Status</th>
                 <th className="py-5 px-6 text-center text-xs font-black uppercase tracking-widest opacity-80 text-base-content">Actions</th>
               </tr>
             </thead>
@@ -236,8 +242,10 @@ const VendorBookings = () => {
                     <td className="py-4 px-6">
                       <span
                         className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                          booking.status === "Accepted"
+                          booking.status === "Confirmed"
                             ? "bg-success/10 text-success border border-success/20"
+                            : booking.status === "Accepted"
+                            ? "bg-info/10 text-info border border-info/20"
                             : booking.status === "Cancelled"
                             ? "bg-error/10 text-error border border-error/20"
                             : "bg-warning/10 text-warning border border-warning/20"
@@ -247,10 +255,25 @@ const VendorBookings = () => {
                       </span>
                     </td>
 
+                    {/* Payment Status Badge */}
+                    <td className="py-4 px-6">
+                      <span
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                          booking.paymentStatus === "Fully Paid"
+                            ? "bg-success/10 text-success border border-success/20"
+                            : booking.paymentStatus === "Advance Paid"
+                            ? "bg-indigo/10 text-indigo-500 border border-indigo-500/20"
+                            : "bg-base-300 text-base-content/50 border border-base-content/10"
+                        }`}
+                      >
+                        {booking.paymentStatus || "Unpaid"}
+                      </span>
+                    </td>
+
                     {/* Actions */}
                     <td className="py-4 px-6" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-center gap-2">
-                        {booking.status !== "Cancelled" && (
+                        {booking.status !== "Cancelled" && booking.status !== "Confirmed" && (
                           <button
                             onClick={(e) => handleStatusToggle(e, booking)}
                             className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border ${
@@ -260,6 +283,14 @@ const VendorBookings = () => {
                             }`}
                           >
                             {booking.status === "Pending" ? "Accept" : "Revert"}
+                          </button>
+                        )}
+                        {booking.status === "Confirmed" && booking.paymentStatus === "Advance Paid" && (
+                          <button
+                            onClick={(e) => handleMarkFullyPaid(e, booking._id)}
+                            className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border border-transparent shadow-sm hover:shadow"
+                          >
+                            Mark Fully Paid
                           </button>
                         )}
                         <button
@@ -275,7 +306,7 @@ const VendorBookings = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={7} className="py-20 px-6 text-center">
+                  <td colSpan={8} className="py-20 px-6 text-center">
                     <div className="flex flex-col items-center justify-center gap-3">
                       <div className="size-12 rounded-2xl bg-base-200 flex items-center justify-center text-base-content/30 mb-2">
                         <AlertCircle className="size-6" />

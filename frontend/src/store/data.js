@@ -160,4 +160,58 @@ const cateringServices = [
     }
   ];
   
+  export const getVendorBrandName = (vendorIdOrName) => {
+    const brandMapping = {
+      // By MongoDB ID
+      "67e9560d36f21d0a0e9c6671": "Royal Heritage Caterers",
+      "6873b56efeeb2405317bd106": "Spice Symphony",
+      "67e95562aa748f8eecf98f1d": "Malabar Flavors",
+      "6873bc36306ddea019fc624d": "Oceanic Bites",
+      "68738ebc75d1d72696b917da": "Zen Kitchen",
+      "6a26f08f52fb2c9024442933": "Elite Banquet Services",
+      
+      // By name fallback
+      "John D": "Royal Heritage Caterers",
+      "Janak": "Spice Symphony",
+      "John Doe": "Malabar Flavors",
+      "Arshad K": "Oceanic Bites",
+      "AdwaithPVK": "Zen Kitchen",
+      "Anjusha D": "Elite Banquet Services"
+    };
+    return brandMapping[vendorIdOrName] || vendorIdOrName;
+  };
+
+  export const getRepresentativeName = (mockVendorIdOrBrand) => {
+    const names = {
+      "v1": "John D",
+      "v2": "Janak",
+      "v3": "John Doe",
+      "v4": "Arshad K",
+      "v5": "AdwaithPVK",
+      "v6": "Anjusha D",
+      "Royal Heritage Caterers": "John D",
+      "Spice Symphony": "Janak",
+      "Malabar Flavors": "John Doe",
+      "Oceanic Bites": "Arshad K",
+      "Zen Kitchen": "AdwaithPVK",
+      "Elite Banquet Services": "Anjusha D"
+    };
+    return names[mockVendorIdOrBrand] || mockVendorIdOrBrand;
+  };
+
+  export const getServiceIdByVendorDbId = (vendorDbId) => {
+    const reverseMapping = {
+      "67e9560d36f21d0a0e9c6671": "v1",
+      "6873b56efeeb2405317bd106": "v2",
+      "67e95562aa748f8eecf98f1d": "v3",
+      "6873bc36306ddea019fc624d": "v4",
+      "68738ebc75d1d72696b917da": "v5",
+      "6a26f08f52fb2c9024442933": "v6"
+    };
+    const mockVendorId = reverseMapping[vendorDbId];
+    if (!mockVendorId) return null;
+    const service = cateringServices.find(s => s.vendor?.id === mockVendorId);
+    return service ? service.id : null;
+  };
+
   export default cateringServices;
