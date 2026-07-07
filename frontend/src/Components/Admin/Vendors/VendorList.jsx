@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 import TableContent from "../../../common ui/Table";
 import UserDetails from "../Users/UserDetails";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Sparkles } from "lucide-react";
+import { Search, Sparkles, AlertCircle } from "lucide-react";
 
 export default function VendorsList() {
   const dispatch = useDispatch();
@@ -15,6 +15,8 @@ export default function VendorsList() {
   const [searchQuery, setSearchQuery] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [blockConfirmOpen, setBlockConfirmOpen] = useState(false);
+  const [targetUser, setTargetUser] = useState(null);
 
   const handleDrawerClose = () => {
     setDrawerOpen(false);
@@ -31,8 +33,25 @@ export default function VendorsList() {
   }, [dispatch]);
 
   const handleBlockUnblock = (id, action) => {
-    const nextStatus = action === "block" ? "blocked" : "active";
-    dispatch(toggleAccountStatusAction(id, nextStatus, "vendor"));
+    const vendorToBlock = formattedVendors.find((v) => v.id === id);
+    if (vendorToBlock) {
+      setTargetUser({
+        id,
+        name: vendorToBlock.name,
+        email: vendorToBlock.email,
+        action,
+      });
+      setBlockConfirmOpen(true);
+    }
+  };
+
+  const confirmBlockUnblock = () => {
+    if (targetUser) {
+      const nextStatus = targetUser.action === "block" ? "blocked" : "active";
+      dispatch(toggleAccountStatusAction(targetUser.id, nextStatus, "vendor"));
+      setBlockConfirmOpen(false);
+      setTargetUser(null);
+    }
   };
 
   const formattedVendors = vendors.map((vendor) => ({
@@ -112,6 +131,51 @@ export default function VendorsList() {
             selectedUser={selectedUser}
             user={"vendor"}
           />
+        )}
+      </AnimatePresence>
+
+      {/* Glassmorphic Block/Unblock Confirmation Modal */}
+      <AnimatePresence>
+        {blockConfirmOpen && targetUser && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 15 }}
+              className="w-full max-w-sm p-6 bg-base-100/90 backdrop-blur-md border border-base-content/10 rounded-3xl shadow-2xl font-outfit"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className={`size-10 rounded-xl flex items-center justify-center flex-shrink-0 ${targetUser.action === "block" ? "bg-error/10 text-error" : "bg-success/10 text-success"}`}>
+                  <AlertCircle className="size-5" />
+                </div>
+                <div>
+                  <h3 className="font-black text-base text-base-content capitalize">{targetUser.action} Account</h3>
+                  <p className="text-[10px] font-bold text-base-content/40 uppercase tracking-wider mt-0.5">Please confirm your action</p>
+                </div>
+              </div>
+              <p className="text-xs font-semibold text-base-content/60 leading-relaxed mb-6">
+                Are you sure you want to {targetUser.action} the account for <strong className="text-base-content">{targetUser.name}</strong> ({targetUser.email})? 
+                {targetUser.action === "block" ? " This vendor will be immediately logged out and prevented from signing in." : " They will be allowed to log back in to their account."}
+              </p>
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => {
+                    setBlockConfirmOpen(false);
+                    setTargetUser(null);
+                  }}
+                  className="btn btn-ghost rounded-xl text-xs font-black px-4 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmBlockUnblock}
+                  className={`btn ${targetUser.action === "block" ? "btn-error shadow-error/15" : "btn-success shadow-success/15"} text-white rounded-xl text-xs font-black px-5 cursor-pointer shadow-lg`}
+                >
+                  Confirm
+                </button>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 
