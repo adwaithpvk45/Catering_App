@@ -78,7 +78,7 @@ export const getAllUsers = async (req, res) => {
 // Get all vendors
 export const getAllVendors = async (req, res) => {
     try {
-        const vendors = await Vendor.find().populate('userId', 'fullName email profilePic');
+        const vendors = await Vendor.find().select("-password");
         res.status(200).json({ success: true, vendors });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -114,6 +114,33 @@ export const updateComplaintStatus = async (req, res) => {
         const { status } = req.body;
         const updatedComplaint = await Complaint.findByIdAndUpdate(id, { status }, { new: true });
         res.status(200).json({ success: true, updatedComplaint });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// Block or Unblock a User or Vendor
+export const toggleAccountStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body; // "active" or "blocked"
+
+        if (!["active", "blocked"].includes(status)) {
+            return res.status(400).json({ success: false, message: "Invalid status value" });
+        }
+
+        // Try to update in User collection first
+        let account = await User.findByIdAndUpdate(id, { status }, { new: true });
+        if (!account) {
+            // If not found in User, try Vendor
+            account = await Vendor.findByIdAndUpdate(id, { status }, { new: true });
+        }
+
+        if (!account) {
+            return res.status(404).json({ success: false, message: "Account not found" });
+        }
+
+        res.status(200).json({ success: true, message: `Account status updated to ${status}`, account });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

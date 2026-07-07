@@ -16,7 +16,7 @@ export default function TableContent({ filteredUsers, handleBlockUnblock, handle
   );
 
   return (
-    <div className="bg-base-100 rounded-[2rem] border border-base-content/10 shadow-2xl overflow-hidden font-outfit select-none flex flex-col justify-between" style={{ height: 'calc(100vh - 280px)' }}>
+    <div className="bg-base-100 rounded-[2rem] border border-base-content/10 shadow-2xl overflow-hidden font-outfit select-none flex flex-col justify-between" style={{ height: 'calc(100vh - 357px)' }}>
       <div className="overflow-auto w-full h-full flex flex-col justify-between">
         <table className="table w-full border-collapse">
           <thead className="sticky top-0 z-10 bg-base-200">

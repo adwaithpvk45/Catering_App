@@ -54,3 +54,21 @@ export const getBookings = () => async (dispatch) => {
         failureAction: "admin/fetchBookingsFail",
     }, dispatch);
 };
+
+export const toggleAccountStatusAction = (id, status, role) => async (dispatch) => {
+    const res = await commonFunction({
+        api: `/api/admin/status/${id}`,
+        method: "PATCH",
+        body: JSON.stringify({ status }),
+        showSuccess: true,
+        successMessage: `Account successfully ${status === "blocked" ? "blocked" : "unblocked"}!`,
+    }, dispatch);
+
+    if (res && res.success) {
+        if (role === "vendor") {
+            dispatch(getVendors());
+        } else {
+            dispatch(getUsers());
+        }
+    }
+};

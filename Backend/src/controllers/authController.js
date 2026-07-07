@@ -106,6 +106,11 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid Credential ( email )" });
     }
 
+    // Check if the user is blocked
+    if (existingUser.status === "blocked") {
+      return res.status(403).json({ message: "Your account has been blocked by the admin." });
+    }
+
     const passwordCorrect = await bcrypt.compare(
       password,
       existingUser.password

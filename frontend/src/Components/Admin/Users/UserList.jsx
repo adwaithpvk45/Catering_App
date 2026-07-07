@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import TableContent from "../../../common ui/Table";
 import UserDetails from "./UserDetails";
 import { useDispatch, useSelector } from "react-redux";
-import { getUsers } from "../../../api/admin/adminActions";
+import { getUsers, toggleAccountStatusAction } from "../../../api/admin/adminActions";
 import dayjs from "dayjs";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Users } from "lucide-react";
@@ -31,7 +31,8 @@ const UsersList = () => {
   }, [dispatch]);
 
   const handleBlockUnblock = (id, action) => {
-    console.log(`User ${id} ${action}`);
+    const nextStatus = action === "block" ? "blocked" : "active";
+    dispatch(toggleAccountStatusAction(id, nextStatus, "user"));
   };
 
   const formattedUsers = users.map((user) => ({

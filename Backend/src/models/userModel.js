@@ -33,6 +33,11 @@ const userSchmema = new mongoose.Schema({
         type:String,
         default:"user"
     },
+    status:{
+        type:String,
+        enum:["active", "blocked"],
+        default:"active"
+    },
     orders:[{
         type:mongoose.Schema.Types.ObjectId, ref:"Order"
     }]

@@ -40,6 +40,11 @@ const vendorSchema = mongoose.Schema({
             type:String,
             default:"vendor",
         },
+    status:{
+            type:String,
+            enum:["active", "blocked"],
+            default:"active"
+        },
     foodItems:[{
             type:mongoose.Schema.Types.ObjectId,ref:"Food"
         }],

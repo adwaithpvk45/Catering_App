@@ -1,7 +1,7 @@
  
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getVendors } from "../../../api/admin/adminActions";
+import { getVendors, toggleAccountStatusAction } from "../../../api/admin/adminActions";
 import dayjs from "dayjs";
 import TableContent from "../../../common ui/Table";
 import UserDetails from "../Users/UserDetails";
@@ -31,14 +31,15 @@ export default function VendorsList() {
   }, [dispatch]);
 
   const handleBlockUnblock = (id, action) => {
-    console.log(`User ${id} ${action}`);
+    const nextStatus = action === "block" ? "blocked" : "active";
+    dispatch(toggleAccountStatusAction(id, nextStatus, "vendor"));
   };
 
   const formattedVendors = vendors.map((vendor) => ({
     id: vendor._id,
     name: vendor.name || "Unknown Vendor",
     email: vendor.email || "No Email",
-    status: vendor.isApproved ? "active" : "pending",
+    status: vendor.status || "active",
     createdTime: dayjs(vendor.createdAt).format("YYYY-MM-DD"),
   }));
 
