@@ -1,17 +1,41 @@
 // controllers/bookingController.js
 import Booking from "../models/bookingModel.js";
+import User from "../models/userModel.js";
+import Vendor from "../models/vendorModel.js";
 import Razorpay from "razorpay";
 import crypto from "crypto";
+import {
+  sendBookingCreatedEmail,
+  sendBookingStatusEmail,
+  sendPaymentReceiptEmail,
+  sendSettlementEmail,
+} from "../utils/email.js";
 
 const razorpayInstance = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID || "rzp_test_T8NDIl1HGYZ4M7",
   key_secret: process.env.RAZORPAY_KEY_SECRET || "QwtLsGRubmsgEE503lTaK9hP",
 });
+
+// Helper to safely fetch user & vendor for non-blocking email sends
+const triggerEmail = async (emailFn, booking) => {
+  try {
+    const user = await User.findById(booking.user);
+    const vendorId = Array.isArray(booking.vendor) ? booking.vendor[0] : booking.vendor;
+    const vendor = await Vendor.findById(vendorId);
+    await emailFn({ booking, user, vendor });
+  } catch (err) {
+    console.error("Non-blocking email send error:", err);
+  }
+};
+
 // 1. Create new enquiry
 export const createBooking = async (req, res) => {
   try {
     const booking = await Booking.create(req.body);
     res.status(201).json({ success: true, data: booking });
+
+    // Trigger asynchronous email notification
+    triggerEmail(sendBookingCreatedEmail, booking);
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
@@ -52,6 +76,9 @@ export const updateBookingStatus = async (req, res) => {
     await booking.save();
 
     res.json({ success: true, data: booking, message: "Status updated successfully" });
+
+    // Trigger asynchronous email notification
+    triggerEmail(sendBookingStatusEmail, booking);
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
@@ -87,6 +114,9 @@ export const payBookingAdvance = async (req, res) => {
     };
     await booking.save();
     res.status(200).json({ success: true, data: booking, message: "Advance payment recorded successfully" });
+
+    // Trigger asynchronous email notification
+    triggerEmail(sendPaymentReceiptEmail, booking);
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -102,6 +132,9 @@ export const markBookingFullyPaid = async (req, res) => {
     booking.paymentStatus = "Fully Paid";
     await booking.save();
     res.status(200).json({ success: true, data: booking, message: "Booking marked as fully paid" });
+
+    // Trigger asynchronous email notification
+    triggerEmail(sendSettlementEmail, booking);
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -184,6 +217,9 @@ export const verifyRazorpayPayment = async (req, res) => {
 
     await booking.save();
     res.status(200).json({ success: true, data: booking, message: "Payment verified and booking confirmed!" });
+
+    // Trigger asynchronous email notification
+    triggerEmail(sendPaymentReceiptEmail, booking);
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
