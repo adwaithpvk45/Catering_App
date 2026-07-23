@@ -167,7 +167,7 @@ const cateringServices = [
       "6873b56efeeb2405317bd106": "Spice Symphony",
       "67e95562aa748f8eecf98f1d": "Malabar Flavors",
       "6873bc36306ddea019fc624d": "Oceanic Bites",
-      "68738ebc75d1d72696b917da": "Zen Kitchen",
+      "6a625d16d3b9f4afbecf4aa1": "Zen Kitchen",
       "6a26f08f52fb2c9024442933": "Elite Banquet Services",
       
       // By name fallback
@@ -205,7 +205,7 @@ const cateringServices = [
       "6873b56efeeb2405317bd106": "v2",
       "67e95562aa748f8eecf98f1d": "v3",
       "6873bc36306ddea019fc624d": "v4",
-      "68738ebc75d1d72696b917da": "v5",
+      "6a625d16d3b9f4afbecf4aa1": "v5",
       "6a26f08f52fb2c9024442933": "v6"
     };
     const mockVendorId = reverseMapping[vendorDbId];
