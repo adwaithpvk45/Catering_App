@@ -3,6 +3,7 @@ import Vendor from "../models/vendorModel.js";
 import Booking from "../models/bookingModel.js";
 import Complaint from "../models/complaintModel.js";
 import Service from "../models/serviceModel.js";
+import { sendComplaintResolvedEmail } from "../utils/email.js";
 
 // Get overall stats for Admin Dashboard
 export const getDashboardStats = async (req, res) => {
@@ -114,6 +115,16 @@ export const updateComplaintStatus = async (req, res) => {
         const { status } = req.body;
         const updatedComplaint = await Complaint.findByIdAndUpdate(id, { status }, { new: true });
         res.status(200).json({ success: true, updatedComplaint });
+
+        if (status === "Resolved" && updatedComplaint) {
+            (async () => {
+                try {
+                    await sendComplaintResolvedEmail(updatedComplaint);
+                } catch (err) {
+                    console.error("Non-blocking resolution email error:", err);
+                }
+            })();
+        }
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

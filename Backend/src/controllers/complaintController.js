@@ -1,4 +1,5 @@
 import Complaint from "../models/complaintModel.js";
+import { sendComplaintSubmittedEmail } from "../utils/email.js";
 
 // Create a new complaint
 export const createComplaint = async (req, res) => {
@@ -25,6 +26,15 @@ export const createComplaint = async (req, res) => {
             message: "Complaint submitted successfully. We will get back to you soon.",
             complaint: newComplaint
         });
+
+        // Trigger non-blocking email confirmation
+        (async () => {
+            try {
+                await sendComplaintSubmittedEmail(newComplaint);
+            } catch (err) {
+                console.error("Non-blocking complaint email error:", err);
+            }
+        })();
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

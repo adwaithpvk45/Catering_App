@@ -237,3 +237,58 @@ export const sendSettlementEmail = async ({ booking, user, vendor }) => {
     console.error("Error sending settlement email:", error);
   }
 };
+
+// 5. Complaint Submitted Confirmation Email
+export const sendComplaintSubmittedEmail = async (complaint) => {
+  try {
+    if (!complaint?.email) return;
+    const shortId = complaint._id.toString().slice(-6).toUpperCase();
+
+    await transporter.sendMail({
+      from: `Feastify Support <${process.env.EMAIL_USER}>`,
+      to: complaint.email,
+      subject: `Feastify - Support Ticket Created (#${shortId})`,
+      html: `
+        ${getEmailHeader(`Support Ticket Registered ✉️`)}
+        <p style="color: #cbd5e1; font-size: 14px; line-height: 1.6;">Hi <strong>${complaint.name || "Customer"}</strong>,</p>
+        <p style="color: #cbd5e1; font-size: 14px; line-height: 1.6;">We have successfully registered your support ticket with reference number <strong>#${shortId}</strong>.</p>
+        
+        <div style="background-color: rgba(255,255,255,0.05); padding: 16px; border-radius: 12px; margin: 20px 0;">
+          <p style="margin: 4px 0; font-size: 13px; color: #94a3b8;"><strong>Ticket ID:</strong> #${shortId}</p>
+          <p style="margin: 4px 0; font-size: 13px; color: #cbd5e1;"><strong>Subject:</strong> ${complaint.subject}</p>
+          <p style="margin: 4px 0; font-size: 13px; color: #94a3b8;"><strong>Message:</strong> "${complaint.message}"</p>
+        </div>
+
+        <p style="color: #cbd5e1; font-size: 14px; line-height: 1.6;">Our support team is reviewing your ticket and will resolve this issue shortly.</p>
+        ${getEmailFooter()}
+      `,
+    });
+    console.log(`Complaint submission email sent to: ${complaint.email}`);
+  } catch (error) {
+    console.error("Error sending complaint submission email:", error);
+  }
+};
+
+// 6. Complaint Resolved Notification Email
+export const sendComplaintResolvedEmail = async (complaint) => {
+  try {
+    if (!complaint?.email) return;
+    const shortId = complaint._id.toString().slice(-6).toUpperCase();
+
+    await transporter.sendMail({
+      from: `Feastify Support <${process.env.EMAIL_USER}>`,
+      to: complaint.email,
+      subject: `Feastify - Support Ticket Resolved (#${shortId})`,
+      html: `
+        ${getEmailHeader(`Support Ticket Resolved ✅`)}
+        <p style="color: #cbd5e1; font-size: 14px; line-height: 1.6;">Hi <strong>${complaint.name || "Customer"}</strong>,</p>
+        <p style="color: #cbd5e1; font-size: 14px; line-height: 1.6;">Your support ticket <strong>#${shortId}</strong> regarding <strong>"${complaint.subject}"</strong> has been successfully marked as <strong>RESOLVED</strong> by our administration team.</p>
+        <p style="color: #cbd5e1; font-size: 14px; line-height: 1.6;">If you have any further issues, please don't hesitate to reach back out to us.</p>
+        ${getEmailFooter()}
+      `,
+    });
+    console.log(`Complaint resolved email sent to: ${complaint.email}`);
+  } catch (error) {
+    console.error("Error sending complaint resolved email:", error);
+  }
+};
