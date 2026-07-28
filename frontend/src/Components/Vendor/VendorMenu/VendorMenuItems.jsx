@@ -223,10 +223,10 @@ const VendorMenuItems = () => {
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.1 }}
-        className="bg-base-100 rounded-[2rem] border border-base-content/10 shadow-2xl overflow-hidden"
+        className="bg-base-100 rounded-[2rem] border border-base-content/10 shadow-2xl overflow-hidden flex flex-col justify-between"
         style={{ height: 'calc(100vh - 357px)' }}
       >
-        <div className="overflow-auto w-full h-full flex flex-col justify-between">
+        <div className="overflow-auto w-full flex-grow">
           <table className="table w-full border-collapse">
             <thead className="sticky top-0 z-10 bg-base-200">
               <tr className="border-b border-base-content/10">
@@ -260,12 +260,12 @@ const VendorMenuItems = () => {
                         {item.imageUrl ? (
                           <img src={item.imageUrl} alt={item.name} className="size-full object-cover" />
                         ) : (
-                          <Pizza className="size-5 text-[#FF7D44]" />
+                          <UtensilsCrossed className="size-5 opacity-30" />
                         )}
                       </div>
                     </td>
 
-                    {/* Name Column */}
+                    {/* Name & description */}
                     <td className="py-4 px-6">
                       <div className="font-black text-sm text-base-content leading-tight">
                         {item.name}
@@ -275,14 +275,14 @@ const VendorMenuItems = () => {
                       </div>
                     </td>
 
-                    {/* Category Column */}
+                    {/* Category */}
                     <td className="py-4 px-6 text-xs font-black text-base-content/70">
                       <span className="bg-base-200 px-3 py-1.5 rounded-lg border border-base-content/5">
                         {item.category}
                       </span>
                     </td>
 
-                    {/* Price Column */}
+                    {/* Price */}
                     <td className="py-4 px-6 text-sm font-black text-[#FF7D44]">
                       <div className="flex items-center gap-0.5">
                         <IndianRupee className="size-3.5" />
@@ -290,18 +290,18 @@ const VendorMenuItems = () => {
                       </div>
                     </td>
 
-                    {/* Status Column */}
+                    {/* Status Badge */}
                     <td className="py-4 px-6">
                       <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                        item.status === 'Available' 
-                          ? 'bg-success/10 text-success border border-success/20' 
-                          : 'bg-base-content/10 text-base-content/40 border border-base-content/10'
+                        item.status === "Available"
+                          ? "bg-success/10 text-success border border-success/20"
+                          : "bg-base-content/10 text-base-content/40 border border-base-content/10"
                       }`}>
                         {item.status || "Available"}
                       </span>
                     </td>
 
-                    {/* Actions Column */}
+                    {/* Actions */}
                     <td className="py-4 px-6">
                       <div className="flex items-center justify-center gap-2">
                         <button 
@@ -340,28 +340,28 @@ const VendorMenuItems = () => {
               )}
             </tbody>
           </table>
+        </div>
 
-          {/* Custom Pagination Footer */}
-          <div className="flex justify-between items-center p-5 border-t border-base-content/10 bg-base-200/50 mt-auto">
-            <span className="text-xs font-semibold text-base-content/50">
-              Showing {filteredItems?.length ? page * rowsPerPage + 1 : 0} to {Math.min((page + 1) * rowsPerPage, filteredItems?.length || 0)} of {filteredItems?.length || 0} items
-            </span>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setPage(p => Math.max(0, p - 1))}
-                disabled={page === 0}
-                className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
-              >
-                Previous
-              </button>
-              <button
-                onClick={() => setPage(p => ((p + 1) * rowsPerPage < (filteredItems?.length || 0) ? p + 1 : p))}
-                disabled={(page + 1) * rowsPerPage >= (filteredItems?.length || 0)}
-                className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
-              >
-                Next
-              </button>
-            </div>
+        {/* Custom Pagination Footer */}
+        <div className="flex justify-between items-center p-5 border-t border-base-content/10 bg-base-200/50">
+          <span className="text-xs font-semibold text-base-content/50">
+            Showing {filteredItems?.length ? page * rowsPerPage + 1 : 0} to {Math.min((page + 1) * rowsPerPage, filteredItems?.length || 0)} of {filteredItems?.length || 0} items
+          </span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setPage(p => Math.max(0, p - 1))}
+              disabled={page === 0}
+              className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setPage(p => ((p + 1) * rowsPerPage < (filteredItems?.length || 0) ? p + 1 : p))}
+              disabled={(page + 1) * rowsPerPage >= (filteredItems?.length || 0)}
+              className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
+            >
+              Next
+            </button>
           </div>
         </div>
       </motion.div>

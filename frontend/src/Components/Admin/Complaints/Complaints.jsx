@@ -153,10 +153,10 @@ const AdminComplaintsSection = () => {
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.1 }}
-        className="bg-base-100 rounded-[2rem] border border-base-content/10 shadow-2xl overflow-hidden"
+        className="bg-base-100 rounded-[2rem] border border-base-content/10 shadow-2xl overflow-hidden flex flex-col justify-between"
         style={{ height: 'calc(100vh - 357px)' }}
       >
-        <div className="overflow-auto w-full h-full flex flex-col justify-between">
+        <div className="overflow-auto w-full flex-grow">
           <table className="table w-full border-collapse">
             <thead className="sticky top-0 z-10 bg-base-200">
               <tr className="border-b border-base-content/10">
@@ -242,34 +242,34 @@ const AdminComplaintsSection = () => {
               )}
             </tbody>
           </table>
+        </div>
 
-          {/* Custom Pagination Footer */}
-          <div className="flex justify-between items-center p-5 border-t border-base-content/10 bg-base-200/50 mt-auto">
-            <span className="text-xs font-semibold text-base-content/50">
-              Showing {filteredComplaints.length ? page * rowsPerPage + 1 : 0} to{" "}
-              {Math.min((page + 1) * rowsPerPage, filteredComplaints.length)} of{" "}
-              {filteredComplaints.length} complaints
-            </span>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setPage((p) => Math.max(0, p - 1))}
-                disabled={page === 0}
-                className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
-              >
-                Previous
-              </button>
-              <button
-                onClick={() =>
-                  setPage((p) =>
-                    (p + 1) * rowsPerPage < filteredComplaints.length ? p + 1 : p
-                  )
-                }
-                disabled={(page + 1) * rowsPerPage >= filteredComplaints.length}
-                className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
-              >
-                Next
-              </button>
-            </div>
+        {/* Custom Pagination Footer */}
+        <div className="flex justify-between items-center p-5 border-t border-base-content/10 bg-base-200/50">
+          <span className="text-xs font-semibold text-base-content/50">
+            Showing {filteredComplaints.length ? page * rowsPerPage + 1 : 0} to{" "}
+            {Math.min((page + 1) * rowsPerPage, filteredComplaints.length)} of{" "}
+            {filteredComplaints.length} complaints
+          </span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+              disabled={page === 0}
+              className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() =>
+                setPage((p) =>
+                  (p + 1) * rowsPerPage < filteredComplaints.length ? p + 1 : p
+                )
+              }
+              disabled={(page + 1) * rowsPerPage >= filteredComplaints.length}
+              className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
+            >
+              Next
+            </button>
           </div>
         </div>
       </motion.div>

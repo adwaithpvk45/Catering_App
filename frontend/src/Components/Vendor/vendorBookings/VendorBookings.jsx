@@ -166,10 +166,10 @@ const VendorBookings = () => {
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.1 }}
-        className="bg-base-100 rounded-[2rem] border border-base-content/10 shadow-2xl overflow-hidden"
+        className="bg-base-100 rounded-[2rem] border border-base-content/10 shadow-2xl overflow-hidden flex flex-col justify-between"
         style={{ height: 'calc(100vh - 357px)' }}
       >
-        <div className="overflow-auto w-full h-full flex flex-col justify-between">
+        <div className="overflow-auto w-full flex-grow">
           <table className="table w-full border-collapse">
             <thead className="sticky top-0 z-10 bg-base-200">
               <tr className="border-b border-base-content/10">
@@ -194,7 +194,6 @@ const VendorBookings = () => {
                     onClick={() => handleRowClick(booking)}
                     className="border-b border-base-content/5 hover:bg-base-200/30 transition-colors duration-200 cursor-pointer"
                   >
-                    {/* User */}
                     <td className="py-4 px-6">
                       <div className="font-black text-sm text-base-content leading-tight">
                         {booking.user?.name || "Guest User"}
@@ -204,14 +203,12 @@ const VendorBookings = () => {
                       </div>
                     </td>
 
-                    {/* Services */}
                     <td className="py-4 px-6 text-xs font-black text-base-content/70">
                       <span className="truncate max-w-[200px] block" title={booking.services?.map((s) => s.name).join(", ")}>
                         {booking.services?.map((s) => s.name).join(", ") || "No services listed"}
                       </span>
                     </td>
 
-                    {/* Event Date */}
                     <td className="py-4 px-6 text-xs font-black text-base-content/70">
                       {booking.eventDate
                         ? new Date(booking.eventDate).toLocaleDateString(undefined, {
@@ -222,7 +219,6 @@ const VendorBookings = () => {
                         : "N/A"}
                     </td>
 
-                    {/* Guest Count */}
                     <td className="py-4 px-6 text-xs font-black text-base-content/70">
                       <div className="flex items-center gap-1">
                         <Users className="size-3.5 opacity-40" />
@@ -230,7 +226,6 @@ const VendorBookings = () => {
                       </div>
                     </td>
 
-                    {/* Venue Location */}
                     <td className="py-4 px-6 text-xs font-black text-base-content/70">
                       <div className="flex items-center gap-1">
                         <MapPin className="size-3.5 opacity-40 flex-shrink-0" />
@@ -238,7 +233,6 @@ const VendorBookings = () => {
                       </div>
                     </td>
 
-                    {/* Status Badge */}
                     <td className="py-4 px-6">
                       <span
                         className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
@@ -255,7 +249,6 @@ const VendorBookings = () => {
                       </span>
                     </td>
 
-                    {/* Payment Status Badge */}
                     <td className="py-4 px-6">
                       <span
                         className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
@@ -270,7 +263,6 @@ const VendorBookings = () => {
                       </span>
                     </td>
 
-                    {/* Actions */}
                     <td className="py-4 px-6" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-center gap-2">
                         {booking.status !== "Cancelled" && booking.status !== "Confirmed" && (
@@ -321,34 +313,34 @@ const VendorBookings = () => {
               )}
             </tbody>
           </table>
+        </div>
 
-          {/* Custom Pagination Footer */}
-          <div className="flex justify-between items-center p-5 border-t border-base-content/10 bg-base-200/50 mt-auto">
-            <span className="text-xs font-semibold text-base-content/50">
-              Showing {filteredBookings.length ? page * rowsPerPage + 1 : 0} to{" "}
-              {Math.min((page + 1) * rowsPerPage, filteredBookings.length)} of{" "}
-              {filteredBookings.length} bookings
-            </span>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setPage((p) => Math.max(0, p - 1))}
-                disabled={page === 0}
-                className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
-              >
-                Previous
-              </button>
-              <button
-                onClick={() =>
-                  setPage((p) =>
-                    (p + 1) * rowsPerPage < filteredBookings.length ? p + 1 : p
-                  )
-                }
-                disabled={(page + 1) * rowsPerPage >= filteredBookings.length}
-                className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
-              >
-                Next
-              </button>
-            </div>
+        {/* Custom Pagination Footer */}
+        <div className="flex justify-between items-center p-5 border-t border-base-content/10 bg-base-200/50">
+          <span className="text-xs font-semibold text-base-content/50">
+            Showing {filteredBookings.length ? page * rowsPerPage + 1 : 0} to{" "}
+            {Math.min((page + 1) * rowsPerPage, filteredBookings.length)} of{" "}
+            {filteredBookings.length} bookings
+          </span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+              disabled={page === 0}
+              className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() =>
+                setPage((p) =>
+                  (p + 1) * rowsPerPage < filteredBookings.length ? p + 1 : p
+                )
+              }
+              disabled={(page + 1) * rowsPerPage >= filteredBookings.length}
+              className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
+            >
+              Next
+            </button>
           </div>
         </div>
       </motion.div>

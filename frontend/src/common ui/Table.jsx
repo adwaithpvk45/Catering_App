@@ -17,7 +17,7 @@ export default function TableContent({ filteredUsers, handleBlockUnblock, handle
 
   return (
     <div className="bg-base-100 rounded-[2rem] border border-base-content/10 shadow-2xl overflow-hidden font-outfit select-none flex flex-col justify-between" style={{ height: 'calc(100vh - 357px)' }}>
-      <div className="overflow-auto w-full h-full flex flex-col justify-between">
+      <div className="overflow-auto w-full flex-grow">
         <table className="table w-full border-collapse">
           <thead className="sticky top-0 z-10 bg-base-200">
             <tr className="border-b border-base-content/10">
@@ -54,7 +54,7 @@ export default function TableContent({ filteredUsers, handleBlockUnblock, handle
                       {user.status}
                     </span>
                   </td>
-
+ 
                   {/* Actions */}
                   <td className="py-4 px-6">
                     <div className="flex items-center justify-center gap-2">
@@ -65,7 +65,7 @@ export default function TableContent({ filteredUsers, handleBlockUnblock, handle
                       >
                         <Eye className="size-4" />
                       </button>
-
+ 
                       {user.status === "active" ? (
                         <button 
                           onClick={() => handleBlockUnblock(user.id, "block")}
@@ -104,28 +104,28 @@ export default function TableContent({ filteredUsers, handleBlockUnblock, handle
             )}
           </tbody>
         </table>
-
-        {/* Custom Pagination Footer */}
-        <div className="flex justify-between items-center p-5 border-t border-base-content/10 bg-base-200/50 mt-auto">
-          <span className="text-xs font-semibold text-base-content/50">
-            Showing {filteredUsers.length ? page * rowsPerPage + 1 : 0} to {Math.min((page + 1) * rowsPerPage, filteredUsers.length)} of {filteredUsers.length} records
-          </span>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setPage(p => Math.max(0, p - 1))}
-              disabled={page === 0}
-              className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
-            >
-              Previous
-            </button>
-            <button
-              onClick={() => setPage(p => ((p + 1) * rowsPerPage < filteredUsers.length ? p + 1 : p))}
-              disabled={(page + 1) * rowsPerPage >= filteredUsers.length}
-              className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
-            >
-              Next
-            </button>
-          </div>
+      </div>
+ 
+      {/* Custom Pagination Footer */}
+      <div className="flex justify-between items-center p-5 border-t border-base-content/10 bg-base-200/50">
+        <span className="text-xs font-semibold text-base-content/50">
+          Showing {filteredUsers.length ? page * rowsPerPage + 1 : 0} to {Math.min((page + 1) * rowsPerPage, filteredUsers.length)} of {filteredUsers.length} records
+        </span>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setPage(p => Math.max(0, p - 1))}
+            disabled={page === 0}
+            className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
+          >
+            Previous
+          </button>
+          <button
+            onClick={() => setPage(p => ((p + 1) * rowsPerPage < filteredUsers.length ? p + 1 : p))}
+            disabled={(page + 1) * rowsPerPage >= filteredUsers.length}
+            className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>
