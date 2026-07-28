@@ -9,11 +9,11 @@ export const getComplaints = () => async (dispatch) => {
     }, dispatch);
 };
 
-export const updateStatus = (id, status) => async (dispatch) => {
+export const updateStatus = (id, status, replyMessage) => async (dispatch) => {
     return await commonFunction({
         api: `/api/admin/complaints/${id}`,
         method: "PATCH",
-        body: { status },
+        body: { status, replyMessage },
         successAction: "admin/updateComplaintStatusSuccess",
         showSuccess: true,
         successMessage: `Status updated to ${status}`,

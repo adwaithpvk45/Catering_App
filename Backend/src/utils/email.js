@@ -270,10 +270,14 @@ export const sendComplaintSubmittedEmail = async (complaint) => {
 };
 
 // 6. Complaint Resolved Notification Email
-export const sendComplaintResolvedEmail = async (complaint) => {
+export const sendComplaintResolvedEmail = async (complaint, replyMessage) => {
   try {
     if (!complaint?.email) return;
     const shortId = complaint._id.toString().slice(-6).toUpperCase();
+
+    const resolutionText = replyMessage 
+      ? replyMessage 
+      : `Your support ticket #${shortId} regarding "${complaint.subject}" has been successfully marked as RESOLVED by our administration team. If you have any further issues, please don't hesitate to reach back out to us.`;
 
     await transporter.sendMail({
       from: `Feastify Support <${process.env.EMAIL_USER}>`,
@@ -282,8 +286,7 @@ export const sendComplaintResolvedEmail = async (complaint) => {
       html: `
         ${getEmailHeader(`Support Ticket Resolved ✅`)}
         <p style="color: #cbd5e1; font-size: 14px; line-height: 1.6;">Hi <strong>${complaint.name || "Customer"}</strong>,</p>
-        <p style="color: #cbd5e1; font-size: 14px; line-height: 1.6;">Your support ticket <strong>#${shortId}</strong> regarding <strong>"${complaint.subject}"</strong> has been successfully marked as <strong>RESOLVED</strong> by our administration team.</p>
-        <p style="color: #cbd5e1; font-size: 14px; line-height: 1.6;">If you have any further issues, please don't hesitate to reach back out to us.</p>
+        <p style="color: #cbd5e1; font-size: 14px; line-height: 1.6; white-space: pre-line;">${resolutionText}</p>
         ${getEmailFooter()}
       `,
     });

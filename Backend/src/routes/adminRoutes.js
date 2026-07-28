@@ -6,7 +6,8 @@ import {
     getAllBookings, 
     getAllComplaints, 
     updateComplaintStatus,
-    toggleAccountStatus
+    toggleAccountStatus,
+    getAIComplaintAssist
 } from "../controllers/adminController.js";
 import { protectedRoute, isAdmin } from "../middleware/auth.middleware.js";
 
@@ -22,5 +23,6 @@ router.get("/bookings", getAllBookings);
 router.get("/complaints", getAllComplaints);
 router.patch("/complaints/:id", updateComplaintStatus);
 router.patch("/status/:id", toggleAccountStatus);
+router.post("/complaints/:id/ai-assist", getAIComplaintAssist);
 
 export default router;

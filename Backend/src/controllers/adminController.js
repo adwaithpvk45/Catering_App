@@ -4,6 +4,7 @@ import Booking from "../models/bookingModel.js";
 import Complaint from "../models/complaintModel.js";
 import Service from "../models/serviceModel.js";
 import { sendComplaintResolvedEmail } from "../utils/email.js";
+import { getTicketAnalysis } from "../utils/gemini.js";
 
 // Get overall stats for Admin Dashboard
 export const getDashboardStats = async (req, res) => {
@@ -112,14 +113,14 @@ export const getAllComplaints = async (req, res) => {
 export const updateComplaintStatus = async (req, res) => {
     try {
         const { id } = req.params;
-        const { status } = req.body;
+        const { status, replyMessage } = req.body;
         const updatedComplaint = await Complaint.findByIdAndUpdate(id, { status }, { new: true });
         res.status(200).json({ success: true, updatedComplaint });
 
         if (status === "Resolved" && updatedComplaint) {
             (async () => {
                 try {
-                    await sendComplaintResolvedEmail(updatedComplaint);
+                    await sendComplaintResolvedEmail(updatedComplaint, replyMessage);
                 } catch (err) {
                     console.error("Non-blocking resolution email error:", err);
                 }
@@ -152,6 +153,22 @@ export const toggleAccountStatus = async (req, res) => {
         }
 
         res.status(200).json({ success: true, message: `Account status updated to ${status}`, account });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// Analyze support ticket and draft a reply using AI
+export const getAIComplaintAssist = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const complaint = await Complaint.findById(id);
+        if (!complaint) {
+            return res.status(404).json({ success: false, message: "Complaint not found" });
+        }
+
+        const analysis = await getTicketAnalysis(complaint.subject, complaint.message);
+        res.status(200).json({ success: true, analysis });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
