@@ -10,9 +10,11 @@ import { Search, Users, AlertCircle } from "lucide-react";
 
 const UsersList = () => {
   const dispatch = useDispatch();
-  const { users } = useSelector((state) => state.admin);
+  const { users, pagination } = useSelector((state) => state.admin);
+  const userPagination = pagination?.users || { total: 0, page: 1, limit: 5, pages: 1 };
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [blockConfirmOpen, setBlockConfirmOpen] = useState(false);
@@ -28,9 +30,19 @@ const UsersList = () => {
     setDrawerOpen(true);
   };
 
+  // Debounced search & fetch on page change
   useEffect(() => {
-    dispatch(getUsers());
-  }, [dispatch]);
+    const delayDebounceFn = setTimeout(() => {
+      dispatch(getUsers(page, 5, searchQuery));
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [dispatch, page, searchQuery]);
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setPage(1); // Reset page to 1 when search query changes
+  };
 
   const handleBlockUnblock = (id, action) => {
     const userToBlock = formattedUsers.find((u) => u.id === id);
@@ -48,7 +60,7 @@ const UsersList = () => {
   const confirmBlockUnblock = () => {
     if (targetUser) {
       const nextStatus = targetUser.action === "block" ? "blocked" : "active";
-      dispatch(toggleAccountStatusAction(targetUser.id, nextStatus, "user"));
+      dispatch(toggleAccountStatusAction(targetUser.id, nextStatus, "user", page, 5, searchQuery));
       setBlockConfirmOpen(false);
       setTargetUser(null);
     }
@@ -61,12 +73,6 @@ const UsersList = () => {
     status: user.status || "active",
     createdTime: dayjs(user.createdAt).format("YYYY-MM-DD"),
   }));
-
-  const filteredUsers = formattedUsers.filter(
-    (user) =>
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   return (
     <div className="py-6 px-1 max-w-full font-outfit select-none space-y-6">
@@ -104,20 +110,22 @@ const UsersList = () => {
               type="text"
               placeholder="Search by name, email..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearchChange}
               className="w-full bg-base-200 h-11 rounded-2xl pl-11 pr-4 font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 transition-all text-xs"
             />
           </div>
         </div>
 
         <div className="text-[10px] font-black uppercase tracking-widest opacity-40 pr-2">
-          {filteredUsers.length} Active Clients
+          {userPagination.total} Active Clients
         </div>
       </motion.div>
 
       {/* Users Table */}
       <TableContent
-        filteredUsers={filteredUsers}
+        users={formattedUsers}
+        pagination={userPagination}
+        onPageChange={(newPage) => setPage(newPage)}
         handleBlockUnblock={handleBlockUnblock}
         handleDrawerOpen={handleDrawerOpen}
       />

@@ -1,19 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Eye, Ban, CheckCircle, AlertCircle } from "lucide-react";
 
-export default function TableContent({ filteredUsers, handleBlockUnblock, handleDrawerOpen }) {
-  const [page, setPage] = useState(0);
-  const rowsPerPage = 5;
-
-  // Reset page to 0 when filtered list changes
-  useEffect(() => {
-    setPage(0);
-  }, [filteredUsers]);
-
-  const paginatedUsers = filteredUsers.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+export default function TableContent({ 
+  users, 
+  pagination, 
+  onPageChange, 
+  handleBlockUnblock, 
+  handleDrawerOpen 
+}) {
+  const { page = 1, pages = 1, total = 0 } = pagination || {};
 
   return (
     <div className="bg-base-100 rounded-[2rem] border border-base-content/10 shadow-2xl overflow-hidden font-outfit select-none flex flex-col justify-between" style={{ height: 'calc(100vh - 357px)' }}>
@@ -29,8 +24,8 @@ export default function TableContent({ filteredUsers, handleBlockUnblock, handle
             </tr>
           </thead>
           <tbody>
-            {paginatedUsers.length > 0 ? (
-              paginatedUsers.map((user) => (
+            {users.length > 0 ? (
+              users.map((user) => (
                 <tr 
                   key={user.id} 
                   className="border-b border-base-content/5 hover:bg-base-200/30 transition-colors duration-200"
@@ -109,19 +104,19 @@ export default function TableContent({ filteredUsers, handleBlockUnblock, handle
       {/* Custom Pagination Footer */}
       <div className="flex justify-between items-center p-5 border-t border-base-content/10 bg-base-200/50">
         <span className="text-xs font-semibold text-base-content/50">
-          Showing {filteredUsers.length ? page * rowsPerPage + 1 : 0} to {Math.min((page + 1) * rowsPerPage, filteredUsers.length)} of {filteredUsers.length} records
+          Showing {users.length ? (page - 1) * 5 + 1 : 0} to {Math.min(page * 5, total)} of {total} records
         </span>
         <div className="flex gap-2">
           <button
-            onClick={() => setPage(p => Math.max(0, p - 1))}
-            disabled={page === 0}
+            onClick={() => onPageChange(page - 1)}
+            disabled={page === 1}
             className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
           >
             Previous
           </button>
           <button
-            onClick={() => setPage(p => ((p + 1) * rowsPerPage < filteredUsers.length ? p + 1 : p))}
-            disabled={(page + 1) * rowsPerPage >= filteredUsers.length}
+            onClick={() => onPageChange(page + 1)}
+            disabled={page >= pages}
             className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
           >
             Next

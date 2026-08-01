@@ -17,22 +17,27 @@ import { getVendorBrandName } from "../../../store/data";
 
 const AdminBookings = () => {
   const dispatch = useDispatch();
-  const { bookings } = useSelector((state) => state.admin) || [];
+  const { bookings, pagination } = useSelector((state) => state.admin) || { bookings: [], pagination: {} };
+  const bookingPagination = pagination?.bookings || { total: 0, page: 1, limit: 5, pages: 1 };
 
-  const [page, setPage] = useState(0);
-  const rowsPerPage = 5;
+  const [page, setPage] = useState(1);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Debounced search & fetch on page change
   useEffect(() => {
-    dispatch(getBookings());
-  }, [dispatch]);
+    const delayDebounceFn = setTimeout(() => {
+      dispatch(getBookings(page, 5, searchQuery));
+    }, 300);
 
-  // Reset page when search changes
-  useEffect(() => {
-    setPage(0);
-  }, [searchQuery]);
+    return () => clearTimeout(delayDebounceFn);
+  }, [dispatch, page, searchQuery]);
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setPage(1); // Reset page to 1 when search query changes
+  };
 
   const handleView = (booking) => {
     setSelectedBooking(booking);
@@ -61,21 +66,6 @@ const AdminBookings = () => {
     status: b.status || "Pending",
     raw: b,
   }));
-
-  const filteredBookings = formattedBookings.filter((booking) => {
-    const query = searchQuery.trim().toLowerCase();
-    return (
-      booking.vendorName.toLowerCase().includes(query) ||
-      booking.eventType.toLowerCase().includes(query) ||
-      booking.userName.toLowerCase().includes(query) ||
-      booking.location.toLowerCase().includes(query)
-    );
-  });
-
-  const paginatedBookings = filteredBookings.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
 
   return (
     <div className="py-6 px-1 max-w-full font-outfit select-none space-y-6">
@@ -113,14 +103,14 @@ const AdminBookings = () => {
               type="text"
               placeholder="Search by user, vendor, venue..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearchChange}
               className="w-full bg-base-200 h-11 rounded-2xl pl-11 pr-4 font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 transition-all text-xs"
             />
           </div>
         </div>
 
         <div className="text-[10px] font-black uppercase tracking-widest opacity-40 pr-2">
-          {filteredBookings.length} Total Bookings
+          {bookingPagination.total} Total Bookings
         </div>
       </motion.div>
 
@@ -146,8 +136,8 @@ const AdminBookings = () => {
               </tr>
             </thead>
             <tbody>
-              {paginatedBookings.length > 0 ? (
-                paginatedBookings.map((booking, idx) => (
+              {formattedBookings.length > 0 ? (
+                formattedBookings.map((booking, idx) => (
                   <motion.tr
                     key={booking.id}
                     initial={{ opacity: 0, y: 10 }}
@@ -231,25 +221,21 @@ const AdminBookings = () => {
         {/* Custom Pagination Footer */}
         <div className="flex justify-between items-center p-5 border-t border-base-content/10 bg-base-200/50">
           <span className="text-xs font-semibold text-base-content/50">
-            Showing {filteredBookings.length ? page * rowsPerPage + 1 : 0} to{" "}
-            {Math.min((page + 1) * rowsPerPage, filteredBookings.length)} of{" "}
-            {filteredBookings.length} bookings
+            Showing {formattedBookings.length ? (bookingPagination.page - 1) * 5 + 1 : 0} to{" "}
+            {Math.min(bookingPagination.page * 5, bookingPagination.total)} of{" "}
+            {bookingPagination.total} bookings
           </span>
           <div className="flex gap-2">
             <button
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
-              disabled={page === 0}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={bookingPagination.page === 1}
               className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
             >
               Previous
             </button>
             <button
-              onClick={() =>
-                setPage((p) =>
-                  (p + 1) * rowsPerPage < filteredBookings.length ? p + 1 : p
-                )
-              }
-              disabled={(page + 1) * rowsPerPage >= filteredBookings.length}
+              onClick={() => setPage((p) => p + 1)}
+              disabled={bookingPagination.page >= bookingPagination.pages}
               className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
             >
               Next

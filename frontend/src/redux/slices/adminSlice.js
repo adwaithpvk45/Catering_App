@@ -7,12 +7,19 @@ const adminSlice = createSlice({
     users: [],
     complaints: [],
     bookings: [],
+    pagination: {
+      users: { total: 0, page: 1, limit: 5, pages: 1 },
+      vendors: { total: 0, page: 1, limit: 5, pages: 1 },
+      bookings: { total: 0, page: 1, limit: 5, pages: 1 },
+      complaints: { total: 0, page: 1, limit: 5, pages: 1 }
+    },
     stats: null,
     errors: null,
   },
   reducers: {
     fetchVendorsSuccess: (state, action) => {
       state.vendors = action.payload.vendors;
+      state.pagination.vendors = action.payload.pagination || { total: action.payload.vendors.length, page: 1, limit: 5, pages: 1 };
     },
     fetchVendorsFail: (state, action) => {
       state.errors = action.payload;
@@ -20,6 +27,7 @@ const adminSlice = createSlice({
     },
     fetchUsersSuccess: (state, action) => {
       state.users = action.payload.users;
+      state.pagination.users = action.payload.pagination || { total: action.payload.users.length, page: 1, limit: 5, pages: 1 };
     },
     fetchUsersFail: (state, action) => {
       state.errors = action.payload;
@@ -27,6 +35,7 @@ const adminSlice = createSlice({
     },
     fetchComplaintsSuccess: (state, action) => {
       state.complaints = action.payload.complaints;
+      state.pagination.complaints = action.payload.pagination || { total: action.payload.complaints.length, page: 1, limit: 5, pages: 1 };
     },
     fetchComplaintsFail: (state, action) => {
       state.errors = action.payload;
@@ -34,6 +43,7 @@ const adminSlice = createSlice({
     },
     fetchBookingsSuccess: (state, action) => {
       state.bookings = action.payload.bookings;
+      state.pagination.bookings = action.payload.pagination || { total: action.payload.bookings.length, page: 1, limit: 5, pages: 1 };
     },
     fetchBookingsFail: (state, action) => {
       state.errors = action.payload;

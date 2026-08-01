@@ -21,10 +21,10 @@ import toast from 'react-hot-toast';
 
 const AdminComplaintsSection = () => {
   const dispatch = useDispatch();
-  const { complaints } = useSelector((state) => state.admin) || [];
+  const { complaints, pagination } = useSelector((state) => state.admin) || { complaints: [], pagination: {} };
+  const complaintsPagination = pagination?.complaints || { total: 0, page: 1, limit: 5, pages: 1 };
 
-  const [page, setPage] = useState(0);
-  const rowsPerPage = 5;
+  const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -32,18 +32,26 @@ const AdminComplaintsSection = () => {
   const [aiResult, setAiResult] = useState(null);
   const [editedReply, setEditedReply] = useState("");
 
+  // Debounced search & fetch on page change
   useEffect(() => {
-    dispatch(getComplaints()).finally(() => setLoading(false));
-  }, [dispatch]);
+    setLoading(true);
+    const delayDebounceFn = setTimeout(() => {
+      dispatch(getComplaints(page, 5, searchQuery)).finally(() => setLoading(false));
+    }, 300);
 
-  // Reset page to 0 when search changes
-  useEffect(() => {
-    setPage(0);
-  }, [searchQuery]);
+    return () => clearTimeout(delayDebounceFn);
+  }, [dispatch, page, searchQuery]);
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setPage(1); // Reset page to 1 when search query changes
+  };
 
   const toggleStatus = async (id, currentStatus) => {
     const newStatus = currentStatus === 'Pending' ? 'Resolved' : 'Pending';
-    dispatch(updateStatus(id, newStatus));
+    await dispatch(updateStatus(id, newStatus));
+    // Re-fetch to sync status correctly
+    dispatch(getComplaints(page, 5, searchQuery));
   };
 
   const handleView = (complaint) => {
@@ -85,21 +93,13 @@ const AdminComplaintsSection = () => {
     if (!selectedComplaint) return;
     try {
       await dispatch(updateStatus(selectedComplaint._id, "Resolved", editedReply));
+      // Re-fetch to sync page state correctly
+      dispatch(getComplaints(page, 5, searchQuery));
       handleClose();
     } catch (err) {
       console.error(err);
     }
   };
-
-  const filteredComplaints = complaints.filter(c => 
-    (c.name || "").toLowerCase().includes(searchQuery.toLowerCase()) || 
-    (c.subject || "").toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const paginatedComplaints = filteredComplaints.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
 
   return (
     <div className="py-6 px-1 max-w-full font-outfit select-none space-y-6">
@@ -137,14 +137,14 @@ const AdminComplaintsSection = () => {
               type="text"
               placeholder="Search by name, subject..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearchChange}
               className="w-full bg-base-200 h-11 rounded-2xl pl-11 pr-4 font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 transition-all text-xs"
             />
           </div>
         </div>
 
         <div className="text-[10px] font-black uppercase tracking-widest opacity-40 pr-2">
-          {filteredComplaints.length} Tickets Found
+          {complaintsPagination.total} Tickets Found
         </div>
       </motion.div>
 
@@ -168,8 +168,8 @@ const AdminComplaintsSection = () => {
               </tr>
             </thead>
             <tbody>
-              {paginatedComplaints.length > 0 ? (
-                paginatedComplaints.map((c, idx) => (
+              {complaints.length > 0 ? (
+                complaints.map((c, idx) => (
                   <motion.tr
                     key={c._id}
                     initial={{ opacity: 0, y: 10 }}
@@ -247,25 +247,21 @@ const AdminComplaintsSection = () => {
         {/* Custom Pagination Footer */}
         <div className="flex justify-between items-center p-5 border-t border-base-content/10 bg-base-200/50">
           <span className="text-xs font-semibold text-base-content/50">
-            Showing {filteredComplaints.length ? page * rowsPerPage + 1 : 0} to{" "}
-            {Math.min((page + 1) * rowsPerPage, filteredComplaints.length)} of{" "}
-            {filteredComplaints.length} complaints
+            Showing {complaints.length ? (complaintsPagination.page - 1) * 5 + 1 : 0} to{" "}
+            {Math.min(complaintsPagination.page * 5, complaintsPagination.total)} of{" "}
+            {complaintsPagination.total} complaints
           </span>
           <div className="flex gap-2">
             <button
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
-              disabled={page === 0}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={complaintsPagination.page === 1}
               className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
             >
               Previous
             </button>
             <button
-              onClick={() =>
-                setPage((p) =>
-                  (p + 1) * rowsPerPage < filteredComplaints.length ? p + 1 : p
-                )
-              }
-              disabled={(page + 1) * rowsPerPage >= filteredComplaints.length}
+              onClick={() => setPage((p) => p + 1)}
+              disabled={complaintsPagination.page >= complaintsPagination.pages}
               className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
             >
               Next

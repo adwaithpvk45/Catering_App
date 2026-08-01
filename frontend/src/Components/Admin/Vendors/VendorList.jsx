@@ -10,9 +10,11 @@ import { Search, Sparkles, AlertCircle } from "lucide-react";
 
 export default function VendorsList() {
   const dispatch = useDispatch();
-  const { vendors } = useSelector((state) => state.admin);
+  const { vendors, pagination } = useSelector((state) => state.admin);
+  const vendorPagination = pagination?.vendors || { total: 0, page: 1, limit: 5, pages: 1 };
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [blockConfirmOpen, setBlockConfirmOpen] = useState(false);
@@ -28,9 +30,19 @@ export default function VendorsList() {
     setDrawerOpen(true);
   };
 
+  // Debounced search & fetch on page change
   useEffect(() => {
-    dispatch(getVendors());
-  }, [dispatch]);
+    const delayDebounceFn = setTimeout(() => {
+      dispatch(getVendors(page, 5, searchQuery));
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [dispatch, page, searchQuery]);
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setPage(1); // Reset page to 1 when search query changes
+  };
 
   const handleBlockUnblock = (id, action) => {
     const vendorToBlock = formattedVendors.find((v) => v.id === id);
@@ -48,7 +60,7 @@ export default function VendorsList() {
   const confirmBlockUnblock = () => {
     if (targetUser) {
       const nextStatus = targetUser.action === "block" ? "blocked" : "active";
-      dispatch(toggleAccountStatusAction(targetUser.id, nextStatus, "vendor"));
+      dispatch(toggleAccountStatusAction(targetUser.id, nextStatus, "vendor", page, 5, searchQuery));
       setBlockConfirmOpen(false);
       setTargetUser(null);
     }
@@ -61,12 +73,6 @@ export default function VendorsList() {
     status: vendor.status || "active",
     createdTime: dayjs(vendor.createdAt).format("YYYY-MM-DD"),
   }));
-
-  const filteredUsers = formattedVendors.filter(
-    (vendor) =>
-      vendor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      vendor.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   return (
     <div className="py-6 px-1 max-w-full font-outfit select-none space-y-6">
@@ -104,20 +110,22 @@ export default function VendorsList() {
               type="text"
               placeholder="Search by vendor name, email..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearchChange}
               className="w-full bg-base-200 h-11 rounded-2xl pl-11 pr-4 font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 transition-all text-xs"
             />
           </div>
         </div>
 
         <div className="text-[10px] font-black uppercase tracking-widest opacity-40 pr-2">
-          {filteredUsers.length} Active Hosts
+          {vendorPagination.total} Active Hosts
         </div>
       </motion.div>
 
       {/* Table Content */}
       <TableContent
-        filteredUsers={filteredUsers}
+        users={formattedVendors}
+        pagination={vendorPagination}
+        onPageChange={(newPage) => setPage(newPage)}
         handleBlockUnblock={handleBlockUnblock}
         handleDrawerOpen={handleDrawerOpen}
       />

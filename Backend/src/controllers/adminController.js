@@ -67,43 +67,161 @@ export const getDashboardStats = async (req, res) => {
     }
 };
 
-// Get all users
+// Get all users (paginated & searchable)
 export const getAllUsers = async (req, res) => {
     try {
-        const users = await User.find({ role: 'user' }).select("-password");
-        res.status(200).json({ success: true, users });
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 5;
+        const search = req.query.search || "";
+        const skip = (page - 1) * limit;
+
+        const query = { role: 'user' };
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        const total = await User.countDocuments(query);
+        const users = await User.find(query)
+            .select("-password")
+            .skip(skip)
+            .limit(limit);
+
+        res.status(200).json({ 
+            success: true, 
+            users,
+            pagination: {
+                total,
+                page,
+                limit,
+                pages: Math.ceil(total / limit)
+            }
+        });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 };
 
-// Get all vendors
+// Get all vendors (paginated & searchable)
 export const getAllVendors = async (req, res) => {
     try {
-        const vendors = await Vendor.find().select("-password");
-        res.status(200).json({ success: true, vendors });
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 5;
+        const search = req.query.search || "";
+        const skip = (page - 1) * limit;
+
+        const query = {};
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        const total = await Vendor.countDocuments(query);
+        const vendors = await Vendor.find(query)
+            .select("-password")
+            .skip(skip)
+            .limit(limit);
+
+        res.status(200).json({ 
+            success: true, 
+            vendors,
+            pagination: {
+                total,
+                page,
+                limit,
+                pages: Math.ceil(total / limit)
+            }
+        });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 };
 
-// Get all bookings
+// Get all bookings (paginated & searchable)
 export const getAllBookings = async (req, res) => {
     try {
-        const bookings = await Booking.find()
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 5;
+        const search = req.query.search || "";
+        const skip = (page - 1) * limit;
+
+        const query = {};
+        if (search) {
+            // Match populated user/vendor names if matching search
+            const matchingUsers = await User.find({ name: { $regex: search, $options: 'i' } }).select('_id');
+            const userIds = matchingUsers.map(u => u._id);
+
+            const matchingVendors = await Vendor.find({ name: { $regex: search, $options: 'i' } }).select('_id');
+            const vendorIds = matchingVendors.map(v => v._id);
+
+            query.$or = [
+                { user: { $in: userIds } },
+                { vendor: { $in: vendorIds } },
+                { venueLocation: { $regex: search, $options: 'i' } },
+                { location: { $regex: search, $options: 'i' } },
+                { eventType: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        const total = await Booking.countDocuments(query);
+        const bookings = await Booking.find(query)
             .populate('user', 'name email')
-            .populate('vendor', 'name email');
-        res.status(200).json({ success: true, bookings });
+            .populate('vendor', 'name email')
+            .skip(skip)
+            .limit(limit);
+
+        res.status(200).json({
+            success: true,
+            bookings,
+            pagination: {
+                total,
+                page,
+                limit,
+                pages: Math.ceil(total / limit)
+            }
+        });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 };
 
-// Get all complaints
+// Get all complaints (paginated & searchable)
 export const getAllComplaints = async (req, res) => {
     try {
-        const complaints = await Complaint.find().sort({ createdAt: -1 });
-        res.status(200).json({ success: true, complaints });
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 5;
+        const search = req.query.search || "";
+        const skip = (page - 1) * limit;
+
+        const query = {};
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { subject: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        const total = await Complaint.countDocuments(query);
+        const complaints = await Complaint.find(query)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        res.status(200).json({
+            success: true,
+            complaints,
+            pagination: {
+                total,
+                page,
+                limit,
+                pages: Math.ceil(total / limit)
+            }
+        });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
