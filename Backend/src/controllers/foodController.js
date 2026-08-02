@@ -69,8 +69,39 @@ export const getAllFood = async (req, res) => {
 export const getVendorFood = async (req, res) => {
   try {
     const { vendorId } = req.params;
-    const vendorFood = await Food.find({ vendor: vendorId });
-    res.status(200).json({ message: "Fetched all data", vendorFood });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const search = req.query.search || "";
+    const category = req.query.category || "";
+    const skip = (page - 1) * limit;
+
+    const query = { vendor: vendorId };
+    if (search) {
+        query.name = { $regex: search, $options: 'i' };
+    }
+    if (category) {
+        query.category = category;
+    }
+
+    const total = await Food.countDocuments(query);
+    let foodsQuery = Food.find(query).sort({ createdAt: -1 });
+
+    if (req.query.export !== 'true') {
+        foodsQuery = foodsQuery.skip(skip).limit(limit);
+    }
+
+    const vendorFood = await foodsQuery;
+
+    res.status(200).json({ 
+      message: "Fetched all data", 
+      vendorFood,
+      pagination: {
+          total,
+          page,
+          limit: req.query.export === 'true' ? total : limit,
+          pages: Math.ceil(total / limit)
+      }
+    });
   } catch (error) {
     res.status(400).json({ message: "Error in getting vendorFood", error });
   }

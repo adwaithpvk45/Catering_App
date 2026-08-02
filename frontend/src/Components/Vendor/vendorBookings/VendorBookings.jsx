@@ -17,30 +17,40 @@ import {
   ChevronDown,
 } from "lucide-react";
 
+import axios from "axios";
+import appConfig from "../../../api/common/appConfig";
+import toast from "react-hot-toast";
+import { exportToCSV } from "../../../utils/csvExport";
+import { Download } from "lucide-react";
+
 const VendorBookings = () => {
   const userDetails = JSON.parse(localStorage.getItem("userDetails"));
   const vendorId = userDetails?.existingUser?._id;
 
-  const [page, setPage] = useState(0);
-  const rowsPerPage = 5;
+  const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
-  const [eventFilter, setEventFilter] = useState("All");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [paymentFilter, setPaymentFilter] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [exportLoading, setExportLoading] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
 
   const dispatch = useDispatch();
-  const bookings = useSelector((state) => state.booking.booking) || [];
+  const { booking: bookings, pagination } = useSelector((state) => state.booking) || { booking: [], pagination: {} };
+  const bookingPagination = pagination || { total: 0, page: 1, limit: 5, pages: 1 };
 
+  // Debounced search & fetch on page or filter changes
   useEffect(() => {
     if (vendorId) {
-      dispatch(getVendorBookings(vendorId));
-    }
-  }, [dispatch, vendorId]);
+      const delayDebounceFn = setTimeout(() => {
+        dispatch(getVendorBookings(vendorId, page, 5, searchQuery, statusFilter, paymentFilter, startDate, endDate));
+      }, 300);
 
-  // Reset page when search/filter changes
-  useEffect(() => {
-    setPage(0);
-  }, [searchQuery, eventFilter]);
+      return () => clearTimeout(delayDebounceFn);
+    }
+  }, [dispatch, vendorId, page, searchQuery, statusFilter, paymentFilter, startDate, endDate]);
 
   const handleRowClick = (booking) => {
     setSelectedBooking(booking);
@@ -52,34 +62,81 @@ const VendorBookings = () => {
     setSelectedBooking(null);
   };
 
-  const filteredBookings = bookings.filter((b) => {
-    const venue = b.venueLocation || "";
-    const category = b.category || "";
-    const matchesSearch =
-      venue.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (b.user?.name || "").toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesEvent = eventFilter === "All" || b.event === eventFilter;
-    return matchesSearch && matchesEvent;
-  });
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setPage(1); // Reset page to 1
+  };
 
-  const paginatedBookings = filteredBookings.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  const handleStatusChange = (e) => {
+    setStatusFilter(e.target.value);
+    setPage(1); // Reset page to 1
+  };
 
-  // Get unique event types dynamically
-  const eventTypes = ["All", ...new Set(bookings.map((b) => b.event).filter(Boolean))];
+  const handlePaymentChange = (e) => {
+    setPaymentFilter(e.target.value);
+    setPage(1); // Reset page to 1
+  };
+
+  const handleStartDateChange = (e) => {
+    setStartDate(e.target.value);
+    setPage(1); // Reset page to 1
+  };
+
+  const handleEndDateChange = (e) => {
+    setEndDate(e.target.value);
+    setPage(1); // Reset page to 1
+  };
+
+  const handleExport = async () => {
+    if (!vendorId) return;
+    setExportLoading(true);
+    try {
+      const res = await axios.get(
+        `${appConfig.baseURL}/api/booking/vendor/${vendorId}?export=true&search=${encodeURIComponent(searchQuery)}&status=${statusFilter}&paymentStatus=${paymentFilter}&startDate=${startDate}&endDate=${endDate}`,
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${appConfig.token}`
+          }
+        }
+      );
+      if (res.data.success) {
+        const headers = ["Booking ID", "Customer Name", "Customer Email", "Event Type", "Event Date", "Venue Location", "Status", "Payment Status", "Guest Count", "Total Price", "Created At"];
+        const rows = res.data.data.map(b => [
+          b._id,
+          b.user?.name || "Unknown User",
+          b.user?.email || "No Email",
+          b.category || "N/A",
+          b.eventDate ? dayjs(b.eventDate).format("YYYY-MM-DD") : "N/A",
+          b.venueLocation || "N/A",
+          b.status || "Pending",
+          b.paymentStatus || "Unpaid",
+          b.guestCount || 0,
+          b.totalPrice || 0,
+          b.createdAt ? dayjs(b.createdAt).format("YYYY-MM-DD HH:mm") : "N/A"
+        ]);
+        exportToCSV("Feastify_Vendor_Bookings", headers, rows);
+        toast.success("Bookings list exported successfully!");
+      } else {
+        toast.error("Failed to export bookings.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to export data.");
+    } finally {
+      setExportLoading(false);
+    }
+  };
 
   const handleStatusToggle = (e, booking) => {
     e.stopPropagation(); // Prevent row click opening drawer
     const newStatus = booking.status === "Pending" ? "Accepted" : "Pending";
-    dispatch(statusChange({ id: booking._id, status: newStatus }));
+    dispatch(statusChange({ id: booking._id, status: newStatus }, page, 5, searchQuery, statusFilter, paymentFilter, startDate, endDate));
   };
 
   const handleMarkFullyPaid = (e, bookingId) => {
     e.stopPropagation();
-    dispatch(markBookingFullyPaidAction(bookingId));
+    dispatch(markBookingFullyPaidAction(bookingId, page, 5, searchQuery, statusFilter, paymentFilter, startDate, endDate));
   };
 
   return (
@@ -108,9 +165,9 @@ const VendorBookings = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.05 }}
-        className="flex flex-wrap items-center justify-between gap-4 p-5 bg-base-100 rounded-3xl border border-base-content/10 shadow-lg"
+        className="flex flex-col gap-4 p-5 bg-base-100 rounded-3xl border border-base-content/10 shadow-lg"
       >
-        <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
+        <div className="flex flex-wrap items-center gap-4 w-full">
           {/* Search Box */}
           <div className="relative w-full sm:w-64">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4.5 opacity-40" />
@@ -118,46 +175,77 @@ const VendorBookings = () => {
               type="text"
               placeholder="Search by user, venue, type..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearchChange}
               className="w-full bg-base-200 h-11 rounded-2xl pl-11 pr-4 font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 transition-all text-xs"
             />
           </div>
 
-          {/* Event Filter Dropdown */}
-          <div className="dropdown dropdown-bottom w-full sm:w-52">
-            <div 
-              tabIndex={0} 
-              role="button" 
-              className="w-full bg-base-200 h-11 rounded-2xl px-4 flex items-center justify-between font-bold text-xs cursor-pointer border border-transparent focus:border-[#FF7D44]/30 transition-all"
+          {/* Booking Status Dropdown */}
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 size-4 opacity-40 text-base-content" />
+            <select
+              value={statusFilter}
+              onChange={handleStatusChange}
+              className="select bg-base-200 h-11 rounded-2xl pl-9 pr-8 font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 text-xs cursor-pointer appearance-none min-w-[130px]"
             >
-              <span className="flex items-center gap-2">
-                <Filter className="size-4 opacity-40" />
-                {eventFilter === "All" ? "All Events" : eventFilter}
-              </span>
-              <ChevronDown className="size-4 opacity-40" />
-            </div>
-            <ul 
-              tabIndex={0} 
-              className="dropdown-content menu p-2 bg-base-100 border border-base-content/10 rounded-2xl w-full z-[50] shadow-2xl mt-1 font-bold text-xs"
+              <option value="">All Statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="Accepted">Accepted</option>
+              <option value="Confirmed">Confirmed</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </div>
+
+          {/* Payment Status Dropdown */}
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 size-4 opacity-40 text-base-content" />
+            <select
+              value={paymentFilter}
+              onChange={handlePaymentChange}
+              className="select bg-base-200 h-11 rounded-2xl pl-9 pr-8 font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 text-xs cursor-pointer appearance-none min-w-[150px]"
             >
-              {eventTypes.map((event) => (
-                <li key={event}>
-                  <a 
-                    onClick={() => {
-                      setEventFilter(event);
-                      document.activeElement.blur();
-                    }}
-                  >
-                    {event === "All" ? "All Events" : event}
-                  </a>
-                </li>
-              ))}
-            </ul>
+              <option value="">All Payments</option>
+              <option value="Unpaid">Unpaid</option>
+              <option value="Advance Paid">Advance Paid</option>
+              <option value="Fully Paid">Fully Paid</option>
+            </select>
+          </div>
+
+          {/* Start Date */}
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-black uppercase opacity-50">From</span>
+            <input
+              type="date"
+              value={startDate}
+              onChange={handleStartDateChange}
+              className="input bg-base-200 h-11 rounded-2xl font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 text-xs px-3 cursor-pointer"
+            />
+          </div>
+
+          {/* End Date */}
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-black uppercase opacity-50">To</span>
+            <input
+              type="date"
+              value={endDate}
+              onChange={handleEndDateChange}
+              className="input bg-base-200 h-11 rounded-2xl font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 text-xs px-3 cursor-pointer"
+            />
           </div>
         </div>
 
-        <div className="text-[10px] font-black uppercase tracking-widest opacity-40 pr-2">
-          {filteredBookings.length} Bookings found
+        <div className="flex justify-between items-center w-full border-t border-base-content/5 pt-3">
+          <div className="text-[10px] font-black uppercase tracking-widest opacity-40">
+            Filters active • Query matches: {bookingPagination.total} bookings
+          </div>
+          <button
+            onClick={handleExport}
+            disabled={exportLoading}
+            className="btn btn-ghost btn-sm h-11 rounded-2xl border border-base-content/10 hover:bg-base-200 text-xs font-black px-4 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+          >
+            <Download className="size-4" />
+            <span>{exportLoading ? "Exporting..." : "Export CSV"}</span>
+          </button>
         </div>
       </motion.div>
 
@@ -184,8 +272,8 @@ const VendorBookings = () => {
               </tr>
             </thead>
             <tbody>
-              {paginatedBookings.length > 0 ? (
-                paginatedBookings.map((booking, idx) => (
+              {bookings.length > 0 ? (
+                bookings.map((booking, idx) => (
                   <motion.tr
                     key={booking._id}
                     initial={{ opacity: 0, y: 10 }}
@@ -210,39 +298,30 @@ const VendorBookings = () => {
                     </td>
 
                     <td className="py-4 px-6 text-xs font-black text-base-content/70">
-                      {booking.eventDate
-                        ? new Date(booking.eventDate).toLocaleDateString(undefined, {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                          })
-                        : "N/A"}
+                      {booking.eventDate ? dayjs(booking.eventDate).format("YYYY-MM-DD") : "N/A"}
                     </td>
 
                     <td className="py-4 px-6 text-xs font-black text-base-content/70">
-                      <div className="flex items-center gap-1">
-                        <Users className="size-3.5 opacity-40" />
-                        <span>{booking.guestCount || "-"}</span>
-                      </div>
+                      {booking.guestCount || 0}
                     </td>
 
                     <td className="py-4 px-6 text-xs font-black text-base-content/70">
-                      <div className="flex items-center gap-1">
-                        <MapPin className="size-3.5 opacity-40 flex-shrink-0" />
-                        <span className="truncate max-w-[150px]">{booking.venueLocation || "N/A"}</span>
+                      <div className="flex items-center gap-1.5">
+                        <MapPin className="size-3.5 text-[#FF7D44]" />
+                        <span>{booking.venueLocation || "N/A"}</span>
                       </div>
                     </td>
 
                     <td className="py-4 px-6">
                       <span
                         className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                          booking.status === "Confirmed"
-                            ? "bg-success/10 text-success border border-success/20"
+                          booking.status === "Pending"
+                            ? "bg-warning/10 text-warning border border-warning/20"
                             : booking.status === "Accepted"
                             ? "bg-info/10 text-info border border-info/20"
-                            : booking.status === "Cancelled"
-                            ? "bg-error/10 text-error border border-error/20"
-                            : "bg-warning/10 text-warning border border-warning/20"
+                            : booking.status === "Confirmed"
+                            ? "bg-success/10 text-success border border-success/20"
+                            : "bg-error/10 text-error border border-error/20"
                         }`}
                       >
                         {booking.status || "Pending"}
@@ -255,17 +334,18 @@ const VendorBookings = () => {
                           booking.paymentStatus === "Fully Paid"
                             ? "bg-success/10 text-success border border-success/20"
                             : booking.paymentStatus === "Advance Paid"
-                            ? "bg-indigo/10 text-indigo-500 border border-indigo-500/20"
-                            : "bg-base-300 text-base-content/50 border border-base-content/10"
+                            ? "bg-info/10 text-info border border-info/20"
+                            : "bg-error/10 text-error border border-error/20"
                         }`}
                       >
                         {booking.paymentStatus || "Unpaid"}
                       </span>
                     </td>
 
+                    {/* Actions */}
                     <td className="py-4 px-6" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-center gap-2">
-                        {booking.status !== "Cancelled" && booking.status !== "Confirmed" && (
+                        {booking.status !== "Confirmed" && booking.status !== "Cancelled" && (
                           <button
                             onClick={(e) => handleStatusToggle(e, booking)}
                             className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border ${
@@ -318,25 +398,21 @@ const VendorBookings = () => {
         {/* Custom Pagination Footer */}
         <div className="flex justify-between items-center p-5 border-t border-base-content/10 bg-base-200/50">
           <span className="text-xs font-semibold text-base-content/50">
-            Showing {filteredBookings.length ? page * rowsPerPage + 1 : 0} to{" "}
-            {Math.min((page + 1) * rowsPerPage, filteredBookings.length)} of{" "}
-            {filteredBookings.length} bookings
+            Showing {bookings.length ? (bookingPagination.page - 1) * 5 + 1 : 0} to{" "}
+            {Math.min(bookingPagination.page * 5, bookingPagination.total)} of{" "}
+            {bookingPagination.total} bookings
           </span>
           <div className="flex gap-2">
             <button
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
-              disabled={page === 0}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
               className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
             >
               Previous
             </button>
             <button
-              onClick={() =>
-                setPage((p) =>
-                  (p + 1) * rowsPerPage < filteredBookings.length ? p + 1 : p
-                )
-              }
-              disabled={(page + 1) * rowsPerPage >= filteredBookings.length}
+              onClick={() => setPage((p) => Math.min(bookingPagination.pages, p + 1))}
+              disabled={page >= bookingPagination.pages}
               className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
             >
               Next

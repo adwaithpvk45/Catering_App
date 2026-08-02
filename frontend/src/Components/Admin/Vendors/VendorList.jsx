@@ -6,7 +6,11 @@ import dayjs from "dayjs";
 import TableContent from "../../../common ui/Table";
 import UserDetails from "../Users/UserDetails";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Sparkles, AlertCircle } from "lucide-react";
+import { Search, Sparkles, AlertCircle, Download, Filter } from "lucide-react";
+import axios from "axios";
+import appConfig from "../../../api/common/appConfig";
+import toast from "react-hot-toast";
+import { exportToCSV } from "../../../utils/csvExport";
 
 export default function VendorsList() {
   const dispatch = useDispatch();
@@ -14,6 +18,8 @@ export default function VendorsList() {
   const vendorPagination = pagination?.vendors || { total: 0, page: 1, limit: 5, pages: 1 };
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [exportLoading, setExportLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -30,18 +36,57 @@ export default function VendorsList() {
     setDrawerOpen(true);
   };
 
-  // Debounced search & fetch on page change
+  // Debounced search & fetch on page or filter change
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      dispatch(getVendors(page, 5, searchQuery));
+      dispatch(getVendors(page, 5, searchQuery, statusFilter));
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [dispatch, page, searchQuery]);
+  }, [dispatch, page, searchQuery, statusFilter]);
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
     setPage(1); // Reset page to 1 when search query changes
+  };
+
+  const handleStatusChange = (e) => {
+    setStatusFilter(e.target.value);
+    setPage(1); // Reset page to 1 when status filter changes
+  };
+
+  const handleExport = async () => {
+    setExportLoading(true);
+    try {
+      const res = await axios.get(
+        `${appConfig.baseURL}/api/admin/vendors?export=true&search=${encodeURIComponent(searchQuery)}&status=${statusFilter}`,
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${appConfig.token}`
+          }
+        }
+      );
+      if (res.data.success) {
+        const headers = ["Vendor ID", "Name", "Email", "Status", "Created At"];
+        const rows = res.data.vendors.map(v => [
+          v._id,
+          v.name || "Unknown Vendor",
+          v.email || "No Email",
+          v.status || "active",
+          v.createdAt ? dayjs(v.createdAt).format("YYYY-MM-DD HH:mm") : "N/A"
+        ]);
+        exportToCSV("Feastify_Vendors", headers, rows);
+        toast.success("Vendors list exported successfully!");
+      } else {
+        toast.error("Failed to export vendors.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to export data.");
+    } finally {
+      setExportLoading(false);
+    }
   };
 
   const handleBlockUnblock = (id, action) => {
@@ -60,7 +105,7 @@ export default function VendorsList() {
   const confirmBlockUnblock = () => {
     if (targetUser) {
       const nextStatus = targetUser.action === "block" ? "blocked" : "active";
-      dispatch(toggleAccountStatusAction(targetUser.id, nextStatus, "vendor", page, 5, searchQuery));
+      dispatch(toggleAccountStatusAction(targetUser.id, nextStatus, "vendor", page, 5, searchQuery, statusFilter));
       setBlockConfirmOpen(false);
       setTargetUser(null);
     }
@@ -114,10 +159,34 @@ export default function VendorsList() {
               className="w-full bg-base-200 h-11 rounded-2xl pl-11 pr-4 font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 transition-all text-xs"
             />
           </div>
+
+          {/* Status Dropdown */}
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 size-4 opacity-40 text-base-content" />
+            <select
+              value={statusFilter}
+              onChange={handleStatusChange}
+              className="select bg-base-200 h-11 rounded-2xl pl-9 pr-8 font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 text-xs cursor-pointer appearance-none min-w-[130px]"
+            >
+              <option value="">All Statuses</option>
+              <option value="active">Active</option>
+              <option value="blocked">Blocked</option>
+            </select>
+          </div>
         </div>
 
-        <div className="text-[10px] font-black uppercase tracking-widest opacity-40 pr-2">
-          {vendorPagination.total} Active Hosts
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleExport}
+            disabled={exportLoading}
+            className="btn btn-ghost btn-sm h-11 rounded-2xl border border-base-content/10 hover:bg-base-200 text-xs font-black px-4 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+          >
+            <Download className="size-4" />
+            <span>{exportLoading ? "Exporting..." : "Export CSV"}</span>
+          </button>
+          <div className="text-[10px] font-black uppercase tracking-widest opacity-40 pr-2">
+            {vendorPagination.total} Active Hosts
+          </div>
         </div>
       </motion.div>
 

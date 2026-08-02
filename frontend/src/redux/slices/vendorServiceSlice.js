@@ -4,6 +4,7 @@ const vendorServiceSlice = createSlice({
   name: "vendorService",
   initialState: {
     services: [],
+    pagination: {},
     service: [],
     error: null,
   },
@@ -18,6 +19,7 @@ const vendorServiceSlice = createSlice({
 
     fetchServiceSuccess: (state, action) => {
       state.services = action.payload;
+      state.pagination = action.payload.pagination;
     },
     fetchServiceFail: (state, action) => {
       state.error = action.payload;

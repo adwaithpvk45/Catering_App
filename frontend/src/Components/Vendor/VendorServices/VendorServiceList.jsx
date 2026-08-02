@@ -17,13 +17,22 @@ import {
   ChevronDown,
 } from "lucide-react";
 
+import axios from "axios";
+import appConfig from "../../../api/common/appConfig";
+import toast from "react-hot-toast";
+import { exportToCSV } from "../../../utils/csvExport";
+import { Download } from "lucide-react";
+
 const VendorServices = () => {
-  const [page, setPage] = useState(0);
-  const rowsPerPage = 5;
+  const userDetails = JSON.parse(localStorage.getItem("userDetails"));
+  const vendorId = userDetails?.existingUser?._id;
+
+  const [page, setPage] = useState(1);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState("");
+  const [exportLoading, setExportLoading] = useState(false);
   const [mode, setMode] = useState("add");
 
   // Custom modal states
@@ -32,9 +41,9 @@ const VendorServices = () => {
 
   const dispatch = useDispatch();
 
-  const services = useSelector(
-    (state) => state.vendorService.services.vendorService
-  );
+  const services = useSelector((state) => state.vendorService.services.vendorService) || [];
+  const pagination = useSelector((state) => state.vendorService.pagination) || {};
+  const servicePagination = pagination || { total: 0, page: 1, limit: 5, pages: 1 };
 
   const serviceTypes = [
     "Wedding",
@@ -45,25 +54,62 @@ const VendorServices = () => {
     "Others",
   ];
 
-  const filteredServices = services?.filter((item) => {
-    const name = item?.name || "";
-    const category = item?.category || "";
-    const description = item?.description || "";
-    const query = searchQuery.trim().toLowerCase();
+  // Debounced search & fetch on page or category change
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      dispatch(getVendorService(page, 5, searchQuery, selectedType));
+    }, 300);
 
-    const matchesSearch =
-      name.toLowerCase().includes(query) ||
-      category.toLowerCase().includes(query) ||
-      description.toLowerCase().includes(query);
+    return () => clearTimeout(delayDebounceFn);
+  }, [dispatch, page, searchQuery, selectedType]);
 
-    const matchesType = selectedType ? item?.category === selectedType : true;
-    return matchesSearch && matchesType;
-  });
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setPage(1); // Reset page to 1
+  };
 
-  const paginatedServices = filteredServices?.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  const handleCategoryChange = (e) => {
+    setSelectedType(e.target.value);
+    setPage(1); // Reset page to 1
+  };
+
+  const handleExport = async () => {
+    if (!vendorId) return;
+    setExportLoading(true);
+    try {
+      const res = await axios.get(
+        `${appConfig.baseURL}/api/service/getVendorService/${vendorId}?export=true&search=${encodeURIComponent(searchQuery)}&category=${selectedType}`,
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${appConfig.token}`
+          }
+        }
+      );
+      if (res.data.success || res.data.vendorService) {
+        const list = res.data.vendorService || [];
+        const headers = ["Service ID", "Name", "Category", "Price Per Head", "Duration", "Status", "Description"];
+        const rows = list.map(s => [
+          s._id,
+          s.name || "N/A",
+          s.category || "N/A",
+          s.price || 0,
+          s.duration || "N/A",
+          s.status || "Available",
+          s.description || "N/A"
+        ]);
+        exportToCSV("Feastify_Vendor_Services", headers, rows);
+        toast.success("Services exported successfully!");
+      } else {
+        toast.error("Failed to export services.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to export data.");
+    } finally {
+      setExportLoading(false);
+    }
+  };
 
   const handleAddClick = () => {
     setSelectedService({
@@ -89,22 +135,14 @@ const VendorServices = () => {
     setDeleteConfirmOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (serviceToDelete) {
-      dispatch(deleteServiceData(serviceToDelete));
+      await dispatch(deleteServiceData(serviceToDelete));
       setDeleteConfirmOpen(false);
       setServiceToDelete(null);
+      dispatch(getVendorService(page, 5, searchQuery, selectedType));
     }
   };
-
-  useEffect(() => {
-    dispatch(getVendorService());
-  }, [dispatch]);
-
-  // Reset page to 0 when search/filter changes
-  useEffect(() => {
-    setPage(0);
-  }, [searchQuery, selectedType]);
 
   return (
     <div className="py-6 px-1 max-w-full font-outfit select-none space-y-6">
@@ -150,56 +188,41 @@ const VendorServices = () => {
               type="text"
               placeholder="Search by name, desc..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearchChange}
               className="w-full bg-base-200 h-11 rounded-2xl pl-11 pr-4 font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 transition-all text-xs"
             />
           </div>
 
           {/* Service Type Dropdown */}
-          <div className="dropdown dropdown-bottom w-full sm:w-52">
-            <div
-              tabIndex={0}
-              role="button"
-              className="w-full bg-base-200 h-11 rounded-2xl px-4 flex items-center justify-between font-bold text-xs cursor-pointer border border-transparent focus:border-[#FF7D44]/30 transition-all"
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 size-4 opacity-40 text-base-content" />
+            <select
+              value={selectedType}
+              onChange={handleCategoryChange}
+              className="select bg-base-200 h-11 rounded-2xl pl-9 pr-8 font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 text-xs cursor-pointer appearance-none min-w-[170px]"
             >
-              <span className="flex items-center gap-2">
-                <Filter className="size-4 opacity-40" />
-                {selectedType || "All Service Types"}
-              </span>
-              <ChevronDown className="size-4 opacity-40" />
-            </div>
-            <ul
-              tabIndex={0}
-              className="dropdown-content menu p-2 bg-base-100 border border-base-content/10 rounded-2xl w-full z-[50] shadow-2xl mt-1 font-bold text-xs"
-            >
-              <li>
-                <a
-                  onClick={() => {
-                    setSelectedType("");
-                    document.activeElement.blur();
-                  }}
-                >
-                  All Service Types
-                </a>
-              </li>
+              <option value="">All Service Types</option>
               {serviceTypes.map((type) => (
-                <li key={type}>
-                  <a
-                    onClick={() => {
-                      setSelectedType(type);
-                      document.activeElement.blur();
-                    }}
-                  >
-                    {type}
-                  </a>
-                </li>
+                <option key={type} value={type}>
+                  {type}
+                </option>
               ))}
-            </ul>
+            </select>
           </div>
         </div>
 
-        <div className="text-[10px] font-black uppercase tracking-widest opacity-40 pr-2">
-          {filteredServices?.length || 0} Total Services
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleExport}
+            disabled={exportLoading}
+            className="btn btn-ghost btn-sm h-11 rounded-2xl border border-base-content/10 hover:bg-base-200 text-xs font-black px-4 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+          >
+            <Download className="size-4" />
+            <span>{exportLoading ? "Exporting..." : "Export CSV"}</span>
+          </button>
+          <div className="text-[10px] font-black uppercase tracking-widest opacity-40 pr-2">
+            {servicePagination.total} Total Services
+          </div>
         </div>
       </motion.div>
 
@@ -224,8 +247,8 @@ const VendorServices = () => {
               </tr>
             </thead>
             <tbody>
-              {paginatedServices && paginatedServices.length > 0 ? (
-                paginatedServices.map((service, idx) => (
+              {services && services.length > 0 ? (
+                services.map((service, idx) => (
                   <motion.tr
                     key={service._id}
                     initial={{ opacity: 0, y: 10 }}
@@ -322,25 +345,21 @@ const VendorServices = () => {
         {/* Custom Pagination Footer */}
         <div className="flex justify-between items-center p-5 border-t border-base-content/10 bg-base-200/50">
           <span className="text-xs font-semibold text-base-content/50">
-            Showing {filteredServices?.length ? page * rowsPerPage + 1 : 0} to{" "}
-            {Math.min((page + 1) * rowsPerPage, filteredServices?.length || 0)} of{" "}
-            {filteredServices?.length || 0} services
+            Showing {services?.length ? (servicePagination.page - 1) * 5 + 1 : 0} to{" "}
+            {Math.min(servicePagination.page * 5, servicePagination.total)} of{" "}
+            {servicePagination.total} services
           </span>
           <div className="flex gap-2">
             <button
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
-              disabled={page === 0}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
               className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
             >
               Previous
             </button>
             <button
-              onClick={() =>
-                setPage((p) =>
-                  (p + 1) * rowsPerPage < (filteredServices?.length || 0) ? p + 1 : p
-                )
-              }
-              disabled={(page + 1) * rowsPerPage >= (filteredServices?.length || 0)}
+              onClick={() => setPage((p) => Math.min(servicePagination.pages, p + 1))}
+              disabled={page >= servicePagination.pages}
               className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
             >
               Next

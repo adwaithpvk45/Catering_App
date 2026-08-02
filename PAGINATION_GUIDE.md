@@ -1,4 +1,4 @@
-# 📊 Feastify Database Pagination & Search Guide
+# 📊 Feastify Database Pagination, Search & Export Guide
 *A simple guide explaining how Feastify handles large amounts of bookings, users, and complaints without slowing down.*
 
 ---
@@ -15,7 +15,7 @@ If a customer asks to see 5 books at a time, **Client-Side Pagination** does thi
 
 ---
 
-## ⚡ The Solution: Server-Side Pagination (What we just built!)
+## ⚡ The Solution: Server-Side Pagination (What we built!)
 Feastify now uses **Server-Side Pagination**. 
 
 When a user clicks "Next" or searches for a name:
@@ -24,6 +24,25 @@ When a user clicks "Next" or searches for a name:
 3. The frontend displays them instantly.
 
 * **Why this is good**: The frontend remains fast, uses almost zero memory, and the app will never crash even if we have millions of bookings!
+
+---
+
+## 🔍 Advanced Filtering
+You can filter listings directly in MongoDB by:
+* **Booking Status** (Pending, Accepted, Confirmed, Cancelled).
+* **Payment Status** (Unpaid, Advance Paid, Fully Paid).
+* **Event Date Ranges** (From date / To date).
+* **User/Vendor Account Status** (Active, Blocked).
+* **Support Ticket Status** (Pending, Resolved).
+
+When you change a filter, Feastify automatically resets pagination to **Page 1** and queries the database for the matching subset, keeping queries extremely small.
+
+---
+
+## 📥 Smart CSV Export
+When you click **"Export CSV"**, Feastify runs a database query to find **all** matching records based on your current filters and search text, but bypasses pagination offsets.
+* The matching records are downloaded and converted into a standard `.csv` spreadsheet file directly in your browser.
+* Since the export happens on-demand and does not get stored in your app's global state, it uses zero permanent memory, keeping the dashboard light and responsive.
 
 ---
 
@@ -38,6 +57,7 @@ Instead, it uses a **Debouncer**:
 ---
 
 ## 🛠️ Files involved in this feature:
-* **Backend logic**: [adminController.js](file:///c:/Users/ACER/Desktop/fsd/final%20project/Catering-App/Backend/src/controllers/adminController.js) (Filters the database & returns custom limits).
-* **API Actions**: [adminActions.js](file:///c:/Users/ACER/Desktop/fsd/final%20project/Catering-App/frontend/src/api/admin/adminActions.js) (Transfers the active page and search text in the web requests).
-* **Shared Table UI**: [Table.jsx](file:///c:/Users/ACER/Desktop/fsd/final%20project/Catering-App/frontend/src/common%20ui/Table.jsx) (Displays the records and calculates the offsets).
+* **Backend logic**: [adminController.js](file:///c:/Users/ACER/Desktop/fsd/final%20project/Catering-App/Backend/src/controllers/adminController.js) (Filters the database, supports date-ranges, and exports).
+* **API Actions**: [adminActions.js](file:///c:/Users/ACER/Desktop/fsd/final%20project/Catering-App/frontend/src/api/admin/adminActions.js) (Transfers active filters, page, and search parameters).
+* **CSV Utility**: [csvExport.js](file:///c:/Users/ACER/Desktop/fsd/final%20project/Catering-App/frontend/src/utils/csvExport.js) (Converts lists into escaping-safe CSV formats).
+* **Shared Table UI**: [Table.jsx](file:///c:/Users/ACER/Desktop/fsd/final%20project/Catering-App/frontend/src/common%20ui/Table.jsx) (Displays the records and calculates pagination offsets).

@@ -22,13 +22,22 @@ import {
   X
 } from "lucide-react";
 
+import axios from "axios";
+import appConfig from "../../../api/common/appConfig";
+import toast from "react-hot-toast";
+import { exportToCSV } from "../../../utils/csvExport";
+import { Download } from "lucide-react";
+
 const VendorMenuItems = () => {
-  const [page, setPage] = useState(0);
-  const rowsPerPage = 5;
+  const userDetails = JSON.parse(localStorage.getItem("userDetails"));
+  const vendorId = userDetails?.existingUser?._id;
+
+  const [page, setPage] = useState(1);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [exportLoading, setExportLoading] = useState(false);
   const [mode, setMode] = useState("add");
 
   // Custom modal states
@@ -37,7 +46,9 @@ const VendorMenuItems = () => {
   const [previewImage, setPreviewImage] = useState(null);
 
   const dispatch = useDispatch();
-  const foods = useSelector((state) => state.vendorFood.menus.vendorFood);
+  const foods = useSelector((state) => state.vendorFood.menus.vendorFood) || [];
+  const pagination = useSelector((state) => state.vendorFood.pagination) || {};
+  const foodPagination = pagination || { total: 0, page: 1, limit: 5, pages: 1 };
 
   const handleAddClick = () => {
     setSelectedItem({
@@ -74,22 +85,71 @@ const VendorMenuItems = () => {
     setDeleteConfirmOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (itemToDelete) {
-      dispatch(deleteFoodData(itemToDelete));
+      await dispatch(deleteFoodData(itemToDelete));
       setDeleteConfirmOpen(false);
       setItemToDelete(null);
+      dispatch(getVendorFood(page, 5, searchQuery, selectedCategory));
     }
   };
 
+  // Debounced search & fetch on page or category change
   useEffect(() => {
-    dispatch(getVendorFood());
-  }, [dispatch]);
+    if (vendorId) {
+      const delayDebounceFn = setTimeout(() => {
+        dispatch(getVendorFood(page, 5, searchQuery, selectedCategory));
+      }, 300);
 
-  // Reset page to 0 when search/filter changes
-  useEffect(() => {
-    setPage(0);
-  }, [searchQuery, selectedCategory]);
+      return () => clearTimeout(delayDebounceFn);
+    }
+  }, [dispatch, vendorId, page, searchQuery, selectedCategory]);
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setPage(1); // Reset page to 1
+  };
+
+  const handleCategoryChange = (e) => {
+    setSelectedCategory(e.target.value);
+    setPage(1); // Reset page to 1
+  };
+
+  const handleExport = async () => {
+    if (!vendorId) return;
+    setExportLoading(true);
+    try {
+      const res = await axios.get(
+        `${appConfig.baseURL}/api/food/getVendorFood/${vendorId}?export=true&search=${encodeURIComponent(searchQuery)}&category=${selectedCategory}`,
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${appConfig.token}`
+          }
+        }
+      );
+      if (res.data.success || res.data.vendorFood) {
+        const list = res.data.vendorFood || [];
+        const headers = ["Item ID", "Name", "Category", "Price", "Description"];
+        const rows = list.map(item => [
+          item._id,
+          item.name || "N/A",
+          item.category || "N/A",
+          item.price || 0,
+          item.description || "N/A"
+        ]);
+        exportToCSV("Feastify_Vendor_Menu", headers, rows);
+        toast.success("Menu items exported successfully!");
+      } else {
+        toast.error("Failed to export menu items.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to export data.");
+    } finally {
+      setExportLoading(false);
+    }
+  };
 
   const filteredItems = foods?.filter((item) => {
     const name = item?.name || "";
@@ -165,56 +225,41 @@ const VendorMenuItems = () => {
               type="text" 
               placeholder="Search by name, desc..." 
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearchChange}
               className="w-full bg-base-200 h-11 rounded-2xl pl-11 pr-4 font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 transition-all text-xs"
             />
           </div>
 
           {/* Premium Dropdown instead of Select */}
-          <div className="dropdown dropdown-bottom w-full sm:w-52">
-            <div 
-              tabIndex={0} 
-              role="button" 
-              className="w-full bg-base-200 h-11 rounded-2xl px-4 flex items-center justify-between font-bold text-xs cursor-pointer border border-transparent focus:border-[#FF7D44]/30 transition-all"
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 size-4 opacity-40 text-base-content" />
+            <select
+              value={selectedCategory}
+              onChange={handleCategoryChange}
+              className="select bg-base-200 h-11 rounded-2xl pl-9 pr-8 font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 text-xs cursor-pointer appearance-none min-w-[170px]"
             >
-              <span className="flex items-center gap-2">
-                <Filter className="size-4 opacity-40" />
-                {selectedCategory || "All Categories"}
-              </span>
-              <ChevronDown className="size-4 opacity-40" />
-            </div>
-            <ul 
-              tabIndex={0} 
-              className="dropdown-content menu p-2 bg-base-100 border border-base-content/10 rounded-2xl w-full z-[50] shadow-2xl mt-1 font-bold text-xs"
-            >
-              <li>
-                <a 
-                  onClick={() => {
-                    setSelectedCategory("");
-                    document.activeElement.blur();
-                  }}
-                >
-                  All Categories
-                </a>
-              </li>
+              <option value="">All Categories</option>
               {categories.map((cat) => (
-                <li key={cat}>
-                  <a 
-                    onClick={() => {
-                      setSelectedCategory(cat);
-                      document.activeElement.blur();
-                    }}
-                  >
-                    {cat}
-                  </a>
-                </li>
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
               ))}
-            </ul>
+            </select>
           </div>
         </div>
 
-        <div className="text-[10px] font-black uppercase tracking-widest opacity-40 pr-2">
-          {filteredItems?.length || 0} Total Dishes
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleExport}
+            disabled={exportLoading}
+            className="btn btn-ghost btn-sm h-11 rounded-2xl border border-base-content/10 hover:bg-base-200 text-xs font-black px-4 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+          >
+            <Download className="size-4" />
+            <span>{exportLoading ? "Exporting..." : "Export CSV"}</span>
+          </button>
+          <div className="text-[10px] font-black uppercase tracking-widest opacity-40 pr-2">
+            {foodPagination.total} Total Dishes
+          </div>
         </div>
       </motion.div>
 
@@ -239,8 +284,8 @@ const VendorMenuItems = () => {
               </tr>
             </thead>
             <tbody>
-              {paginatedItems && paginatedItems.length > 0 ? (
-                paginatedItems.map((item, idx) => (
+              {foods && foods.length > 0 ? (
+                foods.map((item, idx) => (
                   <motion.tr 
                     key={item._id} 
                     initial={{ opacity: 0, y: 10 }}
@@ -260,7 +305,7 @@ const VendorMenuItems = () => {
                         {item.imageUrl ? (
                           <img src={item.imageUrl} alt={item.name} className="size-full object-cover" />
                         ) : (
-                          <UtensilsCrossed className="size-5 opacity-30" />
+                          <Pizza className="size-5 opacity-30" />
                         )}
                       </div>
                     </td>
@@ -345,19 +390,19 @@ const VendorMenuItems = () => {
         {/* Custom Pagination Footer */}
         <div className="flex justify-between items-center p-5 border-t border-base-content/10 bg-base-200/50">
           <span className="text-xs font-semibold text-base-content/50">
-            Showing {filteredItems?.length ? page * rowsPerPage + 1 : 0} to {Math.min((page + 1) * rowsPerPage, filteredItems?.length || 0)} of {filteredItems?.length || 0} items
+            Showing {foods?.length ? (foodPagination.page - 1) * 5 + 1 : 0} to {Math.min(foodPagination.page * 5, foodPagination.total)} of {foodPagination.total} items
           </span>
           <div className="flex gap-2">
             <button
-              onClick={() => setPage(p => Math.max(0, p - 1))}
-              disabled={page === 0}
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
               className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
             >
               Previous
             </button>
             <button
-              onClick={() => setPage(p => ((p + 1) * rowsPerPage < (filteredItems?.length || 0) ? p + 1 : p))}
-              disabled={(page + 1) * rowsPerPage >= (filteredItems?.length || 0)}
+              onClick={() => setPage(p => Math.min(foodPagination.pages, p + 1))}
+              disabled={page >= foodPagination.pages}
               className="btn btn-ghost btn-sm rounded-lg font-black text-xs cursor-pointer disabled:opacity-35"
             >
               Next

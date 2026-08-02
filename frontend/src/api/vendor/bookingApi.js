@@ -1,30 +1,27 @@
 import toast from "react-hot-toast";
 import commonFunction from "../common/commonApi";
 
-export const getVendorBookings = (id) => async (dispatch) => {
+export const getVendorBookings = (id, page = 1, limit = 5, search = "", status = "", paymentStatus = "", startDate = "", endDate = "") => async (dispatch) => {
   const res = await commonFunction(
     {
-      api: `/api/booking/vendor/${id}`,
+      api: `/api/booking/vendor/${id}?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}&status=${status}&paymentStatus=${paymentStatus}&startDate=${startDate}&endDate=${endDate}`,
       method: "GET",
       body: null,
       successAction: "booking/fetchBookingSuccess",
       failureAction: "booking/fetchBookingFail",
-      showSuccess: true,
-      successMessage: "Bookings fetched successfully!",
     },
     dispatch
   );
 
-  if (res.message === "Booking data fetched") {
+  if (res && res.message === "Booking data fetched") {
     return;
-  } else {
+  } else if (res) {
     toast.error(res.message);
   }
 };
 
-export const statusChange = ({ status, id }) => {
+export const statusChange = ({ status, id }, page = 1, limit = 5, search = "", statusFilter = "", paymentFilter = "", startDate = "", endDate = "") => {
   const _id = JSON.parse(localStorage.getItem("userDetails")).existingUser._id;
-  console.log("sdfghjk");
   return async (dispatch) => {
     const res = await commonFunction(
       {
@@ -38,11 +35,9 @@ export const statusChange = ({ status, id }) => {
       },
       dispatch
     );
-    console.log(res);
-    if (res.message === "Status updated successfully") {
-      dispatch(getVendorBookings(_id));
-      toast.success(res.message);
-    } else {
+    if (res && res.message === "Status updated successfully") {
+      dispatch(getVendorBookings(_id, page, limit, search, statusFilter, paymentFilter, startDate, endDate));
+    } else if (res) {
       toast.error(res.message);
     }
   };
@@ -85,7 +80,7 @@ export const statusChange = ({ status, id }) => {
 //   }
 // };
 
-export const markBookingFullyPaidAction = (id) => async (dispatch) => {
+export const markBookingFullyPaidAction = (id, page = 1, limit = 5, search = "", statusFilter = "", paymentFilter = "", startDate = "", endDate = "") => async (dispatch) => {
   const _id = JSON.parse(localStorage.getItem("userDetails")).existingUser._id;
   const res = await commonFunction(
     {
@@ -96,9 +91,9 @@ export const markBookingFullyPaidAction = (id) => async (dispatch) => {
     },
     dispatch
   );
-  if (res.success) {
-    dispatch(getVendorBookings(_id));
-  } else {
+  if (res && res.success) {
+    dispatch(getVendorBookings(_id, page, limit, search, statusFilter, paymentFilter, startDate, endDate));
+  } else if (res) {
     toast.error(res.message || "Failed to mark as fully paid");
   }
 };

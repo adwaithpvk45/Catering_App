@@ -41,11 +41,70 @@ export const createBooking = async (req, res) => {
   }
 };
 
-// 2. Get bookings for a vendor
+// 2. Get bookings for a vendor (paginated & filtered)
 export const getBookingsByVendor = async (req, res) => {
   try {
-    const bookings = await Booking.find({ vendor: req.params.vendorId }).populate("user","name email profilePic");
-    res.json({ success: true, data: bookings,message:"Booking data fetched" });
+    const { vendorId } = req.params;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const search = req.query.search || "";
+    const status = req.query.status || "";
+    const paymentStatus = req.query.paymentStatus || "";
+    const startDate = req.query.startDate || "";
+    const endDate = req.query.endDate || "";
+    const skip = (page - 1) * limit;
+
+    const query = { vendor: vendorId };
+    if (status) {
+        query.status = status;
+    }
+    if (paymentStatus) {
+        query.paymentStatus = paymentStatus;
+    }
+    if (startDate || endDate) {
+        query.eventDate = {};
+        if (startDate) {
+            query.eventDate.$gte = new Date(startDate);
+        }
+        if (endDate) {
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+            query.eventDate.$lte = end;
+        }
+    }
+
+    if (search) {
+        const matchingUsers = await User.find({ name: { $regex: search, $options: 'i' } }).select('_id');
+        const userIds = matchingUsers.map(u => u._id);
+
+        query.$or = [
+            { user: { $in: userIds } },
+            { venueLocation: { $regex: search, $options: 'i' } },
+            { category: { $regex: search, $options: 'i' } },
+            { location: { $regex: search, $options: 'i' } }
+        ];
+    }
+
+    const total = await Booking.countDocuments(query);
+    let bookingsQuery = Booking.find(query).populate("user","name email profilePic").sort({ createdAt: -1 });
+
+    if (req.query.export !== 'true') {
+        bookingsQuery = bookingsQuery.skip(skip).limit(limit);
+    }
+
+    const bookings = await bookingsQuery;
+
+    res.json({ 
+      success: true, 
+      data: bookings,
+      message: "Booking data fetched",
+      pagination: {
+          total,
+          page,
+          limit: req.query.export === 'true' ? total : limit,
+          pages: Math.ceil(total / limit)
+      }
+    });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }

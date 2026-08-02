@@ -6,7 +6,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { getUsers, toggleAccountStatusAction } from "../../../api/admin/adminActions";
 import dayjs from "dayjs";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Users, AlertCircle } from "lucide-react";
+import { Search, Users, AlertCircle, Download, Filter } from "lucide-react";
+import axios from "axios";
+import appConfig from "../../../api/common/appConfig";
+import toast from "react-hot-toast";
+import { exportToCSV } from "../../../utils/csvExport";
 
 const UsersList = () => {
   const dispatch = useDispatch();
@@ -14,6 +18,8 @@ const UsersList = () => {
   const userPagination = pagination?.users || { total: 0, page: 1, limit: 5, pages: 1 };
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [exportLoading, setExportLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -30,18 +36,58 @@ const UsersList = () => {
     setDrawerOpen(true);
   };
 
-  // Debounced search & fetch on page change
+  // Debounced search & fetch on page or filter change
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      dispatch(getUsers(page, 5, searchQuery));
+      dispatch(getUsers(page, 5, searchQuery, statusFilter));
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [dispatch, page, searchQuery]);
+  }, [dispatch, page, searchQuery, statusFilter]);
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
     setPage(1); // Reset page to 1 when search query changes
+  };
+
+  const handleStatusChange = (e) => {
+    setStatusFilter(e.target.value);
+    setPage(1); // Reset page to 1 when status filter changes
+  };
+
+  const handleExport = async () => {
+    setExportLoading(true);
+    try {
+      const res = await axios.get(
+        `${appConfig.baseURL}/api/admin/users?export=true&search=${encodeURIComponent(searchQuery)}&status=${statusFilter}`,
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${appConfig.token}`
+          }
+        }
+      );
+      if (res.data.success) {
+        const headers = ["User ID", "Name", "Email", "Status", "Role", "Created At"];
+        const rows = res.data.users.map(u => [
+          u._id,
+          u.name || "Unknown User",
+          u.email,
+          u.status || "active",
+          u.role || "user",
+          u.createdAt ? dayjs(u.createdAt).format("YYYY-MM-DD HH:mm") : "N/A"
+        ]);
+        exportToCSV("Feastify_Users", headers, rows);
+        toast.success("Users list exported successfully!");
+      } else {
+        toast.error("Failed to export users.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to export data.");
+    } finally {
+      setExportLoading(false);
+    }
   };
 
   const handleBlockUnblock = (id, action) => {
@@ -60,7 +106,7 @@ const UsersList = () => {
   const confirmBlockUnblock = () => {
     if (targetUser) {
       const nextStatus = targetUser.action === "block" ? "blocked" : "active";
-      dispatch(toggleAccountStatusAction(targetUser.id, nextStatus, "user", page, 5, searchQuery));
+      dispatch(toggleAccountStatusAction(targetUser.id, nextStatus, "user", page, 5, searchQuery, statusFilter));
       setBlockConfirmOpen(false);
       setTargetUser(null);
     }
@@ -114,10 +160,34 @@ const UsersList = () => {
               className="w-full bg-base-200 h-11 rounded-2xl pl-11 pr-4 font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 transition-all text-xs"
             />
           </div>
+
+          {/* Status Dropdown */}
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 size-4 opacity-40 text-base-content" />
+            <select
+              value={statusFilter}
+              onChange={handleStatusChange}
+              className="select bg-base-200 h-11 rounded-2xl pl-9 pr-8 font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 text-xs cursor-pointer appearance-none min-w-[130px]"
+            >
+              <option value="">All Statuses</option>
+              <option value="active">Active</option>
+              <option value="blocked">Blocked</option>
+            </select>
+          </div>
         </div>
 
-        <div className="text-[10px] font-black uppercase tracking-widest opacity-40 pr-2">
-          {userPagination.total} Active Clients
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleExport}
+            disabled={exportLoading}
+            className="btn btn-ghost btn-sm h-11 rounded-2xl border border-base-content/10 hover:bg-base-200 text-xs font-black px-4 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+          >
+            <Download className="size-4" />
+            <span>{exportLoading ? "Exporting..." : "Export CSV"}</span>
+          </button>
+          <div className="text-[10px] font-black uppercase tracking-widest opacity-40 pr-2">
+            {userPagination.total} Total Clients
+          </div>
         </div>
       </motion.div>
 

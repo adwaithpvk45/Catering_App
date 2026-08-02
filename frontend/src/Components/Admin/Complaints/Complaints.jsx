@@ -14,10 +14,13 @@ import {
   Mail,
   Activity,
   Sparkles,
+  Download,
+  Filter,
 } from 'lucide-react';
 import axios from 'axios';
 import appConfig from '../../../api/common/appConfig';
 import toast from 'react-hot-toast';
+import { exportToCSV } from '../../../utils/csvExport';
 
 const AdminComplaintsSection = () => {
   const dispatch = useDispatch();
@@ -26,32 +29,75 @@ const AdminComplaintsSection = () => {
 
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [exportLoading, setExportLoading] = useState(false);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [loading, setLoading] = useState(true);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiResult, setAiResult] = useState(null);
   const [editedReply, setEditedReply] = useState("");
 
-  // Debounced search & fetch on page change
+  // Debounced search & fetch on page or filter change
   useEffect(() => {
     setLoading(true);
     const delayDebounceFn = setTimeout(() => {
-      dispatch(getComplaints(page, 5, searchQuery)).finally(() => setLoading(false));
+      dispatch(getComplaints(page, 5, searchQuery, statusFilter)).finally(() => setLoading(false));
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [dispatch, page, searchQuery]);
+  }, [dispatch, page, searchQuery, statusFilter]);
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
     setPage(1); // Reset page to 1 when search query changes
   };
 
+  const handleStatusChange = (e) => {
+    setStatusFilter(e.target.value);
+    setPage(1); // Reset page to 1 when status filter changes
+  };
+
+  const handleExport = async () => {
+    setExportLoading(true);
+    try {
+      const res = await axios.get(
+        `${appConfig.baseURL}/api/admin/complaints?export=true&search=${encodeURIComponent(searchQuery)}&status=${statusFilter}`,
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${appConfig.token}`
+          }
+        }
+      );
+      if (res.data.success) {
+        const headers = ["Complaint ID", "Customer Name", "Customer Email", "Subject", "Message", "Status", "Created At"];
+        const rows = res.data.complaints.map(c => [
+          c._id,
+          c.name || "N/A",
+          c.email || "N/A",
+          c.subject || "N/A",
+          c.message || "N/A",
+          c.status || "Pending",
+          c.createdAt ? dayjs(c.createdAt).format("YYYY-MM-DD HH:mm") : "N/A"
+        ]);
+        exportToCSV("Feastify_Complaints", headers, rows);
+        toast.success("Complaints list exported successfully!");
+      } else {
+        toast.error("Failed to export complaints.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to export data.");
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
   const toggleStatus = async (id, currentStatus) => {
     const newStatus = currentStatus === 'Pending' ? 'Resolved' : 'Pending';
     await dispatch(updateStatus(id, newStatus));
     // Re-fetch to sync status correctly
-    dispatch(getComplaints(page, 5, searchQuery));
+    dispatch(getComplaints(page, 5, searchQuery, statusFilter));
   };
 
   const handleView = (complaint) => {
@@ -94,7 +140,7 @@ const AdminComplaintsSection = () => {
     try {
       await dispatch(updateStatus(selectedComplaint._id, "Resolved", editedReply));
       // Re-fetch to sync page state correctly
-      dispatch(getComplaints(page, 5, searchQuery));
+      dispatch(getComplaints(page, 5, searchQuery, statusFilter));
       handleClose();
     } catch (err) {
       console.error(err);
@@ -141,10 +187,34 @@ const AdminComplaintsSection = () => {
               className="w-full bg-base-200 h-11 rounded-2xl pl-11 pr-4 font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 transition-all text-xs"
             />
           </div>
+
+          {/* Ticket Status Dropdown */}
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 size-4 opacity-40 text-base-content" />
+            <select
+              value={statusFilter}
+              onChange={handleStatusChange}
+              className="select bg-base-200 h-11 rounded-2xl pl-9 pr-8 font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 text-xs cursor-pointer appearance-none min-w-[130px]"
+            >
+              <option value="">All Statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="Resolved">Resolved</option>
+            </select>
+          </div>
         </div>
 
-        <div className="text-[10px] font-black uppercase tracking-widest opacity-40 pr-2">
-          {complaintsPagination.total} Tickets Found
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleExport}
+            disabled={exportLoading}
+            className="btn btn-ghost btn-sm h-11 rounded-2xl border border-base-content/10 hover:bg-base-200 text-xs font-black px-4 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+          >
+            <Download className="size-4" />
+            <span>{exportLoading ? "Exporting..." : "Export CSV"}</span>
+          </button>
+          <div className="text-[10px] font-black uppercase tracking-widest opacity-40 pr-2">
+            {complaintsPagination.total} Tickets Found
+          </div>
         </div>
       </motion.div>
 

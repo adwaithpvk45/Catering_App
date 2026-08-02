@@ -12,8 +12,14 @@ import {
   AlertCircle,
   Eye,
   Briefcase,
+  Download,
+  Filter,
 } from "lucide-react";
 import { getVendorBrandName } from "../../../store/data";
+import axios from "axios";
+import appConfig from "../../../api/common/appConfig";
+import toast from "react-hot-toast";
+import { exportToCSV } from "../../../utils/csvExport";
 
 const AdminBookings = () => {
   const dispatch = useDispatch();
@@ -24,19 +30,102 @@ const AdminBookings = () => {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [paymentFilter, setPaymentFilter] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [exportLoading, setExportLoading] = useState(false);
 
-  // Debounced search & fetch on page change
+  // Debounced search & fetch on page or filter changes
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      dispatch(getBookings(page, 5, searchQuery));
+      dispatch(getBookings(page, 5, searchQuery, statusFilter, paymentFilter, startDate, endDate));
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [dispatch, page, searchQuery]);
+  }, [dispatch, page, searchQuery, statusFilter, paymentFilter, startDate, endDate]);
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
     setPage(1); // Reset page to 1 when search query changes
+  };
+
+  const handleStatusChange = (e) => {
+    setStatusFilter(e.target.value);
+    setPage(1); // Reset page to 1
+  };
+
+  const handlePaymentChange = (e) => {
+    setPaymentFilter(e.target.value);
+    setPage(1); // Reset page to 1
+  };
+
+  const handleStartDateChange = (e) => {
+    setStartDate(e.target.value);
+    setPage(1); // Reset page to 1
+  };
+
+  const handleEndDateChange = (e) => {
+    setEndDate(e.target.value);
+    setPage(1); // Reset page to 1
+  };
+
+  const handleExport = async () => {
+    setExportLoading(true);
+    try {
+      const res = await axios.get(
+        `${appConfig.baseURL}/api/admin/bookings?export=true&search=${encodeURIComponent(searchQuery)}&status=${statusFilter}&paymentStatus=${paymentFilter}&startDate=${startDate}&endDate=${endDate}`,
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${appConfig.token}`
+          }
+        }
+      );
+      if (res.data.success) {
+        const headers = [
+          "Booking ID", 
+          "Customer Name", 
+          "Customer Email", 
+          "Vendor Name", 
+          "Event Type", 
+          "Event Date", 
+          "Venue Location", 
+          "Status", 
+          "Payment Status", 
+          "Guest Count", 
+          "Total Price", 
+          "Created At"
+        ];
+        const rows = res.data.bookings.map(b => {
+          const v = b.vendor && b.vendor.length > 0 ? b.vendor[0] : null;
+          const brand = v ? getVendorBrandName(v._id) : "N/A";
+          return [
+            b._id,
+            b.user?.name || "Unknown User",
+            b.user?.email || "No Email",
+            brand,
+            b.category || "N/A",
+            b.eventDate ? dayjs(b.eventDate).format("YYYY-MM-DD") : "N/A",
+            b.venueLocation || "N/A",
+            b.status || "Pending",
+            b.paymentStatus || "Unpaid",
+            b.guestCount || 0,
+            b.totalPrice || 0,
+            b.createdAt ? dayjs(b.createdAt).format("YYYY-MM-DD HH:mm") : "N/A"
+          ];
+        });
+        exportToCSV("Feastify_Bookings", headers, rows);
+        toast.success("Bookings list exported successfully!");
+      } else {
+        toast.error("Failed to export bookings.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to export data.");
+    } finally {
+      setExportLoading(false);
+    }
   };
 
   const handleView = (booking) => {
@@ -93,9 +182,9 @@ const AdminBookings = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.05 }}
-        className="flex flex-wrap items-center justify-between gap-4 p-5 bg-base-100 rounded-3xl border border-base-content/10 shadow-lg"
+        className="flex flex-col gap-4 p-5 bg-base-100 rounded-3xl border border-base-content/10 shadow-lg"
       >
-        <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
+        <div className="flex flex-wrap items-center gap-4 w-full">
           {/* Search Box */}
           <div className="relative w-full sm:w-64">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4.5 opacity-40" />
@@ -107,10 +196,73 @@ const AdminBookings = () => {
               className="w-full bg-base-200 h-11 rounded-2xl pl-11 pr-4 font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 transition-all text-xs"
             />
           </div>
+
+          {/* Booking Status Dropdown */}
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 size-4 opacity-40 text-base-content" />
+            <select
+              value={statusFilter}
+              onChange={handleStatusChange}
+              className="select bg-base-200 h-11 rounded-2xl pl-9 pr-8 font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 text-xs cursor-pointer appearance-none min-w-[130px]"
+            >
+              <option value="">All Statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="Accepted">Accepted</option>
+              <option value="Confirmed">Confirmed</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </div>
+
+          {/* Payment Status Dropdown */}
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 size-4 opacity-40 text-base-content" />
+            <select
+              value={paymentFilter}
+              onChange={handlePaymentChange}
+              className="select bg-base-200 h-11 rounded-2xl pl-9 pr-8 font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 text-xs cursor-pointer appearance-none min-w-[150px]"
+            >
+              <option value="">All Payments</option>
+              <option value="Unpaid">Unpaid</option>
+              <option value="Advance Paid">Advance Paid</option>
+              <option value="Fully Paid">Fully Paid</option>
+            </select>
+          </div>
+
+          {/* Start Date */}
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-black uppercase opacity-50">From</span>
+            <input
+              type="date"
+              value={startDate}
+              onChange={handleStartDateChange}
+              className="input bg-base-200 h-11 rounded-2xl font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 text-xs px-3 cursor-pointer"
+            />
+          </div>
+
+          {/* End Date */}
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-black uppercase opacity-50">To</span>
+            <input
+              type="date"
+              value={endDate}
+              onChange={handleEndDateChange}
+              className="input bg-base-200 h-11 rounded-2xl font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 text-xs px-3 cursor-pointer"
+            />
+          </div>
         </div>
 
-        <div className="text-[10px] font-black uppercase tracking-widest opacity-40 pr-2">
-          {bookingPagination.total} Total Bookings
+        <div className="flex justify-between items-center w-full border-t border-base-content/5 pt-3">
+          <div className="text-[10px] font-black uppercase tracking-widest opacity-40">
+            Filters active • Query matches: {bookingPagination.total} bookings
+          </div>
+          <button
+            onClick={handleExport}
+            disabled={exportLoading}
+            className="btn btn-ghost btn-sm h-11 rounded-2xl border border-base-content/10 hover:bg-base-200 text-xs font-black px-4 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+          >
+            <Download className="size-4" />
+            <span>{exportLoading ? "Exporting..." : "Export CSV"}</span>
+          </button>
         </div>
       </motion.div>
 

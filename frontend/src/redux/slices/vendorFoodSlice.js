@@ -4,6 +4,7 @@ const vendorFoodSlice = createSlice({
   name: "vendorFood",
   initialState: {
     menus: [],
+    pagination: {},
     food:[],
     error: null,
   },
@@ -17,6 +18,7 @@ const vendorFoodSlice = createSlice({
     },
     fetchMenusSuccess: (state, action) => {
       state.menus = action.payload;
+      state.pagination = action.payload.pagination;
     },
     fetchMenusFail: (state, action) => {
       state.error = action.payload;

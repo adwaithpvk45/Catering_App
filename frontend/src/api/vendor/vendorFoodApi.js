@@ -50,17 +50,15 @@ export const editFoodData = ({ formData, id }) => {
   };
 };
 
-export const getVendorFood = () => async (dispatch) => {
+export const getVendorFood = (page = 1, limit = 5, search = "", category = "") => async (dispatch) => {
   const id = JSON.parse(localStorage.getItem("userDetails")).existingUser._id;
   return await commonFunction(
     {
-      api: `/api/food/getVendorFood/${id}`,
+      api: `/api/food/getVendorFood/${id}?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}&category=${category}`,
       method: "GET",
       body: null,
       successAction: "vendorFood/fetchMenusSuccess",
       failureAction: "vendorFood/fetchMenusFail",
-      showSuccess: true,
-      successMessage: "Food Items fetched successfully!",
     },
     dispatch
   );

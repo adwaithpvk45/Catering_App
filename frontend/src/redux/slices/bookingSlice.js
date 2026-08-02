@@ -4,12 +4,14 @@ const bookingSlice = createSlice({
   name: "booking",
   initialState: {
     booking: [],
+    pagination: {},
     error: null,
     status:[]
   },
   reducers: {
     fetchBookingSuccess: (state, action) => {
       state.booking = action.payload.data;
+      state.pagination = action.payload.pagination;
     },
     fetchBookingFail: (state, action) => {
       state.error = action.payload;

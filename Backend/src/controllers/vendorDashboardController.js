@@ -81,13 +81,43 @@ export const getVendorStats = async (req, res) => {
     }
 };
 
-// Get all services for a specific vendor
+// Get all services for a specific vendor (paginated & searchable)
 export const getVendorServices = async (req, res) => {
     try {
         const vendorId = req.user._id;
-        const services = await Service.find({ vendor: vendorId }).sort({ createdAt: -1 });
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 5;
+        const search = req.query.search || "";
+        const category = req.query.category || "";
+        const skip = (page - 1) * limit;
 
-        res.status(200).json({ success: true, services });
+        const query = { vendor: vendorId };
+        if (search) {
+            query.name = { $regex: search, $options: 'i' };
+        }
+        if (category) {
+            query.category = category;
+        }
+
+        const total = await Service.countDocuments(query);
+        let servicesQuery = Service.find(query).sort({ createdAt: -1 });
+
+        if (req.query.export !== 'true') {
+            servicesQuery = servicesQuery.skip(skip).limit(limit);
+        }
+
+        const services = await servicesQuery;
+
+        res.status(200).json({ 
+            success: true, 
+            services,
+            pagination: {
+                total,
+                page,
+                limit: req.query.export === 'true' ? total : limit,
+                pages: Math.ceil(total / limit)
+            }
+        });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

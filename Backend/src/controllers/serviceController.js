@@ -68,10 +68,41 @@ export const getAllService = async (req, res) => {
 export const getVendorService = async (req, res) => {
   try {
     const { id } = req.params;
-    const vendorService = await Service.find({ vendorId: id });
-    res.status(200).json({ message: "Fetched all data", vendorService });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const search = req.query.search || "";
+    const category = req.query.category || "";
+    const skip = (page - 1) * limit;
+
+    const query = { vendor: id };
+    if (search) {
+      query.name = { $regex: search, $options: 'i' };
+    }
+    if (category) {
+      query.category = category;
+    }
+
+    const total = await Service.countDocuments(query);
+    let servicesQuery = Service.find(query).sort({ createdAt: -1 });
+
+    if (req.query.export !== 'true') {
+      servicesQuery = servicesQuery.skip(skip).limit(limit);
+    }
+
+    const vendorService = await servicesQuery;
+
+    res.status(200).json({ 
+      message: "Fetched all data", 
+      vendorService,
+      pagination: {
+          total,
+          page,
+          limit: req.query.export === 'true' ? total : limit,
+          pages: Math.ceil(total / limit)
+      }
+    });
   } catch (error) {
-    res.status(400).json({ message: "Error in getting vendorFood", error });
+    res.status(400).json({ message: "Error in getting vendor Services", error });
   }
 };
 

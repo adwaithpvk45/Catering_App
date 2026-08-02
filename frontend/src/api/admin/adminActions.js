@@ -1,8 +1,8 @@
 import commonFunction from "../common/commonApi";
 
-export const getComplaints = (page = 1, limit = 5, search = "") => async (dispatch) => {
+export const getComplaints = (page = 1, limit = 5, search = "", status = "") => async (dispatch) => {
     return await commonFunction({
-        api: `/api/admin/complaints?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`,
+        api: `/api/admin/complaints?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}&status=${status}`,
         method: "GET",
         successAction: "admin/fetchComplaintsSuccess",
         failureAction: "admin/fetchComplaintsFail",
@@ -28,34 +28,34 @@ export const getStats = () => async (dispatch) => {
     }, dispatch);
 };
 
-export const getUsers = (page = 1, limit = 5, search = "") => async (dispatch) => {
+export const getUsers = (page = 1, limit = 5, search = "", status = "") => async (dispatch) => {
     return await commonFunction({
-        api: `/api/admin/users?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`,
+        api: `/api/admin/users?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}&status=${status}`,
         method: "GET",
         successAction: "admin/fetchUsersSuccess",
         failureAction: "admin/fetchUsersFail",
     }, dispatch);
 };
 
-export const getVendors = (page = 1, limit = 5, search = "") => async (dispatch) => {
+export const getVendors = (page = 1, limit = 5, search = "", status = "") => async (dispatch) => {
     return await commonFunction({
-        api: `/api/admin/vendors?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`,
+        api: `/api/admin/vendors?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}&status=${status}`,
         method: "GET",
         successAction: "admin/fetchVendorsSuccess",
         failureAction: "admin/fetchVendorsFail",
     }, dispatch);
 };
 
-export const getBookings = (page = 1, limit = 5, search = "") => async (dispatch) => {
+export const getBookings = (page = 1, limit = 5, search = "", status = "", paymentStatus = "", startDate = "", endDate = "") => async (dispatch) => {
     return await commonFunction({
-        api: `/api/admin/bookings?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`,
+        api: `/api/admin/bookings?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}&status=${status}&paymentStatus=${paymentStatus}&startDate=${startDate}&endDate=${endDate}`,
         method: "GET",
         successAction: "admin/fetchBookingsSuccess",
         failureAction: "admin/fetchBookingsFail",
     }, dispatch);
 };
 
-export const toggleAccountStatusAction = (id, status, role, page = 1, limit = 5, search = "") => async (dispatch) => {
+export const toggleAccountStatusAction = (id, status, role, page = 1, limit = 5, search = "", statusFilter = "") => async (dispatch) => {
     const res = await commonFunction({
         api: `/api/admin/status/${id}`,
         method: "PATCH",
@@ -66,9 +66,9 @@ export const toggleAccountStatusAction = (id, status, role, page = 1, limit = 5,
 
     if (res && res.success) {
         if (role === "vendor") {
-            dispatch(getVendors(page, limit, search));
+            dispatch(getVendors(page, limit, search, statusFilter));
         } else {
-            dispatch(getUsers(page, limit, search));
+            dispatch(getUsers(page, limit, search, statusFilter));
         }
     }
 };

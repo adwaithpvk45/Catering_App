@@ -49,17 +49,15 @@ export const editServiceData = ({ formData, id }) => {
   };
 };
 
-export const getVendorService = () => async (dispatch) => {
+export const getVendorService = (page = 1, limit = 5, search = "", category = "") => async (dispatch) => {
   const id = JSON.parse(localStorage.getItem("userDetails")).existingUser._id;
   return await commonFunction(
     {
-      api: `/api/service/getVendorService/${id}`,
+      api: `/api/service/getVendorService/${id}?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}&category=${category}`,
       method: "GET",
       body: null,
       successAction: "vendorService/fetchServiceSuccess",
       failureAction: "vendorService/fetchServiceFail",
-      showSuccess: true,
-      successMessage: "Services fetched successfully!",
     },
     dispatch
   );

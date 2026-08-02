@@ -73,6 +73,7 @@ export const getAllUsers = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 5;
         const search = req.query.search || "";
+        const status = req.query.status || "";
         const skip = (page - 1) * limit;
 
         const query = { role: 'user' };
@@ -82,12 +83,18 @@ export const getAllUsers = async (req, res) => {
                 { email: { $regex: search, $options: 'i' } }
             ];
         }
+        if (status) {
+            query.status = status;
+        }
 
         const total = await User.countDocuments(query);
-        const users = await User.find(query)
-            .select("-password")
-            .skip(skip)
-            .limit(limit);
+        let usersQuery = User.find(query).select("-password").sort({ createdAt: -1 });
+
+        if (req.query.export !== 'true') {
+            usersQuery = usersQuery.skip(skip).limit(limit);
+        }
+
+        const users = await usersQuery;
 
         res.status(200).json({ 
             success: true, 
@@ -95,7 +102,7 @@ export const getAllUsers = async (req, res) => {
             pagination: {
                 total,
                 page,
-                limit,
+                limit: req.query.export === 'true' ? total : limit,
                 pages: Math.ceil(total / limit)
             }
         });
@@ -110,6 +117,7 @@ export const getAllVendors = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 5;
         const search = req.query.search || "";
+        const status = req.query.status || "";
         const skip = (page - 1) * limit;
 
         const query = {};
@@ -119,12 +127,18 @@ export const getAllVendors = async (req, res) => {
                 { email: { $regex: search, $options: 'i' } }
             ];
         }
+        if (status) {
+            query.status = status;
+        }
 
         const total = await Vendor.countDocuments(query);
-        const vendors = await Vendor.find(query)
-            .select("-password")
-            .skip(skip)
-            .limit(limit);
+        let vendorsQuery = Vendor.find(query).select("-password").sort({ createdAt: -1 });
+
+        if (req.query.export !== 'true') {
+            vendorsQuery = vendorsQuery.skip(skip).limit(limit);
+        }
+
+        const vendors = await vendorsQuery;
 
         res.status(200).json({ 
             success: true, 
@@ -132,7 +146,7 @@ export const getAllVendors = async (req, res) => {
             pagination: {
                 total,
                 page,
-                limit,
+                limit: req.query.export === 'true' ? total : limit,
                 pages: Math.ceil(total / limit)
             }
         });
@@ -147,11 +161,32 @@ export const getAllBookings = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 5;
         const search = req.query.search || "";
+        const status = req.query.status || "";
+        const paymentStatus = req.query.paymentStatus || "";
+        const startDate = req.query.startDate || "";
+        const endDate = req.query.endDate || "";
         const skip = (page - 1) * limit;
 
         const query = {};
+        if (status) {
+            query.status = status;
+        }
+        if (paymentStatus) {
+            query.paymentStatus = paymentStatus;
+        }
+        if (startDate || endDate) {
+            query.eventDate = {};
+            if (startDate) {
+                query.eventDate.$gte = new Date(startDate);
+            }
+            if (endDate) {
+                const end = new Date(endDate);
+                end.setHours(23, 59, 59, 999);
+                query.eventDate.$lte = end;
+            }
+        }
+
         if (search) {
-            // Match populated user/vendor names if matching search
             const matchingUsers = await User.find({ name: { $regex: search, $options: 'i' } }).select('_id');
             const userIds = matchingUsers.map(u => u._id);
 
@@ -168,11 +203,16 @@ export const getAllBookings = async (req, res) => {
         }
 
         const total = await Booking.countDocuments(query);
-        const bookings = await Booking.find(query)
+        let bookingsQuery = Booking.find(query)
             .populate('user', 'name email')
             .populate('vendor', 'name email')
-            .skip(skip)
-            .limit(limit);
+            .sort({ createdAt: -1 });
+
+        if (req.query.export !== 'true') {
+            bookingsQuery = bookingsQuery.skip(skip).limit(limit);
+        }
+
+        const bookings = await bookingsQuery;
 
         res.status(200).json({
             success: true,
@@ -180,7 +220,7 @@ export const getAllBookings = async (req, res) => {
             pagination: {
                 total,
                 page,
-                limit,
+                limit: req.query.export === 'true' ? total : limit,
                 pages: Math.ceil(total / limit)
             }
         });
@@ -195,6 +235,7 @@ export const getAllComplaints = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 5;
         const search = req.query.search || "";
+        const status = req.query.status || "";
         const skip = (page - 1) * limit;
 
         const query = {};
@@ -205,12 +246,18 @@ export const getAllComplaints = async (req, res) => {
                 { email: { $regex: search, $options: 'i' } }
             ];
         }
+        if (status) {
+            query.status = status;
+        }
 
         const total = await Complaint.countDocuments(query);
-        const complaints = await Complaint.find(query)
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit);
+        let complaintsQuery = Complaint.find(query).sort({ createdAt: -1 });
+
+        if (req.query.export !== 'true') {
+            complaintsQuery = complaintsQuery.skip(skip).limit(limit);
+        }
+
+        const complaints = await complaintsQuery;
 
         res.status(200).json({
             success: true,
@@ -218,7 +265,7 @@ export const getAllComplaints = async (req, res) => {
             pagination: {
                 total,
                 page,
-                limit,
+                limit: req.query.export === 'true' ? total : limit,
                 pages: Math.ceil(total / limit)
             }
         });
