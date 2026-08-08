@@ -33,6 +33,8 @@ import ForgotPasswordPage from './Pages/ForgotPasswordPage'
 import ResetPasswordPage from './Pages/ResetPasswordPage'
 import ScrollToTop from './Components/ScrollToTop'
 import ServiceDetailPage from './Pages/ServiceDetailPage'
+import CustomerChatbot from './Components/Common/CustomerChatbot'
+
 function DashboardRedirect() {
   const user = JSON.parse(localStorage.getItem("userDetails"))?.existingUser;
   const role = user?.role;
@@ -54,12 +56,16 @@ function App() {
 
   const locationPath = location.pathname === "/login" || location.pathname==="/signup" || location.pathname==="/forgot-password" || location.pathname.startsWith("/reset-password") || location.pathname.startsWith("/admin")|| location.pathname.startsWith("/vendor") || location.pathname.startsWith("/user"); 
 
+  const user = JSON.parse(localStorage.getItem("userDetails"))?.existingUser;
+  const showChatbot = !user || user.role === "user";
+
   return (
     <>
     <ScrollToTop />
     <div data-theme={theme} className="min-h-screen flex flex-col bg-base-100 text-base-content transition-colors duration-300">
       <Toaster/>
       {!locationPath && <Navbar/>}
+      {showChatbot && <CustomerChatbot />}
       <div className={`${!locationPath ? "pt-16" : ""} flex-grow`}>
         <Routes>
           {/* Public pages */}

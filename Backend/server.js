@@ -11,6 +11,7 @@ import vendorRoutes from "./src/routes/vendorRoutes.js";
 import serviceRoutes from "./src/routes/serviceRoutes.js";
 import adminRoutes from "./src/routes/adminRoutes.js";
 import complaintRoutes from "./src/routes/complaintRoutes.js";
+import aiRoutes from "./src/routes/aiRoutes.js";
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ app.use("/api/service", serviceRoutes);
 app.use("/api/booking", bookingRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/complaints", complaintRoutes);
+app.use("/api/ai", aiRoutes);
 
 app.listen(PORT, () => {
   connectDb();
