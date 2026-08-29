@@ -86,9 +86,22 @@ const CustomerChatbot = () => {
     return lines.map((line, idx) => {
       let processedLine = line;
       
-      const isListItem = processedLine.trim().startsWith("* ") || processedLine.trim().startsWith("- ");
-      if (isListItem) {
-        processedLine = processedLine.replace(/^[\s]*[\*\-]\s/, "");
+      // 1. Detect Headers (e.g. ### 1. Caterer)
+      const isHeader = processedLine.trim().startsWith("###") || processedLine.trim().startsWith("##");
+      if (isHeader) {
+        processedLine = processedLine.trim().replace(/^#+\s*/, "");
+      }
+      
+      // 2. Detect Indented Sub-bullets
+      const isSubBullet = (processedLine.startsWith(" ") || processedLine.startsWith("\t")) && 
+                          (processedLine.trim().startsWith("* ") || processedLine.trim().startsWith("- "));
+      
+      // 3. Detect Main List Items
+      const isMainBullet = !isSubBullet && 
+                           (processedLine.trim().startsWith("* ") || processedLine.trim().startsWith("- "));
+      
+      if (isSubBullet || isMainBullet) {
+        processedLine = processedLine.trim().replace(/^[\*\-]\s*/, "");
       }
       
       const parts = processedLine.split(/\*\*([^*]+)\*\*/g);
@@ -106,16 +119,32 @@ const CustomerChatbot = () => {
         return part;
       });
 
-      if (isListItem) {
+      if (isHeader) {
         return (
-          <li key={idx} className="list-disc ml-4 mt-1">
+          <h5 key={idx} className="font-black text-sm text-[#FF7D44] mt-3.5 mb-1.5 border-b border-[#FF7D44]/15 pb-1 flex items-center">
+            {parsedText}
+          </h5>
+        );
+      }
+
+      if (isSubBullet) {
+        return (
+          <li key={idx} className="list-[circle] ml-8 mt-1 text-xs text-base-content/80 font-medium">
+            {parsedText}
+          </li>
+        );
+      }
+
+      if (isMainBullet) {
+        return (
+          <li key={idx} className="list-disc ml-4 mt-1 font-bold text-xs text-base-content/95">
             {parsedText}
           </li>
         );
       }
       
       return (
-        <p key={idx} className="mt-1">
+        <p key={idx} className="mt-1 leading-relaxed">
           {parsedText}
         </p>
       );

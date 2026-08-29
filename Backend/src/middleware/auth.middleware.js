@@ -42,3 +42,11 @@ export const isAdmin = (req, res, next) => {
         res.status(403).json({ success: false, message: "Access denied. Admins only." });
     }
 };
+
+export const isVendor = (req, res, next) => {
+    if (req.user && req.user.role === 'vendor') {
+        next();
+    } else {
+        res.status(403).json({ success: false, message: "Access denied. Vendors only." });
+    }
+};
