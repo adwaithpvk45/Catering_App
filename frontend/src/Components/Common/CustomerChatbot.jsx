@@ -81,6 +81,47 @@ const CustomerChatbot = () => {
     }
   };
 
+  const renderMessageContent = (content, isUser) => {
+    const lines = content.split("\n");
+    return lines.map((line, idx) => {
+      let processedLine = line;
+      
+      const isListItem = processedLine.trim().startsWith("* ") || processedLine.trim().startsWith("- ");
+      if (isListItem) {
+        processedLine = processedLine.replace(/^[\s]*[\*\-]\s/, "");
+      }
+      
+      const parts = processedLine.split(/\*\*([^*]+)\*\*/g);
+      const parsedText = parts.map((part, i) => {
+        if (i % 2 === 1) {
+          return (
+            <strong 
+              key={i} 
+              className={`font-black ${isUser ? "text-white underline decoration-white/30" : "text-[#FF7D44]"}`}
+            >
+              {part}
+            </strong>
+          );
+        }
+        return part;
+      });
+
+      if (isListItem) {
+        return (
+          <li key={idx} className="list-disc ml-4 mt-1">
+            {parsedText}
+          </li>
+        );
+      }
+      
+      return (
+        <p key={idx} className="mt-1">
+          {parsedText}
+        </p>
+      );
+    });
+  };
+
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -108,7 +149,7 @@ const CustomerChatbot = () => {
                   <h4 className="font-black text-sm tracking-tight leading-none">Feastify Assistant</h4>
                   <span className="text-[10px] font-bold opacity-80 flex items-center gap-1 mt-1">
                     <span className="size-1.5 rounded-full bg-success animate-ping" />
-                    Powered by Llama 3 on Groq
+                    Powered by Qwen on Groq
                   </span>
                 </div>
               </div>
@@ -134,9 +175,9 @@ const CustomerChatbot = () => {
                         : "bg-base-100 border border-base-content/5 text-base-content/90 rounded-bl-none"
                     }`}
                   >
-                    {/* Render simple markdown lists / formatting */}
-                    <div className="whitespace-pre-line space-y-1">
-                      {msg.content}
+                    {/* Render parsed list items & bold nodes */}
+                    <div className="space-y-1">
+                      {renderMessageContent(msg.content, msg.role === "user")}
                     </div>
                   </div>
                 </div>

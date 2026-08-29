@@ -79,7 +79,7 @@ export const chatWithAssistant = async (req, res) => {
     // 5. Call Groq Completion
     const chatCompletion = await groq.chat.completions.create({
       messages: groqMessages,
-      model: "llama-3.3-70b-versatile",
+      model: "qwen/qwen3.8-27b",
       temperature: 0.5,
       max_tokens: 1024,
     });

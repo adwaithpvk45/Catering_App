@@ -4,11 +4,11 @@
 ---
 
 ## 🌟 What does the AI Chatbot do?
-Feastify now features an interactive **AI Event Assistant** floating in the bottom-right corner of the customer screens. It is powered by Meta's **Llama 3** running on the ultra-fast **Groq** processor.
+Feastify now features an interactive **AI Event Assistant** floating in the bottom-right corner of the customer screens. It is powered by **Qwen** (model: `qwen/qwen3.8-27b`) running on the ultra-fast **Groq** processor.
 
 When a customer clicks the bubble and types a message, the chatbot does the following:
 1. **Pulls Live Context**: The backend queries MongoDB for active caterers, their locations, packages (price per plate), and menu dishes.
-2. **Consults Llama 3 on Groq**: It sends the user's question, the live directory context, and the past conversation history to Groq.
+2. **Consults Qwen on Groq**: It sends the user's question, the live directory context, and the past conversation history to Groq.
 3. **Responds Instantly**: It receives the reply (usually in <0.2 seconds) and displays it with a clean visual formatting.
 
 ---
@@ -40,7 +40,7 @@ If you ever need to replace or update your Groq API Key:
                                                     [ System Prompts + History ]
                                                              │
                                                              ▼
-                                                    [ Groq API (Llama 3) ]
+                                                    [ Groq API (Qwen) ]
                                                              │
                                                              ▼ (Response <0.2s)
 [ Renders response bubble ] ◄── Sends text reply ─── [ Sends JSON response ]
@@ -53,14 +53,14 @@ const response = await axios.post(`${appConfig.baseURL}/api/ai/chat`, { messages
 ```
 
 ### 2. The Backend Controller
-In [aiController.js](file:///c:/Users/ACER/Desktop/fsd/final%20project/Catering-App/Backend/src/controllers/aiController.js), we fetch active vendors, services, and dishes, formatting them into clear markdown bullets. We then construct the Llama 3 chat instruction payload:
+In [aiController.js](file:///c:/Users/ACER/Desktop/fsd/final%20project/Catering-App/Backend/src/controllers/aiController.js), we fetch active vendors, services, and dishes, formatting them into clear markdown bullets. We then construct the Qwen chat instruction payload:
 ```javascript
 const chatCompletion = await groq.chat.completions.create({
   messages: [
     { role: "system", content: systemPromptWithDBContext },
     ...messages
   ],
-  model: "llama-3.3-70b-versatile",
+  model: "qwen/qwen3.8-27b",
 });
 ```
 
