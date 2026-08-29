@@ -6,6 +6,8 @@ import dayjs from 'dayjs';
 import { motion } from 'framer-motion';
 import ApexCharts from "react-apexcharts";
 import { useThemeStore } from '../../store/useThemeStore';
+import axios from 'axios';
+import appConfig from '../../api/common/appConfig';
 import {
   Users,
   Briefcase,
@@ -56,6 +58,92 @@ function Dashboard() {
   const dispatch = useDispatch();
   const { stats: realStats } = useSelector((state) => state.admin);
   const { theme } = useThemeStore();
+  const [insights, setInsights] = useState("");
+  const [insightsLoading, setInsightsLoading] = useState(false);
+
+  const generateInsights = async () => {
+    setInsightsLoading(true);
+    try {
+      const res = await axios.get(`${appConfig.baseURL}/api/ai/admin-insights`, {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${appConfig.token}`
+        }
+      });
+      if (res.data.success) {
+        setInsights(res.data.insights);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setInsightsLoading(false);
+    }
+  };
+
+  const renderMessageContent = (content) => {
+    if (!content) return null;
+    const lines = content.split("\n");
+    return lines.map((line, idx) => {
+      let processedLine = line;
+      
+      const isHeader = processedLine.trim().startsWith("#");
+      if (isHeader) {
+        processedLine = processedLine.trim().replace(/^#+\s*/, "");
+      }
+      
+      const isSubBullet = (processedLine.startsWith(" ") || processedLine.startsWith("\t")) && 
+                          (processedLine.trim().startsWith("* ") || processedLine.trim().startsWith("- "));
+      
+      const isMainBullet = !isSubBullet && 
+                           (processedLine.trim().startsWith("* ") || processedLine.trim().startsWith("- "));
+      
+      if (isSubBullet || isMainBullet) {
+        processedLine = processedLine.trim().replace(/^[\*\-]\s*/, "");
+      }
+      
+      const parts = processedLine.split(/\*\*([^*]+)\*\*/g);
+      const parsedText = parts.map((part, i) => {
+        if (i % 2 === 1) {
+          return (
+            <strong key={i} className="font-black text-[#FF7D44]">
+              {part}
+            </strong>
+          );
+        }
+        return part;
+      });
+
+      if (isHeader) {
+        return (
+          <h5 key={idx} className="font-black text-sm text-[#FF7D44] mt-4 mb-2 border-b border-[#FF7D44]/15 pb-1 flex items-center">
+            {parsedText}
+          </h5>
+        );
+      }
+
+      if (isSubBullet) {
+        return (
+          <li key={idx} className="list-[circle] ml-8 mt-1 text-xs text-base-content/80 font-medium">
+            {parsedText}
+          </li>
+        );
+      }
+
+      if (isMainBullet) {
+        return (
+          <li key={idx} className="list-disc ml-4 mt-1 font-bold text-xs text-base-content/95">
+            {parsedText}
+          </li>
+        );
+      }
+      
+      return (
+        <p key={idx} className="mt-1 leading-relaxed text-xs font-semibold text-base-content/85">
+          {parsedText}
+        </p>
+      );
+    });
+  };
 
   useEffect(() => {
     dispatch(getStats());
@@ -272,6 +360,48 @@ function Dashboard() {
           </motion.div>
         ))}
       </div>
+
+      {/* AI Business Insights Panel */}
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+        className="p-6 bg-gradient-to-r from-[#FF7D44]/10 to-[#ff976a]/5 border border-[#FF7D44]/30 rounded-[2.5rem] shadow-xl space-y-4"
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="size-11 rounded-2xl bg-gradient-to-tr from-[#FF7D44] to-[#ff976a] flex items-center justify-center text-white shadow-lg shadow-orange-500/20">
+              <Sparkles className="size-5.5 animate-pulse" />
+            </div>
+            <div>
+              <h3 className="font-black text-sm text-base-content leading-none">AI Business Insights Copilot</h3>
+              <p className="text-[10px] font-bold text-base-content/40 uppercase tracking-wider mt-1.5">
+                Generate strategic health checks & SWOT advice from Feastify statistics
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={generateInsights}
+            disabled={insightsLoading}
+            className="btn btn-warning h-11 rounded-xl text-white font-black text-xs shadow-xl shadow-orange-500/10 px-6 cursor-pointer flex items-center gap-2 active:scale-95 transition-all disabled:opacity-50"
+          >
+            <Sparkles className="size-4" />
+            <span>{insightsLoading ? "Analyzing Metrics..." : "Generate AI Insights"}</span>
+          </button>
+        </div>
+
+        {insights && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            className="bg-base-100 rounded-3xl border border-base-content/10 p-6 overflow-hidden shadow-inner text-xs font-semibold leading-relaxed whitespace-pre-line text-base-content/90"
+          >
+            <div className="space-y-1">
+              {renderMessageContent(insights)}
+            </div>
+          </motion.div>
+        )}
+      </motion.div>
 
       {/* Charts Layout Container */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

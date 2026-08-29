@@ -37,6 +37,20 @@ const CustomerChatbot = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
+  // Reset chat thread and close widget on user login or logout changes
+  const userDetails = JSON.parse(localStorage.getItem("userDetails")) || {};
+  const currentUserId = userDetails?.existingUser?._id || "guest";
+
+  useEffect(() => {
+    setMessages([
+      {
+        role: "assistant",
+        content: "Hello! I am your Feastify Copilot. Ask me about wedding, birthday, or graduation party packages, check menu items, or get a custom caterer recommendation! How can I help you plan today?"
+      }
+    ]);
+    setIsOpen(false);
+  }, [currentUserId]);
+
   const handleSendMessage = async (textToSend) => {
     const text = textToSend || inputText;
     if (!text.trim()) return;
@@ -86,8 +100,8 @@ const CustomerChatbot = () => {
     return lines.map((line, idx) => {
       let processedLine = line;
       
-      // 1. Detect Headers (e.g. ### 1. Caterer)
-      const isHeader = processedLine.trim().startsWith("###") || processedLine.trim().startsWith("##");
+      // 1. Detect Headers (e.g. # 1. Caterer)
+      const isHeader = processedLine.trim().startsWith("#");
       if (isHeader) {
         processedLine = processedLine.trim().replace(/^#+\s*/, "");
       }

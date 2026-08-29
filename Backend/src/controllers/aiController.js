@@ -139,14 +139,14 @@ export const getAdminInsights = async (req, res) => {
       
       Generate a concise, professional Business Performance Report in markdown. Include:
       1. **Overview & Health Check**: A brief analysis of customer-to-vendor ratios and overall platform traction.
-      2. **SWOT Highlights**: Quick strengths/weaknesses.
+      2. **SWOT Highlights**: Quick strengths/weaknesses (list these as standard text or bullet points; do NOT use markdown tables or pipe character "|" syntax).
       3. **Strategic Recommendations**: Two or three concrete actions to increase booking volume and address complaints.
       
-      Keep the tone executive, positive, and direct. Do not mention dummy placeholders.
+      Keep the tone executive, positive, and direct. Do NOT format any data into markdown tables or use pipe symbols "|".
     `;
 
     const chatCompletion = await groq.chat.completions.create({
-      messages: [{ role: "system", content: systemPrompt }],
+      messages: [{ role: "user", content: systemPrompt }],
       model: "qwen/qwen3.8-27b",
       temperature: 0.6,
       max_tokens: 1024,
@@ -207,11 +207,11 @@ export const getVendorInsights = async (req, res) => {
       2. **Revenue & Pricing Insights**: Suggest pricing adjustments or packaging strategies (e.g. upselling drinks/desserts).
       3. **Growth Action Items**: Two specific tips to optimize their catering profile or dishes to drive more sales.
       
-      Keep the report structured, friendly, and highly actionable.
+      Keep the report structured, friendly, and highly actionable. Do NOT use markdown tables or pipe character "|" syntax; format everything as standard lists.
     `;
 
     const chatCompletion = await groq.chat.completions.create({
-      messages: [{ role: "system", content: systemPrompt }],
+      messages: [{ role: "user", content: systemPrompt }],
       model: "qwen/qwen3.8-27b",
       temperature: 0.6,
       max_tokens: 1024,
