@@ -34,6 +34,7 @@ import ResetPasswordPage from './Pages/ResetPasswordPage'
 import ScrollToTop from './Components/ScrollToTop'
 import ServiceDetailPage from './Pages/ServiceDetailPage'
 import CustomerChatbot from './Components/Common/CustomerChatbot'
+import BudgetPlannerPage from './Pages/BudgetPlannerPage'
 
 function DashboardRedirect() {
   const user = JSON.parse(localStorage.getItem("userDetails"))?.existingUser;
@@ -76,6 +77,7 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/food" element={<FoodPage />} />
           <Route path="/food/:id" element={<ServiceDetailPage />} />
+          <Route path="/budget-planner" element={<BudgetPlannerPage />} />
           <Route path="/dashboard" element={<DashboardRedirect />} />
 
           {/* Guest-only routes */}

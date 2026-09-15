@@ -4,6 +4,7 @@ const vendorSlice = createSlice({
   name: "vendor",
   initialState: {
     stats: null,
+    vendorInsights: null,
     bookings: [],
     services: [],
     errors: null,
@@ -14,6 +15,9 @@ const vendorSlice = createSlice({
     },
     fetchVendorStatsFail: (state, action) => {
       state.errors = action.payload;
+    },
+    fetchVendorInsightsSuccess: (state, action) => {
+      state.vendorInsights = action.payload.insights;
     },
     fetchVendorBookingsSuccess: (state, action) => {
       state.bookings = action.payload.bookings;
@@ -35,6 +39,7 @@ const vendorSlice = createSlice({
 export const {
   fetchVendorStatsSuccess,
   fetchVendorStatsFail,
+  fetchVendorInsightsSuccess,
   fetchVendorBookingsSuccess,
   fetchVendorBookingsFail,
   fetchVendorServicesSuccess,

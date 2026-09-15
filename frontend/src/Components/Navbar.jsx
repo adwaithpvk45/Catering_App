@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useThemeStore } from "../store/useThemeStore";
 import { useSelector, useDispatch } from "react-redux";
-import { Sun, Moon, UtensilsCrossed, User, LogOut, AlertTriangle } from "lucide-react";
+import { Sun, Moon, UtensilsCrossed, User, LogOut, AlertTriangle, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { logout } from "../api/LoginRegister/loginRegister";
 
@@ -79,6 +79,17 @@ function Navbar() {
                 </Link>
               </li>
             ))}
+            <li>
+              <Link
+                to="/budget-planner"
+                className={`text-lg font-bold text-[#FF7D44] flex items-center gap-1.5 ${
+                  location.pathname === "/budget-planner" ? "underline" : ""
+                }`}
+              >
+                <Sparkles className="size-4 animate-pulse" />
+                AI Budget Planner
+              </Link>
+            </li>
           </ul>
         </div>
         
@@ -98,12 +109,12 @@ function Navbar() {
       </div>
 
       <div className="navbar-center hidden lg:flex">
-        <ul className="menu menu-horizontal px-1 gap-8">
+        <ul className="menu menu-horizontal px-1 gap-7 items-center">
           {['Home', 'About', 'Services', 'Food', 'Contact'].map((item) => (
             <Link
               key={item}
               to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
-              className={`relative group font-bold tracking-tight text-lg transition-colors duration-300 ${
+              className={`relative group font-bold tracking-tight text-base transition-colors duration-300 ${
                 location.pathname === (item === 'Home' ? '/' : `/${item.toLowerCase()}`) ? "text-[#FF7D44]" : "hover:text-[#FF7D44]"
               }`}
             >
@@ -113,6 +124,16 @@ function Navbar() {
               }`}></span>
             </Link>
           ))}
+
+          <Link
+            to="/budget-planner"
+            className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black bg-[#FF7D44]/10 hover:bg-[#FF7D44] text-[#FF7D44] hover:text-white border border-[#FF7D44]/20 transition-all shadow-sm ${
+              location.pathname === "/budget-planner" ? "bg-[#FF7D44] text-white" : ""
+            }`}
+          >
+            <Sparkles className="size-3.5 animate-pulse" />
+            AI Budget Planner
+          </Link>
         </ul>
       </div>
 

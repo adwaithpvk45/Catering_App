@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getComplaints, updateStatus } from '../../../api/admin/adminActions';
+import { getComplaints, updateStatus, generateAiComplaintAssist } from '../../../api/admin/adminActions';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   MessageSquare,
@@ -17,14 +17,13 @@ import {
   Download,
   Filter,
 } from 'lucide-react';
-import axios from 'axios';
 import appConfig from '../../../api/common/appConfig';
 import toast from 'react-hot-toast';
 import { exportToCSV } from '../../../utils/csvExport';
 
 const AdminComplaintsSection = () => {
   const dispatch = useDispatch();
-  const { complaints, pagination } = useSelector((state) => state.admin) || { complaints: [], pagination: {} };
+  const { complaints, pagination, aiAssistMap } = useSelector((state) => state.admin) || { complaints: [], pagination: {}, aiAssistMap: {} };
   const complaintsPagination = pagination?.complaints || { total: 0, page: 1, limit: 5, pages: 1 };
 
   const [page, setPage] = useState(1);
@@ -33,6 +32,8 @@ const AdminComplaintsSection = () => {
   const [exportLoading, setExportLoading] = useState(false);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // AI Copilot state
   const [aiLoading, setAiLoading] = useState(false);
   const [aiResult, setAiResult] = useState(null);
   const [editedReply, setEditedReply] = useState("");
@@ -115,15 +116,14 @@ const AdminComplaintsSection = () => {
   const handleGenerateAI = async (id) => {
     setAiLoading(true);
     try {
-      const res = await axios.post(`${appConfig.baseURL}/api/admin/complaints/${id}/ai-assist`, {}, {
-        withCredentials: true,
-        headers: {
-          Authorization: `Bearer ${appConfig.token}`
-        }
-      });
-      if (res.data.success) {
-        setAiResult(res.data.analysis);
-        setEditedReply(res.data.analysis.draftReply || "");
+      const res = await dispatch(generateAiComplaintAssist(id));
+      if (res && res.success) {
+        setAiResult({
+          urgency: res.urgency,
+          sentiment: res.sentiment,
+          draftReply: res.suggestedReply
+        });
+        setEditedReply(res.suggestedReply || "");
       } else {
         toast.error("Failed to generate AI reply.");
       }

@@ -55,6 +55,34 @@ export const getBookings = (page = 1, limit = 5, search = "", status = "", payme
     }, dispatch);
 };
 
+export const getAdminInsights = () => async (dispatch) => {
+    return await commonFunction({
+        api: "/api/ai/admin-insights",
+        method: "GET",
+        successAction: "admin/fetchAdminInsightsSuccess",
+    }, dispatch);
+};
+
+export const generateAiComplaintAssist = (id) => async (dispatch) => {
+    const res = await commonFunction({
+        api: `/api/admin/complaints/${id}/ai-assist`,
+        method: "POST",
+    }, dispatch);
+
+    if (res && res.success) {
+        dispatch({
+            type: "admin/fetchAiAssistSuccess",
+            payload: {
+                complaintId: id,
+                urgency: res.urgency,
+                sentiment: res.sentiment,
+                suggestedReply: res.suggestedReply
+            }
+        });
+    }
+    return res;
+};
+
 export const toggleAccountStatusAction = (id, status, role, page = 1, limit = 5, search = "", statusFilter = "") => async (dispatch) => {
     const res = await commonFunction({
         api: `/api/admin/status/${id}`,

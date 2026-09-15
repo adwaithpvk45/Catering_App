@@ -26,3 +26,11 @@ export const getVendorServices = () => async (dispatch) => {
         failureAction: "vendor/fetchVendorServicesFail",
     }, dispatch);
 };
+
+export const getVendorInsights = () => async (dispatch) => {
+    return await commonFunction({
+        api: "/api/ai/vendor-insights",
+        method: "GET",
+        successAction: "vendor/fetchVendorInsightsSuccess",
+    }, dispatch);
+};

@@ -55,41 +55,86 @@ const CustomerChatbot = () => {
     const text = textToSend || inputText;
     if (!text.trim()) return;
 
-    // Append user message
+    // Append user message to state
     const newMessages = [...messages, { role: "user", content: text }];
     setMessages(newMessages);
     setInputText("");
     setLoading(true);
 
+    // Add empty assistant placeholder message for real-time token append
+    setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
+
     try {
-      const response = await axios.post(
-        `${appConfig.baseURL}/api/ai/chat`,
-        { messages: newMessages },
-        {
-          withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${appConfig.token}`
+      const response = await fetch(`${appConfig.baseURL}/api/ai/chat-stream`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${appConfig.token || ""}`
+        },
+        body: JSON.stringify({ messages: newMessages })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server returned status ${response.status}`);
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let done = false;
+      let streamedText = "";
+      let buffer = "";
+
+      setLoading(false);
+
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        if (value) {
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          // Keep incomplete line in buffer
+          buffer = lines.pop() || "";
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (trimmed.startsWith("data: ")) {
+              const dataStr = trimmed.substring(6).trim();
+              if (dataStr === "[DONE]") {
+                done = true;
+                break;
+              }
+              try {
+                const parsed = JSON.parse(dataStr);
+                if (parsed.text) {
+                  streamedText += parsed.text;
+                  setMessages((prev) => {
+                    const updated = [...prev];
+                    updated[updated.length - 1] = {
+                      role: "assistant",
+                      content: streamedText
+                    };
+                    return updated;
+                  });
+                }
+              } catch (e) {
+                // Ignore parse errors on partial chunks
+              }
+            }
           }
         }
-      );
-
-      if (response.data.success) {
-        setMessages((prev) => [
-          ...prev,
-          { role: "assistant", content: response.data.reply }
-        ]);
-      } else {
-        setMessages((prev) => [
-          ...prev,
-          { role: "assistant", content: "Oops! I encountered an error drafting my reply. Please try again." }
-        ]);
       }
     } catch (err) {
-      console.error(err);
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: "Sorry, I am offline. Please verify that the backend server is running and has your GROQ_API_KEY configured." }
-      ]);
+      console.error("SSE Streaming Error:", err);
+      setMessages((prev) => {
+        const updated = [...prev];
+        if (!updated[updated.length - 1].content) {
+          updated[updated.length - 1] = {
+            role: "assistant",
+            content: "Sorry, I am offline. Please verify that the backend server is running and has your GROQ_API_KEY configured."
+          };
+        }
+        return updated;
+      });
     } finally {
       setLoading(false);
     }

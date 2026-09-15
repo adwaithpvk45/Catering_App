@@ -1,12 +1,10 @@
- 
 import React, { useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getStats } from '../../api/admin/adminActions';
+import { getStats, getAdminInsights } from '../../api/admin/adminActions';
 import dayjs from 'dayjs';
 import { motion } from 'framer-motion';
 import ApexCharts from "react-apexcharts";
 import { useThemeStore } from '../../store/useThemeStore';
-import axios from 'axios';
 import appConfig from '../../api/common/appConfig';
 import {
   Users,
@@ -56,29 +54,22 @@ const ClockWidget = () => {
 
 function Dashboard() {
   const dispatch = useDispatch();
-  const { stats: realStats } = useSelector((state) => state.admin);
+  const { stats: realStats, adminInsights } = useSelector((state) => state.admin);
   const { theme } = useThemeStore();
-  const [insights, setInsights] = useState("");
   const [insightsLoading, setInsightsLoading] = useState(false);
 
   const generateInsights = async () => {
     setInsightsLoading(true);
     try {
-      const res = await axios.get(`${appConfig.baseURL}/api/ai/admin-insights`, {
-        withCredentials: true,
-        headers: {
-          Authorization: `Bearer ${appConfig.token}`
-        }
-      });
-      if (res.data.success) {
-        setInsights(res.data.insights);
-      }
+      await dispatch(getAdminInsights());
     } catch (err) {
       console.error(err);
     } finally {
       setInsightsLoading(false);
     }
   };
+
+  const insights = adminInsights || "";
 
   const renderMessageContent = (content) => {
     if (!content) return null;

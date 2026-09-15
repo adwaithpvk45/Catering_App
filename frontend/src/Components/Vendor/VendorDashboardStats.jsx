@@ -1,11 +1,9 @@
- 
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getVendorStats } from '../../api/vendor/vendorActions';
+import { getVendorStats, getVendorInsights } from '../../api/vendor/vendorActions';
 import Chart from 'react-apexcharts';
 import { motion } from 'framer-motion';
 import { useThemeStore } from '../../store/useThemeStore';
-import axios from 'axios';
 import appConfig from '../../api/common/appConfig';
 import { 
   UtensilsCrossed, 
@@ -22,29 +20,22 @@ import {
 
 function VendorDashboardStats() {
   const dispatch = useDispatch();
-  const { stats, errors } = useSelector((state) => state.vendor);
+  const { stats, vendorInsights, errors } = useSelector((state) => state.vendor);
   const { theme } = useThemeStore();
-  const [insights, setInsights] = useState("");
   const [insightsLoading, setInsightsLoading] = useState(false);
 
   const generateInsights = async () => {
     setInsightsLoading(true);
     try {
-      const res = await axios.get(`${appConfig.baseURL}/api/ai/vendor-insights`, {
-        withCredentials: true,
-        headers: {
-          Authorization: `Bearer ${appConfig.token}`
-        }
-      });
-      if (res.data.success) {
-        setInsights(res.data.insights);
-      }
+      await dispatch(getVendorInsights());
     } catch (err) {
       console.error(err);
     } finally {
       setInsightsLoading(false);
     }
   };
+
+  const insights = vendorInsights || "";
 
   const renderMessageContent = (content) => {
     if (!content) return null;

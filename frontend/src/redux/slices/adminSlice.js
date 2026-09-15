@@ -14,6 +14,8 @@ const adminSlice = createSlice({
       complaints: { total: 0, page: 1, limit: 5, pages: 1 }
     },
     stats: null,
+    adminInsights: null,
+    aiAssistMap: {},
     errors: null,
   },
   reducers: {
@@ -52,6 +54,14 @@ const adminSlice = createSlice({
     fetchStatsSuccess: (state, action) => {
       state.stats = action.payload.stats;
     },
+    fetchAdminInsightsSuccess: (state, action) => {
+      state.adminInsights = action.payload.insights;
+    },
+    fetchAiAssistSuccess: (state, action) => {
+      if (action.payload.complaintId) {
+        state.aiAssistMap[action.payload.complaintId] = action.payload;
+      }
+    },
     updateComplaintStatusSuccess: (state, action) => {
         const updated = action.payload.updatedComplaint;
         state.complaints = state.complaints.map(c => c._id === updated._id ? updated : c);
@@ -69,6 +79,8 @@ export const {
   fetchBookingsSuccess,
   fetchBookingsFail,
   fetchStatsSuccess,
+  fetchAdminInsightsSuccess,
+  fetchAiAssistSuccess,
   updateComplaintStatusSuccess
 } = adminSlice.actions;
 export default adminSlice.reducer;
