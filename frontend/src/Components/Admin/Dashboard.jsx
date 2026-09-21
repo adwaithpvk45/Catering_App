@@ -5,7 +5,8 @@ import dayjs from 'dayjs';
 import { motion } from 'framer-motion';
 import ApexCharts from "react-apexcharts";
 import { useThemeStore } from '../../store/useThemeStore';
-import appConfig from '../../api/common/appConfig';
+import axiosInstance from '../../api/common/axiosInstance';
+import CatererDistributionMap from '../Common/CatererDistributionMap';
 import {
   Users,
   Briefcase,
@@ -57,6 +58,21 @@ function Dashboard() {
   const { stats: realStats, adminInsights } = useSelector((state) => state.admin);
   const { theme } = useThemeStore();
   const [insightsLoading, setInsightsLoading] = useState(false);
+  const [mapVendors, setMapVendors] = useState([]);
+
+  useEffect(() => {
+    const fetchMapVendors = async () => {
+      try {
+        const res = await axiosInstance.get('/api/admin/vendors-distribution');
+        if (res.data?.success) {
+          setMapVendors(res.data.vendors || []);
+        }
+      } catch (err) {
+        console.error("Error fetching map vendors for dashboard:", err);
+      }
+    };
+    fetchMapVendors();
+  }, []);
 
   const generateInsights = async () => {
     setInsightsLoading(true);
@@ -439,6 +455,21 @@ function Dashboard() {
         </motion.div>
 
       </div>
+ 
+      {/* Caterers Regional Coverage Map (OMS) */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        className="w-full"
+      >
+        <CatererDistributionMap
+          vendors={mapVendors}
+          height="450px"
+          title="Caterers Regional Distribution (OMS)"
+          subtitle="Real-time OpenStreetMap geographic tracking of catering service providers across regions"
+        />
+      </motion.div>
 
     </div>
   );

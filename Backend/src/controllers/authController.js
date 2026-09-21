@@ -120,9 +120,9 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Incorrect password" });
     }
 
-    generateToken(existingUser._id, existingUser.role, res);
+    const token = generateToken(existingUser._id, existingUser.role, res);
 
-    res.status(200).json({ message: "Loggedin successfully", existingUser });
+    res.status(200).json({ message: "Loggedin successfully", existingUser, token });
   } catch (error) {
     console.error({ message: error });
     res.status(500).json({ message: error.message });

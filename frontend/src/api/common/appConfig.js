@@ -4,7 +4,12 @@ const appConfig = {
 
   // Always get latest token
   get token() {
-    return localStorage.getItem('token');
+    try {
+      const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
+      return userDetails?.token || localStorage.getItem('token');
+    } catch {
+      return localStorage.getItem('token');
+    }
   },
 };
 

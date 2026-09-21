@@ -5,10 +5,18 @@ import Admin from "../models/adminModel.js";
 
 export const protectedRoute = async (req, res, next) => {
   try {
-    const token = req.cookies.jwt;
+    let token = req.cookies?.jwt;
+
+    if (!token && req.headers?.authorization) {
+      if (req.headers.authorization.startsWith("Bearer ")) {
+        token = req.headers.authorization.split(" ")[1];
+      } else {
+        token = req.headers.authorization;
+      }
+    }
 
     if (!token) {
-      return res.status(201).json({ message: "unauthorized access --- token not present" });
+      return res.status(401).json({ message: "unauthorized access --- token not present" });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);

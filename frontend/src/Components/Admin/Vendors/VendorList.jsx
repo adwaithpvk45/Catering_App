@@ -6,11 +6,13 @@ import dayjs from "dayjs";
 import TableContent from "../../../common ui/Table";
 import UserDetails from "../Users/UserDetails";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Sparkles, AlertCircle, Download, Filter } from "lucide-react";
+import { Search, Sparkles, AlertCircle, Download, Filter, MapPin, LayoutList } from "lucide-react";
 import axios from "axios";
+import axiosInstance from "../../../api/common/axiosInstance";
 import appConfig from "../../../api/common/appConfig";
 import toast from "react-hot-toast";
 import { exportToCSV } from "../../../utils/csvExport";
+import CatererDistributionMap from "../../Common/CatererDistributionMap";
 
 export default function VendorsList() {
   const dispatch = useDispatch();
@@ -25,6 +27,29 @@ export default function VendorsList() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [blockConfirmOpen, setBlockConfirmOpen] = useState(false);
   const [targetUser, setTargetUser] = useState(null);
+  const [viewMode, setViewMode] = useState("table"); // "table" | "map"
+  const [mapVendors, setMapVendors] = useState([]);
+  const [mapLoading, setMapLoading] = useState(false);
+
+  const fetchMapVendors = async () => {
+    setMapLoading(true);
+    try {
+      const res = await axiosInstance.get('/api/admin/vendors-distribution');
+      if (res.data.success) {
+        setMapVendors(res.data.vendors);
+      }
+    } catch (err) {
+      console.error("Error fetching map vendors:", err);
+    } finally {
+      setMapLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (viewMode === "map") {
+      fetchMapVendors();
+    }
+  }, [viewMode]);
 
   const handleDrawerClose = () => {
     setDrawerOpen(false);
@@ -33,6 +58,19 @@ export default function VendorsList() {
 
   const handleDrawerOpen = (data) => {
     setSelectedUser(data);
+    setDrawerOpen(true);
+  };
+
+  const handleMapVendorSelect = (vendor) => {
+    setSelectedUser({
+      id: vendor._id || vendor.id,
+      name: vendor.name,
+      email: vendor.email,
+      status: vendor.status,
+      phone: vendor.phone,
+      location: vendor.location,
+      createdTime: dayjs(vendor.createdAt).format("YYYY-MM-DD")
+    });
     setDrawerOpen(true);
   };
 
@@ -129,75 +167,129 @@ export default function VendorsList() {
         transition={{ duration: 0.4 }}
         className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
       >
-        <div>
-          <h2 className="text-2xl font-black text-base-content tracking-tight leading-none flex items-center gap-2">
-            Vendors Management
-            <Sparkles className="size-6 text-[#FF7D44]" />
-          </h2>
-          <p className="text-xs font-semibold text-base-content/50 mt-1.5">
-            Admin dashboard control panel for monitoring catering hosts, verifying approvals, and managing blocklists.
-          </p>
-        </div>
-      </motion.div>
-
-      {/* Filter and Search Panel */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.05 }}
-        className="flex flex-wrap items-center justify-between gap-4 p-5 bg-base-100 rounded-3xl border border-base-content/10 shadow-lg"
-      >
-        <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
-          {/* Search Box */}
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4.5 opacity-40" />
-            <input
-              type="text"
-              placeholder="Search by vendor name, email..."
-              value={searchQuery}
-              onChange={handleSearchChange}
-              className="w-full bg-base-200 h-11 rounded-2xl pl-11 pr-4 font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 transition-all text-xs"
-            />
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full gap-4">
+          <div>
+            <h2 className="text-2xl font-black text-base-content tracking-tight leading-none flex items-center gap-2">
+              Vendors Management
+              <Sparkles className="size-6 text-[#FF7D44]" />
+            </h2>
+            <p className="text-xs font-semibold text-base-content/50 mt-1.5">
+              Admin dashboard control panel for monitoring catering hosts, verifying approvals, and managing blocklists.
+            </p>
           </div>
 
-          {/* Status Dropdown */}
-          <div className="relative">
-            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 size-4 opacity-40 text-base-content" />
-            <select
-              value={statusFilter}
-              onChange={handleStatusChange}
-              className="select bg-base-200 h-11 rounded-2xl pl-9 pr-8 font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 text-xs cursor-pointer appearance-none min-w-[130px]"
+          {/* View Mode Switcher */}
+          <div className="flex items-center gap-1.5 p-1.5 bg-base-200/80 border border-base-content/10 rounded-2xl shadow-inner">
+            <button
+              onClick={() => setViewMode("table")}
+              className={`btn btn-xs sm:btn-sm rounded-xl font-bold gap-2 transition-all cursor-pointer ${
+                viewMode === "table"
+                  ? "btn-primary text-white shadow-md"
+                  : "btn-ghost text-base-content/70 hover:text-base-content"
+              }`}
             >
-              <option value="">All Statuses</option>
-              <option value="active">Active</option>
-              <option value="blocked">Blocked</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleExport}
-            disabled={exportLoading}
-            className="btn btn-ghost btn-sm h-11 rounded-2xl border border-base-content/10 hover:bg-base-200 text-xs font-black px-4 flex items-center gap-2 cursor-pointer disabled:opacity-50"
-          >
-            <Download className="size-4" />
-            <span>{exportLoading ? "Exporting..." : "Export CSV"}</span>
-          </button>
-          <div className="text-[10px] font-black uppercase tracking-widest opacity-40 pr-2">
-            {vendorPagination.total} Active Hosts
+              <LayoutList className="size-4" />
+              <span>Table View</span>
+            </button>
+            <button
+              onClick={() => setViewMode("map")}
+              className={`btn btn-xs sm:btn-sm rounded-xl font-bold gap-2 transition-all cursor-pointer ${
+                viewMode === "map"
+                  ? "btn-primary text-white shadow-md"
+                  : "btn-ghost text-base-content/70 hover:text-base-content"
+              }`}
+            >
+              <MapPin className="size-4 text-emerald-400" />
+              <span>Map View (OSM)</span>
+            </button>
           </div>
         </div>
       </motion.div>
 
-      {/* Table Content */}
-      <TableContent
-        users={formattedVendors}
-        pagination={vendorPagination}
-        onPageChange={(newPage) => setPage(newPage)}
-        handleBlockUnblock={handleBlockUnblock}
-        handleDrawerOpen={handleDrawerOpen}
-      />
+      {viewMode === "map" ? (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
+          className="w-full"
+        >
+          {mapLoading ? (
+            <div className="h-[520px] rounded-3xl bg-base-100 border border-base-content/10 flex flex-col items-center justify-center gap-3">
+              <span className="loading loading-spinner loading-lg text-primary"></span>
+              <p className="text-sm font-semibold text-base-content/60">Loading caterer coordinates on OpenStreetMap...</p>
+            </div>
+          ) : (
+            <CatererDistributionMap
+              vendors={mapVendors.length ? mapVendors : vendors}
+              height="620px"
+              onSelectVendor={handleMapVendorSelect}
+              title="Caterers Geographic Distribution (OMS)"
+              subtitle="Live OpenStreetMap visualization of catering partners, location pins, and delivery coverage"
+            />
+          )}
+        </motion.div>
+      ) : (
+        <>
+          {/* Filter and Search Panel */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.05 }}
+            className="flex flex-wrap items-center justify-between gap-4 p-5 bg-base-100 rounded-3xl border border-base-content/10 shadow-lg"
+          >
+            <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
+              {/* Search Box */}
+              <div className="relative w-full sm:w-64">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4.5 opacity-40" />
+                <input
+                  type="text"
+                  placeholder="Search by vendor name, email..."
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  className="w-full bg-base-200 h-11 rounded-2xl pl-11 pr-4 font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 transition-all text-xs"
+                />
+              </div>
+
+              {/* Status Dropdown */}
+              <div className="relative">
+                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 size-4 opacity-40 text-base-content" />
+                <select
+                  value={statusFilter}
+                  onChange={handleStatusChange}
+                  className="select bg-base-200 h-11 rounded-2xl pl-9 pr-8 font-bold outline-none border border-transparent focus:border-[#FF7D44]/30 text-xs cursor-pointer appearance-none min-w-[130px]"
+                >
+                  <option value="">All Statuses</option>
+                  <option value="active">Active</option>
+                  <option value="blocked">Blocked</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleExport}
+                disabled={exportLoading}
+                className="btn btn-ghost btn-sm h-11 rounded-2xl border border-base-content/10 hover:bg-base-200 text-xs font-black px-4 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                <Download className="size-4" />
+                <span>{exportLoading ? "Exporting..." : "Export CSV"}</span>
+              </button>
+              <div className="text-[10px] font-black uppercase tracking-widest opacity-40 pr-2">
+                {vendorPagination.total} Active Hosts
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Table Content */}
+          <TableContent
+            users={formattedVendors}
+            pagination={vendorPagination}
+            onPageChange={(newPage) => setPage(newPage)}
+            handleBlockUnblock={handleBlockUnblock}
+            handleDrawerOpen={handleDrawerOpen}
+          />
+        </>
+      )}
 
       {/* User Details Drawer */}
       <AnimatePresence>
