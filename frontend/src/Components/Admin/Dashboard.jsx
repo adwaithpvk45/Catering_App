@@ -7,6 +7,8 @@ import ApexCharts from "react-apexcharts";
 import { useThemeStore } from '../../store/useThemeStore';
 import axiosInstance from '../../api/common/axiosInstance';
 import CatererDistributionMap from '../Common/CatererDistributionMap';
+import axiosInstance from '../../api/common/axiosInstance';
+import CatererDistributionMap from '../Common/CatererDistributionMap';
 import {
   Users,
   Briefcase,
