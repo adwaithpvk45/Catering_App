@@ -5,7 +5,8 @@ import dayjs from 'dayjs';
 import { motion } from 'framer-motion';
 import ApexCharts from "react-apexcharts";
 import { useThemeStore } from '../../store/useThemeStore';
-import appConfig from '../../api/common/appConfig';
+import axiosInstance from '../../api/common/axiosInstance';
+import CatererDistributionMap from '../Common/CatererDistributionMap';
 import {
   Users,
   Briefcase,
@@ -57,6 +58,25 @@ function Dashboard() {
   const { stats: realStats, adminInsights } = useSelector((state) => state.admin);
   const { theme } = useThemeStore();
   const [insightsLoading, setInsightsLoading] = useState(false);
+  const [mapVendors, setMapVendors] = useState([]);
+  const [demandPoints, setDemandPoints] = useState([]);
+  const [marketSummary, setMarketSummary] = useState(null);
+
+  useEffect(() => {
+    const fetchMapDistribution = async () => {
+      try {
+        const res = await axiosInstance.get('/api/admin/demand-supply-distribution');
+        if (res.data?.success) {
+          setMapVendors(res.data.vendors || []);
+          setDemandPoints(res.data.demandPoints || []);
+          setMarketSummary(res.data.summary || null);
+        }
+      } catch (err) {
+        console.error("Error fetching map distribution for dashboard:", err);
+      }
+    };
+    fetchMapDistribution();
+  }, []);
 
   const generateInsights = async () => {
     setInsightsLoading(true);
@@ -439,6 +459,23 @@ function Dashboard() {
         </motion.div>
 
       </div>
+ 
+      {/* Caterers Regional Coverage Map (OMS) */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        className="w-full"
+      >
+        <CatererDistributionMap
+          vendors={mapVendors}
+          demandPoints={demandPoints}
+          marketSummary={marketSummary}
+          height="520px"
+          title="Caterers & Demand Heatmap (OMS)"
+          subtitle="Real-time OpenStreetMap tracking of caterer supply vs customer event demand across regions"
+        />
+      </motion.div>
 
     </div>
   );

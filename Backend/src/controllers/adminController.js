@@ -134,7 +134,7 @@ export const getAllVendors = async (req, res) => {
         const total = await Vendor.countDocuments(query);
         let vendorsQuery = Vendor.find(query).select("-password").sort({ createdAt: -1 });
 
-        if (req.query.export !== 'true') {
+        if (req.query.export !== 'true' && req.query.map !== 'true') {
             vendorsQuery = vendorsQuery.skip(skip).limit(limit);
         }
 

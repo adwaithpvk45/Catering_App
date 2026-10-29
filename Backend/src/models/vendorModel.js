@@ -36,6 +36,10 @@ const vendorSchema = mongoose.Schema({
             // required:true,
             default:""
         },
+    coordinates:{
+            lat: { type: Number, default: 0 },
+            lng: { type: Number, default: 0 }
+        },
     role:{
             type:String,
             default:"vendor",
